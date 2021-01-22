@@ -25,15 +25,15 @@ public class CustomUserDetailService implements UserDetailsService {
 	private AccountRepo accountRepo;
 
 	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		Account account = accountRepo.findByEmail(email);
+	public UserDetails loadUserByUsername(String document) throws UsernameNotFoundException {
+		Account account = accountRepo.findByDocument(document);
 
 		if(account == null) return null;
 
 		List<GrantedAuthority> roles = new ArrayList<>();
 		roles.add(new SimpleGrantedAuthority(account.getRole().getName()));
 
-		UserDetails userDet = new User(account.getEmail(), account.getPassword(), roles);
+		UserDetails userDet = new User(account.getDocument(), account.getPassword(), roles);
 
 		return userDet;
 	}
@@ -41,7 +41,7 @@ public class CustomUserDetailService implements UserDetailsService {
 	public Map<String, Object> createClaims(UserDetails userDetails){
 		Map<String, Object> claims = new HashMap<>();
 
-		Account account = accountRepo.findByEmail(userDetails.getUsername());
+		Account account = accountRepo.findByDocument(userDetails.getUsername());
 
 		claims.put(ClaimsTypes.ROLE.toString(), (Object)account.getRole().getName());
 

@@ -20,8 +20,8 @@ public class PersonService {
 	@Autowired
 	private AccountRepo accountRepo;
 
-	public Person insert(PersonRequest personRequest, String email) {
-		Account account = accountRepo.findByEmail(email);
+	public Person insert(PersonRequest personRequest, String document) {
+		Account account = accountRepo.findByDocument(document);
 
 		Person person = new Person();
 		person.setDocument(personRequest.getDocument());
@@ -42,13 +42,13 @@ public class PersonService {
 		return personRepo.findAll();
 	}
 
-	public Person findByEmail(String email) {
-		return accountRepo.findByEmail(email).getPerson();
+	public Person findByDocument(String document) {
+		return accountRepo.findByDocument(document).getPerson();
 	}
 
-	public Person modify(String email, Person person) {
+	public Person modify(String document, Person person) {
 
-		Account account = accountRepo.findByEmail(email);
+		Account account = accountRepo.findByDocument(document);
 
 		Person personRecovered = personRepo.findByDocument(person.getDocument());
 
@@ -68,9 +68,9 @@ public class PersonService {
 		return personResult;
 	}
 
-	public void delete(String email) {
+	public void delete(String document) {
 
-		Account account = accountRepo.findByEmail(email);
+		Account account = accountRepo.findByDocument(document);
 
 		Person personToDelete = account.getPerson();
 

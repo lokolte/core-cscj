@@ -26,7 +26,7 @@ public class Account implements Serializable {
 	private Integer id;
 
 	@Column(unique=true, nullable=false, length=100)
-	private String email;
+	private String document;
 
 	@Column(nullable=false, length=100)
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -55,12 +55,12 @@ public class Account implements Serializable {
 		this.id = id;
 	}
 
-	public String getEmail() {
-		return this.email;
+	public String getDocument() {
+		return this.document;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setDocument(String document) {
+		this.document = document;
 	}
 
 	public String getPassword() {

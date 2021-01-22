@@ -29,7 +29,7 @@ public class AccountService {
 		else role = roleRepo.findByName(Roles.ALUMNO.toString());
 		
 		Account account = new Account();
-		account.setEmail(accountRequest.getEmail());
+		account.setDocument(accountRequest.getDocument());
 		account.setPassword(accountRequest.getPassword());
 		account.setRole(role);
 		
@@ -48,14 +48,14 @@ public class AccountService {
 		Role role = roleRepo.findByName(accountRequest.getRole().getName());
 		
 		Account account = new Account();
-		account.setEmail(accountRequest.getEmail());
+		account.setDocument(accountRequest.getDocument());
 		account.setPassword(accountRequest.getPassword());
 		account.setRole(role);
 		
 		return accountRepo.save(account);
 	}
 	
-	public void deleteById(String email) {
-		accountRepo.delete(accountRepo.findByEmail(email));
+	public void deleteById(String document) {
+		accountRepo.delete(accountRepo.findByDocument(document));
 	}
 }

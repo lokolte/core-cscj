@@ -5,18 +5,18 @@ import java.io.Serializable;
 public class AccountRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String email;
+	private String document;
 
 	private String password;
 
 	private RoleRequest role;
 
-	public String getEmail() {
-		return email;
+	public String getDocument() {
+		return document;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setDocument(String document) {
+		this.document = document;
 	}
 
 	public String getPassword() {

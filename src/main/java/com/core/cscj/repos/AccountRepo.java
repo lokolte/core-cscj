@@ -6,6 +6,6 @@ import com.core.cscj.models.entities.Account;
 
 public interface AccountRepo extends JpaRepository<Account, Integer>{
 	
-	Account findByEmail(String email);
+	Account findByDocument(String document);
 
 }

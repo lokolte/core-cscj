@@ -21,13 +21,13 @@ import com.core.cscj.services.CustomUserDetailService;
 @RestController
 @RequestMapping("/authentication")
 public class AuthenticationController {
-	
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
 	@Autowired
 	private JwtUtil jwtTokenUtil;
-	
+
 	@Autowired
 	private AccountRepo accountRepo;
 
@@ -36,19 +36,19 @@ public class AuthenticationController {
 
 	@RequestMapping(value = "/authenticate", method=RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-		
+
 		try {
 			authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword())
+					new UsernamePasswordAuthenticationToken(authenticationRequest.getDocument(), authenticationRequest.getPassword())
 			);
 		} catch (BadCredentialsException e) {
 			throw new Exception("Usuario o contraseña incorrectos.", e);
 		}
 
-		Account account = accountRepo.findByEmail(authenticationRequest.getEmail());
+		Account account = accountRepo.findByDocument(authenticationRequest.getDocument());
 
 		final UserDetails userDetails = customUserDetailService
-				.loadUserByUsername(authenticationRequest.getEmail());
+				.loadUserByUsername(authenticationRequest.getDocument());
 
 		final String jwt = jwtTokenUtil.generateToken(userDetails);
 

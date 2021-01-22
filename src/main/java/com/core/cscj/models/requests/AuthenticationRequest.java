@@ -4,16 +4,16 @@ import java.io.Serializable;
 
 public class AuthenticationRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
-	private String email;
+
+	private String document;
     private String password;
 
-    public String getEmail() {
-        return email;
+    public String getDocument() {
+        return document;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setDocument(String document) {
+        this.document = document;
     }
 
     public String getPassword() {
@@ -27,11 +27,10 @@ public class AuthenticationRequest implements Serializable {
     //need default constructor for JSON Parsing
     public AuthenticationRequest()
     {
-
     }
 
-    public AuthenticationRequest(String email, String password) {
-        this.setEmail(email);
+    public AuthenticationRequest(String document, String password) {
+        this.setDocument(document);
         this.setPassword(password);
     }
 }
