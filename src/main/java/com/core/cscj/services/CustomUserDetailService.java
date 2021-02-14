@@ -31,7 +31,7 @@ public class CustomUserDetailService implements UserDetailsService {
 		if(account == null) return null;
 
 		List<GrantedAuthority> roles = new ArrayList<>();
-		roles.add(new SimpleGrantedAuthority(account.getRole().getName()));
+		account.getRoles().forEach(role -> roles.add(new SimpleGrantedAuthority(role.getName())));
 
 		UserDetails userDet = new User(account.getDocument(), account.getPassword(), roles);
 
@@ -43,7 +43,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
 		Account account = accountRepo.findByDocument(userDetails.getUsername());
 
-		claims.put(ClaimsTypes.ROLE.toString(), (Object)account.getRole().getName());
+		account.getRoles().forEach(role -> claims.put(ClaimsTypes.ROLES.toString(), role.getName()));
 
 		return claims;
 	}

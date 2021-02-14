@@ -2,6 +2,8 @@ package com.core.cscj.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,44 +19,47 @@ import com.core.cscj.repos.RoleRepo;
 public class AccountService {	
 	@Autowired
 	private RoleRepo roleRepo;
-	
+
 	@Autowired
 	private AccountRepo accountRepo;
-	
+
 	public Account insert(AccountRequest accountRequest) {
-		Role role = null;
-		
-		if(accountRequest.getRole() != null)
-			role = roleRepo.findByName(accountRequest.getRole().getName());
-		else role = roleRepo.findByName(Roles.ALUMNO.toString());
-		
+		Set<Role> roles = new HashSet();
+
+		if(accountRequest.getRoles() != null)
+			accountRequest.getRoles().forEach(role -> roles.add(roleRepo.findByName(role.getName())));
+		else roles.add(roleRepo.findByName(Roles.ALUMNO.toString()));
+
 		Account account = new Account();
 		account.setDocument(accountRequest.getDocument());
 		account.setPassword(accountRequest.getPassword());
-		account.setRole(role);
-		
+		account.setRoles(roles);
+
 		return accountRepo.save(account);
 	}
-	
+
 	public List<Account> findAll(){
 		return accountRepo.findAll();
 	}
-	
+
 	public Optional<Account> findById(Integer id) {
 		return accountRepo.findById(id);
 	}
-	
+
 	public Account modify(AccountRequest accountRequest){
-		Role role = roleRepo.findByName(accountRequest.getRole().getName());
-		
+		Set<Role> roles = new HashSet();
+
+		if(accountRequest.getRoles() != null)
+			accountRequest.getRoles().forEach(role -> roles.add(roleRepo.findByName(role.getName())));
+
 		Account account = new Account();
 		account.setDocument(accountRequest.getDocument());
 		account.setPassword(accountRequest.getPassword());
-		account.setRole(role);
-		
+		account.setRoles(roles);
+
 		return accountRepo.save(account);
 	}
-	
+
 	public void deleteById(String document) {
 		accountRepo.delete(accountRepo.findByDocument(document));
 	}

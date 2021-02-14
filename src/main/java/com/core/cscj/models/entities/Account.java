@@ -1,6 +1,7 @@
 package com.core.cscj.models.entities;
 
 import java.io.Serializable;
+import java.util.Set;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -21,7 +22,7 @@ public class Account implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(unique=true, nullable=false)
 	private Integer id;
 
@@ -38,11 +39,11 @@ public class Account implements Serializable {
 	@JsonIgnoreProperties("accounts")
 	private Person person;
 
-	//bi-directional many-to-one association to Role
-	@ManyToOne
-	@JoinColumn(name="role_id")
-	@JsonIgnoreProperties("accounts")
-	private Role role;
+	@ManyToMany
+	@JoinTable(name = "account_roles",
+			joinColumns = @JoinColumn(name = "account_id"),
+			inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles;
 
 	public Account() {
 	}
@@ -79,12 +80,12 @@ public class Account implements Serializable {
 		this.person = person;
 	}
 
-	public Role getRole() {
-		return this.role;
+	public Set<Role> getRoles() {
+		return this.roles;
 	}
 
-	public void setRole(Role role) {
-		this.role = role;
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 
 }

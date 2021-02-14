@@ -5,10 +5,12 @@ import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -23,18 +25,18 @@ public class Role implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(unique=true, nullable=false)
 	private Integer id;
 
 	@Column(nullable=false, length=100)
 	private String name;
 
-	//bi-directional many-to-one association to Account
-	@OneToMany(mappedBy="role")
-	@JsonIgnoreProperties("role")
+	@ManyToMany(mappedBy = "roles")
+	@JsonIgnoreProperties("roles")
 	@EqualsAndHashCode.Exclude
-	private List<Account> accounts;
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Set<Account> accounts;
 
 	public Role() {
 	}
@@ -55,26 +57,12 @@ public class Role implements Serializable {
 		this.name = name;
 	}
 
-	public List<Account> getAccounts() {
+	public Set<Account> getAccounts() {
 		return this.accounts;
 	}
 
-	public void setAccounts(List<Account> accounts) {
+	public void setAccounts(Set<Account> accounts) {
 		this.accounts = accounts;
-	}
-
-	public Account addAccount(Account account) {
-		getAccounts().add(account);
-		account.setRole(this);
-
-		return account;
-	}
-
-	public Account removeAccount(Account account) {
-		getAccounts().remove(account);
-		account.setRole(null);
-
-		return account;
 	}
 
 }
