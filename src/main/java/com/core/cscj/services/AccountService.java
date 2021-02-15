@@ -24,6 +24,8 @@ public class AccountService {
 	private AccountRepo accountRepo;
 
 	public Account insert(AccountRequest accountRequest) {
+		if(accountRepo.findByDocument(accountRequest.getDocument()) != null) return null;
+
 		Set<Role> roles = new HashSet();
 
 		if(accountRequest.getRoles() != null)
@@ -52,7 +54,7 @@ public class AccountService {
 		if(accountRequest.getRoles() != null)
 			accountRequest.getRoles().forEach(role -> roles.add(roleRepo.findByName(role.getName())));
 
-		Account account = new Account();
+		Account account = accountRepo.findByDocument(accountRequest.getDocument());
 		account.setDocument(accountRequest.getDocument());
 		account.setPassword(accountRequest.getPassword());
 		account.setRoles(roles);

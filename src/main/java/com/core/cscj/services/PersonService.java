@@ -46,9 +46,8 @@ public class PersonService {
 		return accountRepo.findByDocument(document).getPerson();
 	}
 
-	public Person modify(String document, Person person) {
-
-		Account account = accountRepo.findByDocument(document);
+	public Person modify(Person person) {
+		Account account = accountRepo.findByDocument(person.getDocument());
 
 		Person personRecovered = personRepo.findByDocument(person.getDocument());
 
