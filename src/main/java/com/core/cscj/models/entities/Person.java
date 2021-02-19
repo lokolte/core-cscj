@@ -34,20 +34,20 @@ public class Person implements Serializable {
 
 	@Column(nullable=false, length=300)
 	private String name;
-	
+
 	@Column(nullable=false, length=300)
 	private String lastname;
 
-	@Column(name="birth_date", nullable=false)
+	@Column(name="birth_date")
 	private Timestamp birthDate;
 
-	@Column(nullable=false, length=20)
+	@Column(length=20)
 	private String phone;
 
-	@Column(nullable=false, length=10)
+	@Column(length=10)
 	private String sex;
 
-	@Column(nullable=false, length=1000)
+	@Column(length=1000)
 	private String address;
 
 	@OneToMany(mappedBy="person", fetch = FetchType.LAZY)
