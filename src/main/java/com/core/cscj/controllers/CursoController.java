@@ -1,6 +1,7 @@
 package com.core.cscj.controllers;
 
 import com.core.cscj.models.entities.Asignatura;
+import com.core.cscj.models.entities.Curso;
 import com.core.cscj.models.entities.Person;
 import com.core.cscj.services.CursoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,11 @@ public class CursoController {
 
     @Autowired
     private CursoService cursoService;
+
+    @GetMapping(value="/{idCurso}")
+    public Curso getCursoById(@PathVariable("idCurso") Integer idCurso) {
+        return cursoService.findById(idCurso);
+    }
 
     @GetMapping(value="/{idCurso}/alumnos")
     public List<Person> getAllAlumnosFromCurso(@PathVariable("idCurso") Integer idCurso) {

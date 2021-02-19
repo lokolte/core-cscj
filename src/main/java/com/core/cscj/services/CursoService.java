@@ -23,6 +23,10 @@ public class CursoService {
     @Autowired
     private PersonRepo personRepo;
 
+    public Curso findById(Integer idCurso){
+        return cursoRepo.findById(idCurso).orElse(null);
+    }
+
     public List<Curso> findAllCursosFromPerson(Integer idPerson) {
         return personRepo.findById(idPerson).map(person -> person.getCursos().stream().sorted().collect(Collectors.toList())).orElse(new ArrayList<>());
     }
