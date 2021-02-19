@@ -68,7 +68,6 @@ public class PersonService {
 	}
 
 	public void delete(String document) {
-
 		Account account = accountRepo.findByDocument(document);
 
 		Person personToDelete = account.getPerson();

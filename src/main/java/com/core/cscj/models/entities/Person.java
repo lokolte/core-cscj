@@ -5,14 +5,13 @@ import java.sql.Timestamp;
 
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Set;
-
 
 /**
  * The persistent class for the person database table.
@@ -51,12 +50,28 @@ public class Person implements Serializable {
 	@Column(nullable=false, length=1000)
 	private String address;
 
-	//bi-directional many-to-one association to Account
-	@OneToMany(mappedBy="person")
-	@JsonIgnoreProperties("person")
+	@OneToMany(mappedBy="person", fetch = FetchType.LAZY)
+	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private Set<Account> accounts;
+
+	@ManyToMany
+	@JoinTable(name = "person_cursos",
+			joinColumns = @JoinColumn(name = "person_id"),
+			inverseJoinColumns = @JoinColumn(name = "curso_id"))
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Set<Curso> cursos;
+
+	@OneToMany(mappedBy="profesor")
+	@EqualsAndHashCode.Exclude
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Set<Asignatura> asignaturas;
+
+	@OneToMany(mappedBy="profesor")
+	@EqualsAndHashCode.Exclude
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Set<Evaluacion> evaluaciones;
 
 	public Person() {
 	}
@@ -131,5 +146,29 @@ public class Person implements Serializable {
 
 	public void setAccounts(Set<Account> accounts) {
 		this.accounts = accounts;
+	}
+
+	public Set<Curso> getCursos() {
+		return cursos;
+	}
+
+	public void setCursos(Set<Curso> cursos) {
+		this.cursos = cursos;
+	}
+
+	public Set<Asignatura> getAsignaturas() {
+		return asignaturas;
+	}
+
+	public void setAsignaturas(Set<Asignatura> asignaturas) {
+		this.asignaturas = asignaturas;
+	}
+
+	public Set<Evaluacion> getEvaluaciones() {
+		return evaluaciones;
+	}
+
+	public void setEvaluaciones(Set<Evaluacion> evaluaciones) {
+		this.evaluaciones = evaluaciones;
 	}
 }

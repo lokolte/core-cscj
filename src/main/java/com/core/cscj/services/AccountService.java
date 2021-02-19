@@ -30,7 +30,7 @@ public class AccountService {
 
 		if(accountRequest.getRoles() != null)
 			accountRequest.getRoles().forEach(role -> roles.add(roleRepo.findByName(role.getName())));
-		else roles.add(roleRepo.findByName(Roles.ALUMNO.toString()));
+		else roles.add(roleRepo.findByName(Roles.ALUMNO.name()));
 
 		Account account = new Account();
 		account.setDocument(accountRequest.getDocument());

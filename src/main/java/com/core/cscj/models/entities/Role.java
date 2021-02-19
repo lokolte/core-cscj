@@ -3,15 +3,12 @@ package com.core.cscj.models.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-import java.util.List;
 import java.util.Set;
-
 
 /**
  * The persistent class for the role database table.
@@ -32,8 +29,8 @@ public class Role implements Serializable {
 	@Column(nullable=false, length=100)
 	private String name;
 
-	@ManyToMany(mappedBy = "roles")
-	@JsonIgnoreProperties("roles")
+	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private Set<Account> accounts;
