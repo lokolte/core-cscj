@@ -18,7 +18,7 @@ import java.util.Set;
 @Table(name="asignatura")
 @Data
 @NamedQuery(name="Asignatura.findAll", query="SELECT a FROM Asignatura a")
-public class Asignatura implements Serializable {
+public class Asignatura implements Serializable, Comparable<Asignatura> {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -66,6 +66,11 @@ public class Asignatura implements Serializable {
     private Set<Evaluacion> evaluaciones;
 
     public Asignatura() {
+    }
+
+    @Override
+    public int compareTo(Asignatura asignatura){
+        return this.getOrden().compareTo(asignatura.getOrden());
     }
 
     public Integer getId() {

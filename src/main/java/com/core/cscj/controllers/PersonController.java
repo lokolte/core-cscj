@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/persons")
@@ -23,7 +22,7 @@ public class PersonController {
     private AsignaturaService asignaturaService;
 
     @GetMapping(value="/{id}/cursos")
-    public Set<Curso> getAllCursosFromProfesor(@PathVariable("id") Integer id) {
+    public List<Curso> getAllCursosFromProfesor(@PathVariable("id") Integer id) {
         return cursoService.findAllCursosFromPerson(id);
     }
 
