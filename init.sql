@@ -229,3 +229,40 @@ INSERT INTO public.account(id, document, password, person_id)
 VALUES ((select max(id)+1 from public.account), '4549970', '4549970', (select id from public.person where document = '4549970'));
 INSERT INTO public.account_roles(account_id, role_id)
 VALUES ((select id from public.account where document = '4549970'), 3);
+
+
+
+
+INSERT INTO public.curso(
+    id, description, nombre, orden, nivel)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.curso), null, 'PRIMER GRADO', 1, 1);
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '3213716'), (select id from public.curso where orden = 1));
+
+
+
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), 'LENGUA MATERNA', 'CASTELLANO', 1, (select id from public.curso where orden = 1), (select id from public.person where document = '3213716'));
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), 'SEGUNDA LENGUA', 'GUARANI', 2, (select id from public.curso where orden = 1), (select id from public.person where document = '3213716'));
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'MATEMATICA', 3, (select id from public.curso where orden = 1), (select id from public.person where document = '3213716'));
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'VIDA SOCIAL Y TRABAJO', 4, (select id from public.curso where orden = 1), (select id from public.person where document = '3213716'));
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'MEDIO NATURAL', 5, (select id from public.curso where orden = 1), (select id from public.person where document = '3213716'));
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'SALUD', 6, (select id from public.curso where orden = 1), (select id from public.person where document = '3213716'));
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'CULTURA RELIGIOSA', 7, (select id from public.curso where orden = 1), (select id from public.person where document = '3213716'));
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'ARTES PLASTICAS', 8, (select id from public.curso where orden = 1), (select id from public.person where document = '3213716'));

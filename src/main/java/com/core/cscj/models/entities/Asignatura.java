@@ -37,6 +37,8 @@ public class Asignatura implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="curso_id")
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Curso curso;
 
     @ManyToOne
