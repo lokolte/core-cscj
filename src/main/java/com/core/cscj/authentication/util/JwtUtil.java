@@ -23,7 +23,7 @@ public class JwtUtil {
 	// nick name with not to strong password 64
 	private String SECRET_KEY = "bG9rb2x0ZTpsMGswbHRlLg==";
 
-	public String extractEmail(String token) {
+	public String extractDocument(String token) {
 		return extractClaim(token, Claims::getSubject);
 	}
 
@@ -58,12 +58,12 @@ public class JwtUtil {
 	}
 
 	public Boolean validateToken(String token, UserDetails userDetails) {
-		final String email = extractEmail(token);
+		final String email = extractDocument(token);
 		return (userDetails != null) ? (email.equals(userDetails.getUsername())) : false; // && !isTokenExpired(token));
 	}
 
-	public String getEmailFromJwtToken(String authorizationHeader) {
-		return extractEmail(getJwtTokenFromHeader(authorizationHeader));
+	public String getDocumentFromJwtToken(String authorizationHeader) {
+		return extractDocument(getJwtTokenFromHeader(authorizationHeader));
 	}
 	
 	public String getJwtTokenFromHeader(String authorizationHeader) {

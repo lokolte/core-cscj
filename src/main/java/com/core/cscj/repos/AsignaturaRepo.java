@@ -13,8 +13,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface AsignaturaRepo extends JpaRepository<Asignatura, Integer>{
-    @Query("select a from Asignatura a where a.profesor.id = :idProfesor order by a.orden asc")
-    List<Asignatura> findAsignaturasByProfesor(@Param("idProfesor") Integer idProfesor);
+    @Query("select a from Curso c join c.asignaturas a where c.id = :idCurso and a.profesor.id = :idPersona order by a.orden asc")
+    List<Asignatura> findAsignaturasFromCursoByPersona(@Param("idPersona") Integer idPersona, @Param("idCurso") Integer idCurso);
 
     @Query("select c from Asignatura a join a.clases c where a.id = :idAsignatura order by c.orden asc")
     List<Clase> findClasesFromAsignatura(@Param("idAsignatura") Integer idAsignatura);

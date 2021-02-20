@@ -26,8 +26,8 @@ public class PersonController {
         return cursoService.findAllCursosFromPerson(id);
     }
 
-    @GetMapping(value="/{id}/asignaturas")
-    public List<Asignatura> getAllAsignaturasFromProfesor(@PathVariable("id") Integer id) {
-        return asignaturaService.findAllAsignaturasFromProfesor(id);
+    @GetMapping(value="/{idPersona}/cursos/{idCurso}/asignaturas")
+    public List<Asignatura> getAllAsignaturasFromProfesor(@PathVariable("idPersona") Integer idPersona, @PathVariable("idCurso") Integer idCurso) {
+        return asignaturaService.findAllAsignaturasFromPersona(idPersona, idCurso);
     }
 }

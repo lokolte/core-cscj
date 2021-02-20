@@ -32,7 +32,7 @@ public class AsignaturaService {
         return actividades.stream().sorted().collect(Collectors.toList());
     }
 
-    public List<Asignatura> findAllAsignaturasFromProfesor(Integer idProfesor){
-        return asignaturaRepo.findAsignaturasByProfesor(idProfesor);
+    public List<Asignatura> findAllAsignaturasFromPersona(Integer idPersona, Integer idCurso){
+        return asignaturaRepo.findAsignaturasFromCursoByPersona(idPersona, idCurso);
     }
 }
