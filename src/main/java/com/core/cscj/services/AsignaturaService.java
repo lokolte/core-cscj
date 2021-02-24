@@ -2,6 +2,7 @@ package com.core.cscj.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.core.cscj.models.entities.Asignatura;
@@ -30,6 +31,10 @@ public class AsignaturaService {
         planificaciones.forEach(planificacion -> actividades.add(planificacion));
 
         return actividades.stream().sorted().collect(Collectors.toList());
+    }
+
+    public Asignatura findAsignaturaById(Integer idAsignatura){
+        return asignaturaRepo.findById(idAsignatura).orElse(null);
     }
 
     public List<Asignatura> findAllAsignaturasFromPersona(Integer idPersona, Integer idCurso){

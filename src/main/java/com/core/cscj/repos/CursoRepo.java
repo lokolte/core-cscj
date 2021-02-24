@@ -1,6 +1,5 @@
 package com.core.cscj.repos;
 
-import com.core.cscj.models.enums.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.core.cscj.models.entities.Curso;

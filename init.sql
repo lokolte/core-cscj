@@ -25,21 +25,21 @@ INSERT INTO public.account_roles(account_id, role_id)
     VALUES (1, 3);
 
 INSERT INTO public.person(id, document, name, lastname, birth_date, phone, sex, address)
-	VALUES (2, '4653346', 'Veronica', 'Gayoso', now(), '0981719893', 'FEMENINO', 'Juan de Garay 1634');
+	VALUES (2, '4295176', 'Veronica', 'Gayoso', now(), '0981719893', 'FEMENINO', 'Juan de Garay 1634');
 
 INSERT INTO public.account(id, document, password, person_id)
 	VALUES (2, '4295176', 'vrito', 2);
 
 INSERT INTO public.account_roles(account_id, role_id)
-    VALUES (1, 1);
+    VALUES (2, 1);
 
 INSERT INTO public.account_roles(account_id, role_id)
-    VALUES (1, 2);
+    VALUES (2, 2);
 
 INSERT INTO public.account_roles(account_id, role_id)
-    VALUES (1, 3);
+    VALUES (2, 3);
 
-
+-- lista de profesores del cscj --
 INSERT INTO public.person(id,
                           address, birth_date, document, lastname, name, phone, sex)
 VALUES ((select max(id)+1 from public.person), null, null, '1518649', 'Irala Caballero', 'Marta Eugenia', null, null);
@@ -1414,3 +1414,87 @@ VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura),
 --INSERT INTO public.asignatura(
   --  id, description, nombre, orden, curso_id, person_id)
 --VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'Metodología de la Investigación', 15, (select id from public.curso where orden = 12), (select id from public.person where document = ''));
+
+------Modificaciones post puesta en produccion
+
+-- Asignacion de Coordinadores a cursos con sus roles
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '1365310'), (select id from public.curso where orden = -2));
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '1365310'), (select id from public.curso where orden = -1));
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '1365310'), (select id from public.curso where orden = 0));
+INSERT INTO public.account_roles(account_id, role_id)
+VALUES (6, 2);
+
+--Modificaciones a los nombres de los cursos
+UPDATE public.curso SET  nombre='Pre Jardín' WHERE id=1;
+UPDATE public.curso SET  nombre='Jardín' WHERE id=2;
+UPDATE public.curso SET  nombre='Pre Escolar' WHERE id=3;
+UPDATE public.curso SET  nombre='Primer Grado' WHERE id=4;
+UPDATE public.curso SET  nombre='Segundo Grado' WHERE id=5;
+UPDATE public.curso SET  nombre='Tercer Grado' WHERE id=6;
+UPDATE public.curso SET  nombre='Cuarto Grado' WHERE id=7;
+UPDATE public.curso SET  nombre='Quinto Grado' WHERE id=8;
+UPDATE public.curso SET  nombre='Sexto Grado' WHERE id=9;
+UPDATE public.curso SET  nombre='Séptimo Grado' WHERE id=10;
+UPDATE public.curso SET  nombre='Octavo Grado' WHERE id=11;
+UPDATE public.curso SET  nombre='Noveno Grado' WHERE id=12;
+UPDATE public.curso SET  nombre='Primer Curso' WHERE id=13;
+UPDATE public.curso SET  nombre='Segundo Curso' WHERE id=14;
+UPDATE public.curso SET  nombre='Tercer Curso' WHERE id=15;
+
+--- borrando asignaturas incorrectas
+DELETE FROM public.asignatura WHERE id=12;
+DELETE FROM public.asignatura WHERE id=26;
+DELETE FROM public.asignatura WHERE id=40;
+--- arreglando el orden de las materias
+UPDATE public.asignatura SET orden=12 WHERE id=13;
+UPDATE public.asignatura SET orden=13 WHERE id=14;
+UPDATE public.asignatura SET orden=12 WHERE id=27;
+UPDATE public.asignatura SET orden=13 WHERE id=28;
+UPDATE public.asignatura SET orden=12 WHERE id=41;
+UPDATE public.asignatura SET orden=13 WHERE id=42;
+
+--Modificaciones a datos de usuarios que estuvieron incorrectos
+UPDATE public.person SET document='2160565' WHERE document='2160566';
+UPDATE public.person SET lastname='Castagnino' WHERE document='922493';
+UPDATE public.person SET lastname='Vazquez' WHERE document='3398929';
+
+---agregar cursos a un usuario faltante
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='2036115'), (SELECT id FROM public.curso where orden='10'));
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='2036115'), (SELECT id FROM public.curso where orden='11'));
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='2036115'), (SELECT id FROM public.curso where orden='12'));
+
+---crear usuario faltante
+INSERT INTO public.person(id,
+                          address, birth_date, document, lastname, name, phone, sex)
+VALUES ((select max(id)+1 from public.person), null, null, '1399974', 'Rodríguez Argaña', 'Marta Raquel', null, null);
+INSERT INTO public.account(id, document, password, person_id)
+VALUES ((select max(id)+1 from public.account), '1399974', '1399974', (select id from public.person where document = '1399974'));
+INSERT INTO public.account_roles(account_id, role_id)
+VALUES ((select id from public.account where document = '1399974'), 2);
+---agregar permisos sobre los cursos para ultiimo usuario
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='1399974'), (SELECT id FROM public.curso where orden='1'));
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='1399974'), (SELECT id FROM public.curso where orden='2'));
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='1399974'), (SELECT id FROM public.curso where orden='3'));
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='1399974'), (SELECT id FROM public.curso where orden='4'));
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='1399974'), (SELECT id FROM public.curso where orden='5'));
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='1399974'), (SELECT id FROM public.curso where orden='6'));
+
+
+
+
+
+INSERT INTO public.person(id,
+                          address, birth_date, document, lastname, name, phone, sex)
+VALUES ((select max(id)+1 from public.person), null, null, '654321', 'Perez', 'Juan', null, null);
+INSERT INTO public.account(id, document, password, person_id)
+VALUES ((select max(id)+1 from public.account), '654321', '654321', (select id from public.person where document = '1399974'));
+INSERT INTO public.account_roles(account_id, role_id)
+VALUES ((select id from public.account where document = '654321'), 5);
+
+INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='654321'), (SELECT id FROM public.curso where orden='1'));

@@ -28,19 +28,23 @@ public class CursoService {
     @Autowired
     private AsignaturaRepo asignaturaRepo;
 
-    public CursoResponse findById(Integer idCurso, String document){
+    public CursoResponse findById(Integer orden, String document){
         Account account = accountRepo.findByDocument(document);
-        List<String> roles = (new ArrayList<>(account.getRoles())).stream().map(role -> role.getName()).collect(Collectors.toList());
+        List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
+        List<Curso> cursos = account.getPerson().getCursos().stream().filter(curso -> curso.getOrden().equals(orden)).collect(Collectors.toList());
 
-        List<Curso> cursosFiltered = (new ArrayList<>(account.getPerson().getCursos())).stream().filter(curso -> curso.getId().equals(idCurso)).collect(Collectors.toList());
-        Curso cursoFiltered = (cursosFiltered.size() > 0) ? cursosFiltered.get(0) : null;
+        Curso curso = (cursos.size() > 0) ? cursos.get(0) : null;
 
-        if(cursoFiltered == null) return null;
+        if(curso == null) return null;
 
-        if(roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name())) {
-            return new CursoResponse(cursoFiltered, findAllAsignaturasFromCurso(idCurso));
+        return new CursoResponse(curso, findCursoWithAsignaturasFromPersonBasedOnRole(curso.getId(), account.getPerson().getId(), roles));
+    }
+
+    private List<Asignatura> findCursoWithAsignaturasFromPersonBasedOnRole(Integer idCurso, Integer idPersona, List<String> roles){
+        if(roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.ADMIN.name())) {
+            return findAllAsignaturasFromCurso(idCurso);
         }else{
-            return new CursoResponse(cursoFiltered, asignaturaRepo.findAsignaturasFromCursoByPersona(account.getPerson().getId(), idCurso));
+            return asignaturaRepo.findAsignaturasFromCursoByPersona(idPersona, idCurso);
         }
     }
 
