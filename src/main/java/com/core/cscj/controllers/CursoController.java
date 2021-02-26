@@ -19,9 +19,9 @@ public class CursoController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @GetMapping(value="/{orden}")
-    public CursoResponse getCursoById(@RequestHeader("Authorization") String authorization, @PathVariable("orden") Integer orden) {
-        return cursoService.findById(orden, jwtUtil.getDocumentFromJwtToken(authorization));
+    @GetMapping(value="/{idCurso}")
+    public CursoResponse getCursoById(@RequestHeader("Authorization") String authorization, @PathVariable("idCurso") Integer idCurso) {
+        return cursoService.findById(idCurso, jwtUtil.getDocumentFromJwtToken(authorization));
     }
 
     @GetMapping(value="/{idCurso}/alumnos")

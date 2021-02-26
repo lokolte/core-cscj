@@ -10,7 +10,6 @@ import com.core.cscj.repos.AccountRepo;
 import com.core.cscj.repos.AsignaturaRepo;
 import com.core.cscj.repos.CursoRepo;
 
-import com.core.cscj.repos.PersonRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,18 +19,15 @@ public class CursoService {
     private CursoRepo cursoRepo;
 
     @Autowired
-    private PersonRepo personRepo;
-
-    @Autowired
     private AccountRepo accountRepo;
 
     @Autowired
     private AsignaturaRepo asignaturaRepo;
 
-    public CursoResponse findById(Integer orden, String document){
+    public CursoResponse findById(Integer idCurso, String document){
         Account account = accountRepo.findByDocument(document);
         List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
-        List<Curso> cursos = account.getPerson().getCursos().stream().filter(curso -> curso.getOrden().equals(orden)).collect(Collectors.toList());
+        List<Curso> cursos = account.getPerson().getCursos().stream().filter(curso -> curso.getId().equals(idCurso)).collect(Collectors.toList());
 
         Curso curso = (cursos.size() > 0) ? cursos.get(0) : null;
 
@@ -48,8 +44,15 @@ public class CursoService {
         }
     }
 
-    public List<Curso> findAllCursosFromPerson(Integer idPerson) {
-        return personRepo.findById(idPerson).map(person -> person.getCursos().stream().sorted().collect(Collectors.toList())).orElse(new ArrayList<>());
+    public List<CursoResponse> findAllCursosFromPerson(String document, Boolean withAsignaturas) {
+        Account account = accountRepo.findByDocument(document);
+        List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
+        return account.getPerson().getCursos().stream().sorted().collect(Collectors.toList()).stream()
+                    .map(curso ->
+                            (withAsignaturas) ?
+                                    new CursoResponse(curso, findCursoWithAsignaturasFromPersonBasedOnRole(curso.getId(), account.getPerson().getId(), roles))
+                                    : new CursoResponse(curso, new ArrayList<>())
+                    ).collect(Collectors.toList());
     }
 
     public List<Person> findAllAlumnos(Integer idCurso){

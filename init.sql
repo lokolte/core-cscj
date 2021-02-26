@@ -1493,7 +1493,7 @@ INSERT INTO public.person(id,
                           address, birth_date, document, lastname, name, phone, sex)
 VALUES ((select max(id)+1 from public.person), null, null, '654321', 'Perez', 'Juan', null, null);
 INSERT INTO public.account(id, document, password, person_id)
-VALUES ((select max(id)+1 from public.account), '654321', '654321', (select id from public.person where document = '1399974'));
+VALUES ((select max(id)+1 from public.account), '654321', '654321', (select id from public.person where document = '654321'));
 INSERT INTO public.account_roles(account_id, role_id)
 VALUES ((select id from public.account where document = '654321'), 5);
 
