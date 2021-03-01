@@ -2,12 +2,11 @@ package com.core.cscj.controllers;
 
 import com.core.cscj.models.Actividad;
 import com.core.cscj.models.entities.Asignatura;
+import com.core.cscj.models.entities.Clase;
+import com.core.cscj.models.entities.Tarea;
 import com.core.cscj.services.AsignaturaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,6 +19,16 @@ public class AsignaturaController {
     @GetMapping(value="/{idAsignatura}/actividades")
     public List<Actividad> getAllActividadesFromAsignatura(@PathVariable("idAsignatura") Integer idAsignatura) {
         return asignaturaService.finAllActividades(idAsignatura);
+    }
+
+    @PostMapping(value="/{idAsignatura}/clases")
+    public Actividad createClase(@PathVariable("idAsignatura") Integer idAsignatura, @RequestBody Clase clase) {
+        return asignaturaService.createClase(idAsignatura, clase);
+    }
+
+    @PostMapping(value="/{idAsignatura}/tareas")
+    public Actividad createTarea(@PathVariable("idAsignatura") Integer idAsignatura, @RequestBody Tarea tarea) {
+        return asignaturaService.createTarea(idAsignatura, tarea);
     }
 
     @GetMapping(value="/{idAsignatura}")

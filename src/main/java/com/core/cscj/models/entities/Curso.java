@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -39,11 +40,13 @@ public class Curso implements Serializable, Comparable<Curso> {
     private Integer orden;
 
     @ManyToMany(mappedBy = "cursos")
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Person> persons;
 
     @OneToMany(mappedBy="curso")
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Asignatura> asignaturas;

@@ -11,6 +11,9 @@ import com.core.cscj.models.entities.Tarea;
 import com.core.cscj.models.entities.Planificacion;
 import com.core.cscj.models.Actividad;
 import com.core.cscj.repos.AsignaturaRepo;
+import com.core.cscj.repos.ClaseRepo;
+import com.core.cscj.repos.TareaRepo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,12 @@ import org.springframework.stereotype.Service;
 public class AsignaturaService {
     @Autowired
     private AsignaturaRepo asignaturaRepo;
+
+    @Autowired
+    private ClaseRepo claseRepo;
+
+    @Autowired
+    private TareaRepo tareaRepo;
 
     public List<Actividad> finAllActividades(Integer idAsignatura){
         List<Actividad> actividades = new ArrayList();
@@ -39,5 +48,23 @@ public class AsignaturaService {
 
     public List<Asignatura> findAllAsignaturasFromPersona(Integer idPersona, Integer idCurso){
         return asignaturaRepo.findAsignaturasFromCursoByPersona(idPersona, idCurso);
+    }
+
+    public Clase createClase(Integer idAsignatura, Clase clase){
+        Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
+
+        if(!asignatura.isPresent()) return null;
+
+        clase.setAsignatura(asignatura.get());
+        return claseRepo.save(clase);
+    }
+
+    public Tarea createTarea(Integer idAsignatura, Tarea tarea){
+        Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
+
+        if(!asignatura.isPresent()) return null;
+
+        tarea.setAsignatura(asignatura.get());
+        return tareaRepo.save(tarea);
     }
 }

@@ -64,11 +64,13 @@ public class Person implements Serializable {
 	private Set<Curso> cursos;
 
 	@OneToMany(mappedBy="profesor")
+	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private Set<Asignatura> asignaturas;
 
 	@OneToMany(mappedBy="profesor")
+	@ToString.Exclude
 	@EqualsAndHashCode.Exclude
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private Set<Evaluacion> evaluaciones;

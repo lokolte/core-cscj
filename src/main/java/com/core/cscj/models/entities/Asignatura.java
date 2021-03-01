@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -37,6 +38,7 @@ public class Asignatura implements Serializable, Comparable<Asignatura> {
 
     @ManyToOne
     @JoinColumn(name="curso_id")
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Curso curso;
@@ -46,21 +48,25 @@ public class Asignatura implements Serializable, Comparable<Asignatura> {
     private Person profesor;
 
     @OneToMany(mappedBy="asignatura")
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Clase> clases;
 
     @OneToMany(mappedBy="asignatura")
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Tarea> tareas;
 
     @OneToMany(mappedBy="asignatura")
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Planificacion> planificaciones;
 
     @OneToMany(mappedBy="asignatura")
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Evaluacion> evaluaciones;
