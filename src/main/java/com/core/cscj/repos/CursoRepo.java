@@ -20,4 +20,7 @@ public interface CursoRepo extends JpaRepository<Curso, Integer>{
 
     @Query("select a from Curso c join c.asignaturas a where c.id = :idCurso order by a.orden asc")
     List<Asignatura> findAsignaturasFromCurso(@Param("idCurso") Integer idCurso);
+
+    @Query("select c from Curso c where c.orden = :orden")
+    Curso findCursoByOrden(@Param("orden") Integer orden);
 }
