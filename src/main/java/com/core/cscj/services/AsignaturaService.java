@@ -5,16 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.core.cscj.models.entities.Asignatura;
-import com.core.cscj.models.entities.Clase;
-import com.core.cscj.models.entities.Tarea;
-import com.core.cscj.models.entities.Planificacion;
+import com.core.cscj.models.entities.*;
 import com.core.cscj.models.Actividad;
 import com.core.cscj.models.enums.Actividades;
-import com.core.cscj.repos.AsignaturaRepo;
-import com.core.cscj.repos.ClaseRepo;
-import com.core.cscj.repos.TareaRepo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.core.cscj.models.enums.Roles;
+import com.core.cscj.models.responses.LoadedFile;
+import com.core.cscj.models.responses.ActividadResponse;
+import com.core.cscj.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,18 +26,38 @@ public class AsignaturaService {
     @Autowired
     private TareaRepo tareaRepo;
 
-    public List<Actividad> finAllActividades(Integer idAsignatura){
+    @Autowired
+    private AccountRepo accountRepo;
+
+    @Autowired
+    private ArchivosAdjuntosRepo archivosAdjuntosRepo;
+
+    private List<Actividad> finAllActividadesFromAsignaturaById(Integer idAsignatura, Boolean condition){
+
         List<Actividad> actividades = new ArrayList();
 
         List<Clase> clases = asignaturaRepo.findClasesFromAsignatura(idAsignatura);
         List<Tarea> tareas = asignaturaRepo.findTareasFromAsignatura(idAsignatura);
-        List<Planificacion> planificaciones = asignaturaRepo.findPlanificacionesFromAsignatura(idAsignatura);
 
         clases.forEach(clase -> actividades.add(clase));
         tareas.forEach(tarea -> actividades.add(tarea));
-        planificaciones.forEach(planificacion -> actividades.add(planificacion));
+
+        if(condition){
+            List<Planificacion> planificaciones = asignaturaRepo.findPlanificacionesFromAsignatura(idAsignatura);
+            planificaciones.forEach(planificacion -> actividades.add(planificacion));
+        }
 
         return actividades.stream().sorted().collect(Collectors.toList());
+    }
+
+    public List<Actividad> finAllActividades(Integer idAsignatura, String document){
+        Account account = accountRepo.findByDocument(document);
+
+        if(account == null) return new ArrayList<>();
+
+        List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
+
+        return finAllActividadesFromAsignaturaById(idAsignatura, roles.contains(Roles.PROFESOR.name()) || roles.contains(Roles.COORDINADOR.name()));
     }
 
     public Asignatura findAsignaturaById(Integer idAsignatura){
@@ -52,7 +69,7 @@ public class AsignaturaService {
     }
 
     private Integer getNextOrder(Integer idAsignatura){
-        List<Actividad> actividades = finAllActividades(idAsignatura);
+        List<Actividad> actividades = finAllActividadesFromAsignaturaById(idAsignatura, true);
 
         Integer maxOrder = 0;
         for(Actividad actividad : actividades)
@@ -61,20 +78,31 @@ public class AsignaturaService {
         return maxOrder +1;
     }
 
-    public Clase createClase(Integer idAsignatura, Clase clase){
+    public ActividadResponse createClase(Integer idAsignatura, Clase clase, List<LoadedFile> uploadedFiles){
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
-        if(!asignatura.isPresent()) return null;
+        if(!asignatura.isPresent()) return new ActividadResponse();
 
         clase.setAsignatura(asignatura.get());
         clase.setOrden(getNextOrder(idAsignatura));
         clase.setTipoActividad(Actividades.CLASE.name());
-        return claseRepo.save(clase);
+
+        Clase claseStored = claseRepo.save(clase);
+
+        List<ArchivosAdjuntos> archivosAdjuntos = uploadedFiles.stream().map(uploadFile -> new ArchivosAdjuntos(
+                uploadFile.getFileName(),
+                uploadFile.getFileDownloadUri(),
+                uploadFile.getFileType(),
+                uploadFile.getSize(),
+                Actividades.CLASE.name(),
+                claseStored.getId()
+                )).collect(Collectors.toList());
+
+        return new ActividadResponse(claseStored,
+                archivosAdjuntos.stream().map(archivoAdjunto -> archivosAdjuntosRepo.save(archivoAdjunto)).collect(Collectors.toList()));
     }
 
-
-
-    public Tarea createTarea(Integer idAsignatura, Tarea tarea){
+    public ActividadResponse createTarea(Integer idAsignatura, Tarea tarea, List<LoadedFile> uploadedFiles){
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
         if(!asignatura.isPresent()) return null;
@@ -82,6 +110,38 @@ public class AsignaturaService {
         tarea.setAsignatura(asignatura.get());
         tarea.setOrden(getNextOrder(idAsignatura));
         tarea.setTipoActividad(Actividades.TAREA.name());
-        return tareaRepo.save(tarea);
+        Tarea tareaStored = tareaRepo.save(tarea);
+
+        List<ArchivosAdjuntos> archivosAdjuntos = uploadedFiles.stream().map(uploadFile -> new ArchivosAdjuntos(
+                uploadFile.getFileName(),
+                uploadFile.getFileDownloadUri(),
+                uploadFile.getFileType(),
+                uploadFile.getSize(),
+                Actividades.TAREA.name(),
+                tareaStored.getId()
+        )).collect(Collectors.toList());
+
+        return new ActividadResponse(tareaStored,
+                archivosAdjuntos.stream().map(archivoAdjunto -> archivosAdjuntosRepo.save(archivoAdjunto)).collect(Collectors.toList()));
+    }
+
+    public ActividadResponse findClase(Integer idClase){
+        Optional<Clase> clase = claseRepo.findById(idClase);
+
+        if(!clase.isPresent()) return new ActividadResponse();
+
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.CLASE.name(), idClase);
+
+        return new ActividadResponse(clase.get(), archivosAdjuntos);
+    }
+
+    public ActividadResponse findTarea(Integer idTarea){
+        Optional<Tarea> tarea = tareaRepo.findById(idTarea);
+
+        if(!tarea.isPresent()) return new ActividadResponse();
+
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.TAREA.name(), idTarea);
+
+        return new ActividadResponse(tarea.get(), archivosAdjuntos);
     }
 }

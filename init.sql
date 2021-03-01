@@ -1498,3 +1498,6 @@ INSERT INTO public.account_roles(account_id, role_id)
 VALUES ((select id from public.account where document = '654321'), 5);
 
 INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='654321'), (SELECT id FROM public.curso where orden='1'));
+
+
+UPDATE public.account_roles SET role_id=3 WHERE account_id=31;
