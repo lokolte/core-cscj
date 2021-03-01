@@ -10,6 +10,7 @@ import com.core.cscj.models.entities.Clase;
 import com.core.cscj.models.entities.Tarea;
 import com.core.cscj.models.entities.Planificacion;
 import com.core.cscj.models.Actividad;
+import com.core.cscj.models.enums.Actividades;
 import com.core.cscj.repos.AsignaturaRepo;
 import com.core.cscj.repos.ClaseRepo;
 import com.core.cscj.repos.TareaRepo;
@@ -50,14 +51,28 @@ public class AsignaturaService {
         return asignaturaRepo.findAsignaturasFromCursoByPersona(idPersona, idCurso);
     }
 
+    private Integer getNextOrder(Integer idAsignatura){
+        List<Actividad> actividades = finAllActividades(idAsignatura);
+
+        Integer maxOrder = 0;
+        for(Actividad actividad : actividades)
+            if(maxOrder < actividad.getOrden()) maxOrder = actividad.getOrden();
+
+        return maxOrder +1;
+    }
+
     public Clase createClase(Integer idAsignatura, Clase clase){
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
         if(!asignatura.isPresent()) return null;
 
         clase.setAsignatura(asignatura.get());
+        clase.setOrden(getNextOrder(idAsignatura));
+        clase.setTipoActividad(Actividades.CLASE.name());
         return claseRepo.save(clase);
     }
+
+
 
     public Tarea createTarea(Integer idAsignatura, Tarea tarea){
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
@@ -65,6 +80,8 @@ public class AsignaturaService {
         if(!asignatura.isPresent()) return null;
 
         tarea.setAsignatura(asignatura.get());
+        tarea.setOrden(getNextOrder(idAsignatura));
+        tarea.setTipoActividad(Actividades.TAREA.name());
         return tareaRepo.save(tarea);
     }
 }
