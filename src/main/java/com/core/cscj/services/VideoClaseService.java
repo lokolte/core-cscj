@@ -44,10 +44,12 @@ public class VideoClaseService {
         Date todayDate = new Date();
 
         if(roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.TUTOR.name())) {
+            Curso curso = person.getCursos().stream().collect(Collectors.toList()).get(0);
             return videoClaseRepo.findAll().stream().filter(videoclase ->
                             (videoclase.getDate().getYear() == todayDate.getYear()
                             && videoclase.getDate().getMonth() == todayDate.getMonth()
-                            && videoclase.getDate().getDay() == todayDate.getDay())).collect(Collectors.toList())
+                            && videoclase.getDate().getDay() == todayDate.getDay()
+                            && videoclase.getAsignatura().getCurso().getId() == curso.getId())).collect(Collectors.toList())
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
