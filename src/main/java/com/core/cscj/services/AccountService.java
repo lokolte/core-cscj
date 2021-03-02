@@ -88,79 +88,68 @@ public class AccountService {
 		Sheet sheet = workbook.getSheetAt(0);
 		DataFormatter dataFormatter = new DataFormatter();
 		Iterator<Row> rowIterator = sheet.rowIterator();
-		int rowNumber = 0;
-
-		String document = null;
-		String name = null;
-		String lastname = null;
-		Integer cursoOrden = null;
 
 		// iterate rows
 		while (rowIterator.hasNext()) {
+			String document = "";
+			String name = "";
+			String lastname = "";
+			Integer cursoOrden = -2;
+
 			Row row = rowIterator.next();
-			if (rowNumber == 0) {
-				rowNumber++;
-			} else {
-				Iterator<Cell> cellIterator = row.cellIterator();
-				int col = 0;
-				// iterate columns
-				while (cellIterator.hasNext()) {
-					Cell cell = cellIterator.next();
-					String cellValue = dataFormatter.formatCellValue(cell);
-					logger.info("############################# cellValue " + cellValue + "   " + col);
-					if (col == 0) document = cellValue;
-					else if (col == 1) name = cellValue;
-					else if (col == 2) lastname = cellValue;
-					else if (col == 3) cursoOrden = Integer.valueOf(cellValue);
-					col++;
-				}
+			Iterator<Cell> cellIterator = row.cellIterator();
+			int col = 0;
 
-				Person person = personRepo.findByDocument(document);
-
-				if (person == null) person = new Person();
-
-				Curso curso = cursoRepo.findCursoByOrden(cursoOrden);
-
-				person.setDocument(document);
-				person.setName(name);
-				person.setLastname(lastname);
-				person = personRepo.save(person);
-
-				if(person.getCursos() == null) person.setCursos(new HashSet<Curso>());
-				person.getCursos().add(curso);
-
-				person = personRepo.save(person);
-
-				if(curso.getPersons() == null) curso.setPersons(new HashSet<Person>());
-
-				curso.getPersons().add(person);
-				cursoRepo.save(curso);
-
-				Account account = accountRepo.findByDocument(document);
-
-				if (account != null) {
-					if (person.getAccounts() != null && person.getAccounts().size() > 0) {
-						List<Account> accounts = new ArrayList<>(person.getAccounts());
-						account = accounts.get(0);
-					}
-				}else account = new Account();
-
-				Role role = roleRepo.findByName(Roles.ALUMNO.name());
-				account.setDocument(document);
-				account.setPassword(document);
-				account.setPerson(person);
-				accountRepo.save(account);
-
-				if(account.getRoles() == null) account.setRoles(new HashSet<Role>());
-				account.getRoles().add(role);
-				accountRepo.save(account);
-
-				if(role.getAccounts() == null) role.setAccounts(new HashSet<Account>());
-				role.getAccounts().add(account);
-				roleRepo.save(role);
-
-				logger.info("Usuario cargado con nombre: " + name + ", apellido: " + lastname + ", documento: " + document + ", Curso: " + curso.getNombre());
+			// iterate columns
+			while (cellIterator.hasNext()) {
+				Cell cell = cellIterator.next();
+				String cellValue = dataFormatter.formatCellValue(cell);
+				if (col == 0) document = cellValue;
+				else if (col == 1) name = cellValue;
+				else if (col == 2) lastname = cellValue;
+				else if (col == 3) cursoOrden = Integer.valueOf((cellValue.isEmpty())? "-2" : cellValue);
+				col++;
 			}
+
+			Person person = personRepo.findByDocument(document);
+
+			if (person == null) person = new Person();
+
+			Curso curso = cursoRepo.findCursoByOrden(cursoOrden);
+
+			person.setDocument(document);
+			person.setName(name);
+			person.setLastname(lastname);
+			person = personRepo.save(person);
+
+			if(person.getCursos() == null) person.setCursos(new HashSet<Curso>());
+			person.getCursos().add(curso);
+			person = personRepo.save(person);
+
+			if(curso.getPersons() == null) curso.setPersons(new HashSet<Person>());
+			curso.getPersons().add(person);
+			cursoRepo.save(curso);
+
+			Account account = accountRepo.findByDocument(document);
+
+			if (account == null) account = new Account();
+
+			Role role = roleRepo.findByName(Roles.ALUMNO.name());
+
+			account.setDocument(document);
+			account.setPassword(document);
+			account.setPerson(person);
+			account = accountRepo.save(account);
+
+			if(account.getRoles() == null) account.setRoles(new HashSet<Role>());
+			account.getRoles().add(role);
+			accountRepo.save(account);
+
+			if(role.getAccounts() == null) role.setAccounts(new HashSet<Account>());
+			role.getAccounts().add(account);
+			roleRepo.save(role);
+
+			logger.info("Usuario cargado con nombre: " + name + ", apellido: " + lastname + ", documento: " + document + ", Curso: " + curso.getNombre());
 		}
 	}
 }

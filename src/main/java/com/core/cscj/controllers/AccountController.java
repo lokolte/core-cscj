@@ -22,7 +22,6 @@ public class AccountController {
 
     @PostMapping(value="/alumnos/import")
     public void loadData(@RequestParam("file") MultipartFile file) throws IOException, InvalidFormatException {
-        System.out.println("Cargar datos !!!");
         accountService.loadData(file);
     }
 }
