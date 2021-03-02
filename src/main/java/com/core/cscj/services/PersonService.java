@@ -1,6 +1,7 @@
 package com.core.cscj.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,12 @@ public class PersonService {
 
 	public Person findByDocument(String document) {
 		return accountRepo.findByDocument(document).getPerson();
+	}
+
+	public Person findById(Integer idPerson){
+		Optional<Person> person = personRepo.findById(idPerson);
+
+		return person.orElseGet(Person::new);
 	}
 
 	public Person modify(Person person) {
