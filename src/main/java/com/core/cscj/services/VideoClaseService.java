@@ -1,10 +1,14 @@
 package com.core.cscj.services;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.enums.Roles;
+import com.core.cscj.models.requests.VideoClaseRequest;
 import com.core.cscj.models.responses.CursoResponse;
 import com.core.cscj.models.responses.VideoClaseResponse;
 import com.core.cscj.repos.*;
@@ -16,6 +20,9 @@ import org.springframework.stereotype.Service;
 public class VideoClaseService {
     @Autowired
     private AccountRepo accountRepo;
+
+    @Autowired
+    private AsignaturaRepo asignaturaRepo;
 
     @Autowired
     private PersonRepo personRepo;
@@ -50,5 +57,25 @@ public class VideoClaseService {
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                 videoClaseFinal.getAsignatura(),
                                 videoClaseFinal)).collect(Collectors.toList());
+    }
+
+    public VideoClase createVideoClase(VideoClaseRequest videoClaseRequest) throws ParseException {
+        Optional<Asignatura> asignatura = asignaturaRepo.findById(videoClaseRequest.getMateria());
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        Date date = formatter.parse(videoClaseRequest.getFecha());
+
+        VideoClase videoClase = new VideoClase();
+        videoClase.setAsignatura(asignatura.get());
+        videoClase.setMinsCatedra(videoClaseRequest.getMinsCatedra());
+        videoClase.setHsCatedra(videoClaseRequest.getHsCatedra());
+        videoClase.setDate(new Timestamp(date.getTime()));
+        videoClase.setInicio(videoClaseRequest.getInicio());
+        videoClase.setFin(videoClaseRequest.getFin());
+        videoClase.setTitle(videoClaseRequest.getTitulo());
+        videoClase.setLink(videoClaseRequest.getLink());
+
+        return videoClaseRepo.save(videoClase);
     }
 }
