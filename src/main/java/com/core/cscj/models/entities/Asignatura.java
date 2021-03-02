@@ -71,6 +71,12 @@ public class Asignatura implements Serializable, Comparable<Asignatura> {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Evaluacion> evaluaciones;
 
+    @OneToMany(mappedBy="asignatura", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<VideoClase> videoClases;
+
     public Asignatura() {
     }
 
@@ -157,5 +163,13 @@ public class Asignatura implements Serializable, Comparable<Asignatura> {
 
     public void setEvaluaciones(Set<Evaluacion> evaluaciones) {
         this.evaluaciones = evaluaciones;
+    }
+
+    public Set<VideoClase> getVideoClases() {
+        return videoClases;
+    }
+
+    public void setVideoClases(Set<VideoClase> videoClases) {
+        this.videoClases = videoClases;
     }
 }
