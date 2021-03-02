@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.enums.Roles;
 import com.core.cscj.models.responses.CursoResponse;
+import com.core.cscj.models.responses.VideoClaseResponse;
 import com.core.cscj.repos.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class VideoClaseService {
     @Autowired
     private VideoClaseRepo videoClaseRepo;
 
-    public List<VideoClase> findAllVideoClaseFromPersona(String document){
+    public List<VideoClaseResponse> findAllVideoClaseFromPersona(String document){
         Person person = personRepo.findByDocument(document);
 
         if(person == null) return new ArrayList<>();
@@ -39,7 +40,15 @@ public class VideoClaseService {
             return videoClaseRepo.findAll().stream().filter(videoclase ->
                             (videoclase.getDate().getYear() == todayDate.getYear()
                             && videoclase.getDate().getMonth() == todayDate.getMonth()
-                            && videoclase.getDate().getDay() == todayDate.getDay())).collect(Collectors.toList());
-        }else return videoClaseRepo.findVideoClaseByProfesor(person.getId());
+                            && videoclase.getDate().getDay() == todayDate.getDay())).collect(Collectors.toList())
+                    .stream().map(videoClaseFinal ->
+                            new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
+                                    videoClaseFinal.getAsignatura(),
+                                    videoClaseFinal)).collect(Collectors.toList());
+        }else return videoClaseRepo.findVideoClaseByProfesor(person.getId())
+                    .stream().map(videoClaseFinal ->
+                            new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
+                                videoClaseFinal.getAsignatura(),
+                                videoClaseFinal)).collect(Collectors.toList());
     }
 }
