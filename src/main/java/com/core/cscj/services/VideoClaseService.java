@@ -55,15 +55,18 @@ public class VideoClaseService {
                                     videoClaseFinal.getAsignatura(),
                                     videoClaseFinal)).collect(Collectors.toList());
         }else if(roles.contains(Roles.COORDINADOR.name())){
-            return videoClaseRepo.findAll().stream().map(videoClaseFinal ->
-                    new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
-                            videoClaseFinal.getAsignatura(),
-                            videoClaseFinal)).collect(Collectors.toList());
+            List<Integer> cursos = person.getCursos().stream().map(curso -> curso.getId()).collect(Collectors.toList());
+            return videoClaseRepo.findAll().stream().filter(videoclase ->
+                    (cursos.contains(videoclase.getAsignatura().getCurso().getId()))).collect(Collectors.toList())
+                    .stream().map(videoClaseFinal ->
+                            new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
+                                    videoClaseFinal.getAsignatura(),
+                                    videoClaseFinal)).collect(Collectors.toList());
         }else return videoClaseRepo.findVideoClaseByProfesor(person.getId())
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
-                                videoClaseFinal.getAsignatura(),
-                                videoClaseFinal)).collect(Collectors.toList());
+                                    videoClaseFinal.getAsignatura(),
+                                    videoClaseFinal)).collect(Collectors.toList());
     }
 
     public VideoClase createVideoClase(VideoClaseRequest videoClaseRequest) throws ParseException {

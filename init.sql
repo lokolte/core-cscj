@@ -1536,8 +1536,20 @@ VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura),
 -- cambiar de profesor en la materia de estadistica de segundo anho
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '420526') WHERE curso_id=(select id from public.curso where orden = 11) and orden=15;
 
+-- asignar cursos a profe nueva
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4469096'), (select id from public.curso where orden = 7));
+
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4469096'), (select id from public.curso where orden = 8));
+
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4469096'), (select id from public.curso where orden = 9));
+
 -- cambiar de profesor en la materia de musica de 7, 8, 9
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 7) and orden=11;
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 8) and orden=11;
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 9) and orden=11;
-
