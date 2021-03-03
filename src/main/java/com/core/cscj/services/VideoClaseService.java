@@ -54,6 +54,11 @@ public class VideoClaseService {
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
                                     videoClaseFinal)).collect(Collectors.toList());
+        }else if(roles.contains(Roles.COORDINADOR.name())){
+            return videoClaseRepo.findAll().stream().map(videoClaseFinal ->
+                    new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
+                            videoClaseFinal.getAsignatura(),
+                            videoClaseFinal)).collect(Collectors.toList());
         }else return videoClaseRepo.findVideoClaseByProfesor(person.getId())
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),

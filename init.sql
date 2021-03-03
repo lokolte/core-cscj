@@ -1488,7 +1488,7 @@ INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM pu
 
 
 
-
+--- datos de prueba
 INSERT INTO public.person(id,
                           address, birth_date, document, lastname, name, phone, sex)
 VALUES ((select max(id)+1 from public.person), null, null, '654321', 'Perez', 'Juan', null, null);
@@ -1500,4 +1500,44 @@ VALUES ((select id from public.account where document = '654321'), 5);
 INSERT INTO public.person_cursos(person_id, curso_id) VALUES ((SELECT id FROM public.person where document='654321'), (SELECT id FROM public.curso where orden='1'));
 
 
-UPDATE public.account_roles SET role_id=3 WHERE account_id=31;
+--- creacion de materias sin confirmar 7mo grado
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'Cultura Religiosa', 14, (select id from public.curso where orden = 7), (select id from public.person where document = '4549970'));
+
+--- creacion de materias sin confirmar 8vo grado
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'Cultura Religiosa', 14, (select id from public.curso where orden = 8), (select id from public.person where document = '4549970'));
+
+--- creacion de materias sin confirmar 9no grado
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'Cultura Religiosa', 14, (select id from public.curso where orden = 9), (select id from public.person where document = '4549970'));
+
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4549970'), (select id from public.curso where orden = 7));
+
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4549970'), (select id from public.curso where orden = 8));
+
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4549970'), (select id from public.curso where orden = 9));
+
+
+--- Crear materias de tercer curso
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'Metodología de la Investigación', 15, (select id from public.curso where orden = 12), (select id from public.person where document = '2080938'));
+
+-- cambiar de profesor en la materia de estadistica de segundo anho
+UPDATE public.asignatura SET person_id=(select id from public.person where document = '420526') WHERE curso_id=(select id from public.curso where orden = 11) and orden=15;
+
+-- cambiar de profesor en la materia de musica de 7, 8, 9
+UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 7) and orden=11;
+UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 8) and orden=11;
+UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 9) and orden=11;
+
