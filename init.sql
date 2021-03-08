@@ -1553,3 +1553,7 @@ VALUES ((select id from public.person where document = '4469096'), (select id fr
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 7) and orden=11;
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 8) and orden=11;
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '4469096') WHERE curso_id=(select id from public.curso where orden = 9) and orden=11;
+
+--- asignar rol de coordinador a usuario
+INSERT INTO public.account_roles(account_id, role_id)
+VALUES ((select id from public.account where document = '2036115'), 2);

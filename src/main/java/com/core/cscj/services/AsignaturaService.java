@@ -14,6 +14,7 @@ import com.core.cscj.models.responses.ActividadResponse;
 import com.core.cscj.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class AsignaturaService {
@@ -31,6 +32,9 @@ public class AsignaturaService {
 
     @Autowired
     private ArchivosAdjuntosRepo archivosAdjuntosRepo;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     private List<Actividad> finAllActividadesFromAsignaturaById(Integer idAsignatura, Boolean condition){
 
@@ -78,7 +82,7 @@ public class AsignaturaService {
         return maxOrder +1;
     }
 
-    public ActividadResponse createClase(Integer idAsignatura, Clase clase, List<LoadedFile> uploadedFiles){
+    public ActividadResponse createClase(Integer idAsignatura, Clase clase, MultipartFile[] files){
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
         if(!asignatura.isPresent()) return new ActividadResponse();
@@ -89,20 +93,11 @@ public class AsignaturaService {
 
         Clase claseStored = claseRepo.save(clase);
 
-        List<ArchivosAdjuntos> archivosAdjuntos = uploadedFiles.stream().map(uploadFile -> new ArchivosAdjuntos(
-                uploadFile.getFileName(),
-                uploadFile.getFileDownloadUri(),
-                uploadFile.getFileType(),
-                uploadFile.getSize(),
-                Actividades.CLASE.name(),
-                claseStored.getId()
-                )).collect(Collectors.toList());
-
-        return new ActividadResponse(claseStored,
-                archivosAdjuntos.stream().map(archivoAdjunto -> archivosAdjuntosRepo.save(archivoAdjunto)).collect(Collectors.toList()));
+        return new ActividadResponse(claseStored, (files != null) ?
+                fileStorageService.uploadMultipleFiles(Actividades.CLASE.name(), idAsignatura, files) : new ArrayList<>());
     }
 
-    public ActividadResponse createTarea(Integer idAsignatura, Tarea tarea, List<LoadedFile> uploadedFiles){
+    public ActividadResponse createTarea(Integer idAsignatura, Tarea tarea, MultipartFile[] files){
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
         if(!asignatura.isPresent()) return null;
@@ -110,19 +105,11 @@ public class AsignaturaService {
         tarea.setAsignatura(asignatura.get());
         tarea.setOrden(getNextOrder(idAsignatura));
         tarea.setTipoActividad(Actividades.TAREA.name());
+
         Tarea tareaStored = tareaRepo.save(tarea);
 
-        List<ArchivosAdjuntos> archivosAdjuntos = uploadedFiles.stream().map(uploadFile -> new ArchivosAdjuntos(
-                uploadFile.getFileName(),
-                uploadFile.getFileDownloadUri(),
-                uploadFile.getFileType(),
-                uploadFile.getSize(),
-                Actividades.TAREA.name(),
-                tareaStored.getId()
-        )).collect(Collectors.toList());
-
-        return new ActividadResponse(tareaStored,
-                archivosAdjuntos.stream().map(archivoAdjunto -> archivosAdjuntosRepo.save(archivoAdjunto)).collect(Collectors.toList()));
+        return new ActividadResponse(tareaStored, (files != null) ?
+                fileStorageService.uploadMultipleFiles(Actividades.TAREA.name(), idAsignatura, files) : new ArrayList<>());
     }
 
     public ActividadResponse findClase(Integer idClase){
@@ -143,5 +130,49 @@ public class AsignaturaService {
         List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.TAREA.name(), idTarea);
 
         return new ActividadResponse(tarea.get(), archivosAdjuntos);
+    }
+
+    public ActividadResponse updateClase(Integer idClase, Clase clase, MultipartFile[] files){
+        Optional<Clase> claseStored = claseRepo.findById(idClase);
+
+        if(!claseStored.isPresent()) return new ActividadResponse();
+
+        Clase claseStoredUnit = claseStored.get();
+
+        claseStoredUnit.setNombre(clase.getNombre());
+        claseStoredUnit.setDescription(clase.getDescription());
+        claseStoredUnit.setOrden(getNextOrder(claseStoredUnit.getAsignatura().getId()));
+        claseStoredUnit.setTipoActividad(Actividades.CLASE.name());
+
+        claseStoredUnit = claseRepo.save(claseStoredUnit);
+
+        return new ActividadResponse(claseStoredUnit,
+                fileStorageService.uploadNotRepeatedFiles(
+                        Actividades.CLASE.name(),
+                        idClase,
+                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.CLASE.name(), idClase), files)
+        );
+    }
+
+    public ActividadResponse updateTarea(Integer idTarea, Tarea tarea, MultipartFile[] files){
+        Optional<Tarea> tareaStored = tareaRepo.findById(idTarea);
+
+        if(!tareaStored.isPresent()) return new ActividadResponse();
+
+        Tarea tareaStoredUnit = tareaStored.get();
+
+        tareaStoredUnit.setNombre(tarea.getNombre());
+        tareaStoredUnit.setDescription(tarea.getDescription());
+        tareaStoredUnit.setOrden(getNextOrder(tareaStoredUnit.getAsignatura().getId()));
+        tareaStoredUnit.setTipoActividad(Actividades.TAREA.name());
+
+        tareaStoredUnit = tareaRepo.save(tareaStoredUnit);
+
+        return new ActividadResponse(tareaStoredUnit,
+                fileStorageService.uploadNotRepeatedFiles(
+                        Actividades.TAREA.name(),
+                        idTarea,
+                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.TAREA.name(), idTarea), files)
+        );
     }
 }

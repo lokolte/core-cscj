@@ -22,13 +22,14 @@ public class ArchivosAdjuntosController {
     @Autowired
     private FileStorageService fileStorageService;
 
-    @GetMapping("/download/{tipoEntidad}/{idEntidad}/{fileName:.+}")
+    @GetMapping("/download/{tipoEntidad}/{idEntidad}/{idArchivoAdjunto}/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("tipoEntidad") String tipoEntidad,
                                                  @PathVariable("idEntidad") Integer idEntidad,
+                                                 @PathVariable("idArchivoAdjunto") Integer idArchivoAdjunto,
                                                  @PathVariable("fileName") String fileName,
                                                  HttpServletRequest request) {
         // Load file as Resource
-        Resource resource = fileStorageService.loadFileAsResource(tipoEntidad, idEntidad, fileName);
+        Resource resource = fileStorageService.loadFileAsResource(tipoEntidad, idEntidad, idArchivoAdjunto, fileName);
 
         // Try to determine file's content type
         String contentType = null;

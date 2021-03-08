@@ -1,6 +1,7 @@
 package com.core.cscj.models.entities;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Set;
 import javax.persistence.*;
 
@@ -28,6 +29,9 @@ public class ArchivosAdjuntos implements Serializable {
     @Column(nullable=false, length=1000)
     private String nombre;
 
+    @Column(name="creation_date")
+    private Timestamp creationDate;
+
     @Column(name = "download_url", nullable=false, length=1000)
     private String downloadUrl;
 
@@ -47,8 +51,9 @@ public class ArchivosAdjuntos implements Serializable {
 
     }
 
-    public ArchivosAdjuntos(String nombre, String downloadUrl, String fileType, long size, String tipoEntidad, Integer idEntidad) {
+    public ArchivosAdjuntos(String nombre, Timestamp creationDate, String downloadUrl, String fileType, long size, String tipoEntidad, Integer idEntidad) {
         this.nombre = nombre;
+        this.creationDate = creationDate;
         this.downloadUrl = downloadUrl;
         this.fileType = fileType;
         this.size = size;
