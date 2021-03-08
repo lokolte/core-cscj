@@ -94,7 +94,7 @@ public class AsignaturaService {
         Clase claseStored = claseRepo.save(clase);
 
         return new ActividadResponse(claseStored, (files != null) ?
-                fileStorageService.uploadMultipleFiles(Actividades.CLASE.name(), idAsignatura, files) : new ArrayList<>());
+                fileStorageService.uploadMultipleFiles(Actividades.CLASE.name(), claseStored.getId(), files) : new ArrayList<>());
     }
 
     public ActividadResponse createTarea(Integer idAsignatura, Tarea tarea, MultipartFile[] files){
@@ -109,7 +109,7 @@ public class AsignaturaService {
         Tarea tareaStored = tareaRepo.save(tarea);
 
         return new ActividadResponse(tareaStored, (files != null) ?
-                fileStorageService.uploadMultipleFiles(Actividades.TAREA.name(), idAsignatura, files) : new ArrayList<>());
+                fileStorageService.uploadMultipleFiles(Actividades.TAREA.name(), tareaStored.getId(), files) : new ArrayList<>());
     }
 
     public ActividadResponse findClase(Integer idClase){
