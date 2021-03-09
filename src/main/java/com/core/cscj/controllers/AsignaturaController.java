@@ -2,19 +2,15 @@ package com.core.cscj.controllers;
 
 import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.Actividad;
-import com.core.cscj.models.entities.ArchivosAdjuntos;
 import com.core.cscj.models.entities.Asignatura;
 import com.core.cscj.models.entities.Clase;
 import com.core.cscj.models.entities.Tarea;
-import com.core.cscj.models.enums.Actividades;
 import com.core.cscj.models.responses.ActividadResponse;
 import com.core.cscj.services.AsignaturaService;
-import com.core.cscj.services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController

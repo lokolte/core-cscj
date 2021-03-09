@@ -4,10 +4,8 @@ import javax.persistence.*;
 
 import com.core.cscj.models.Actividad;
 
-import com.core.cscj.models.enums.Actividades;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.core.cscj.models.enums.Entidades;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * The persistent class for the contact database table.
@@ -40,7 +38,7 @@ public class Planificacion implements Actividad {
     private Asignatura asignatura;
 
     public Planificacion() {
-        this.tipoActividad = Actividades.PLANIFICACION.name();
+        this.tipoActividad = Entidades.PLANIFICACION.name();
     }
 
     @Override

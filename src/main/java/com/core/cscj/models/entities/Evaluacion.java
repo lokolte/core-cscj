@@ -4,10 +4,8 @@ import javax.persistence.*;
 
 import com.core.cscj.models.Actividad;
 
-import com.core.cscj.models.enums.Actividades;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.core.cscj.models.enums.Entidades;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.sql.Timestamp;
 import java.util.Set;
@@ -59,7 +57,7 @@ public class Evaluacion implements Actividad {
     private Set<Tema> temas;
 
     public Evaluacion() {
-        this.tipoActividad = Actividades.EVALUACION.name();
+        this.tipoActividad = Entidades.EVALUACION.name();
     }
 
     @Override

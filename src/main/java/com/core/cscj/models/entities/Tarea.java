@@ -4,10 +4,13 @@ import javax.persistence.*;
 
 import com.core.cscj.models.Actividad;
 
-import com.core.cscj.models.enums.Actividades;
+import com.core.cscj.models.enums.Entidades;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.Set;
 
 /**
  * The persistent class for the contact database table.
@@ -39,8 +42,14 @@ public class Tarea implements Actividad {
     @JoinColumn(name="asignatura_id")
     private Asignatura asignatura;
 
+    @OneToMany(mappedBy="tarea", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<Entrega> entregas;
+
     public Tarea() {
-        this.tipoActividad = Actividades.TAREA.name();
+        this.tipoActividad = Entidades.TAREA.name();
     }
 
     @Override

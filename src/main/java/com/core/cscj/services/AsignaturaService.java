@@ -7,9 +7,8 @@ import java.util.stream.Collectors;
 
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.Actividad;
-import com.core.cscj.models.enums.Actividades;
+import com.core.cscj.models.enums.Entidades;
 import com.core.cscj.models.enums.Roles;
-import com.core.cscj.models.responses.LoadedFile;
 import com.core.cscj.models.responses.ActividadResponse;
 import com.core.cscj.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,12 +88,12 @@ public class AsignaturaService {
 
         clase.setAsignatura(asignatura.get());
         clase.setOrden(getNextOrder(idAsignatura));
-        clase.setTipoActividad(Actividades.CLASE.name());
+        clase.setTipoActividad(Entidades.CLASE.name());
 
         Clase claseStored = claseRepo.save(clase);
 
         return new ActividadResponse(claseStored, (files != null) ?
-                fileStorageService.uploadMultipleFiles(Actividades.CLASE.name(), claseStored.getId(), files) : new ArrayList<>());
+                fileStorageService.uploadMultipleFiles(Entidades.CLASE.name(), claseStored.getId(), files) : new ArrayList<>());
     }
 
     public ActividadResponse createTarea(Integer idAsignatura, Tarea tarea, MultipartFile[] files){
@@ -104,12 +103,12 @@ public class AsignaturaService {
 
         tarea.setAsignatura(asignatura.get());
         tarea.setOrden(getNextOrder(idAsignatura));
-        tarea.setTipoActividad(Actividades.TAREA.name());
+        tarea.setTipoActividad(Entidades.TAREA.name());
 
         Tarea tareaStored = tareaRepo.save(tarea);
 
         return new ActividadResponse(tareaStored, (files != null) ?
-                fileStorageService.uploadMultipleFiles(Actividades.TAREA.name(), tareaStored.getId(), files) : new ArrayList<>());
+                fileStorageService.uploadMultipleFiles(Entidades.TAREA.name(), tareaStored.getId(), files) : new ArrayList<>());
     }
 
     public ActividadResponse findClase(Integer idClase){
@@ -117,7 +116,7 @@ public class AsignaturaService {
 
         if(!clase.isPresent()) return new ActividadResponse();
 
-        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.CLASE.name(), idClase);
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.CLASE.name(), idClase);
 
         return new ActividadResponse(clase.get(), archivosAdjuntos);
     }
@@ -127,7 +126,7 @@ public class AsignaturaService {
 
         if(!tarea.isPresent()) return new ActividadResponse();
 
-        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.TAREA.name(), idTarea);
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TAREA.name(), idTarea);
 
         return new ActividadResponse(tarea.get(), archivosAdjuntos);
     }
@@ -142,15 +141,15 @@ public class AsignaturaService {
         claseStoredUnit.setNombre(clase.getNombre());
         claseStoredUnit.setDescription(clase.getDescription());
         claseStoredUnit.setOrden(getNextOrder(claseStoredUnit.getAsignatura().getId()));
-        claseStoredUnit.setTipoActividad(Actividades.CLASE.name());
+        claseStoredUnit.setTipoActividad(Entidades.CLASE.name());
 
         claseStoredUnit = claseRepo.save(claseStoredUnit);
 
         return new ActividadResponse(claseStoredUnit,
                 fileStorageService.uploadNotRepeatedFiles(
-                        Actividades.CLASE.name(),
+                        Entidades.CLASE.name(),
                         idClase,
-                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.CLASE.name(), idClase), files)
+                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.CLASE.name(), idClase), files)
         );
     }
 
@@ -164,15 +163,15 @@ public class AsignaturaService {
         tareaStoredUnit.setNombre(tarea.getNombre());
         tareaStoredUnit.setDescription(tarea.getDescription());
         tareaStoredUnit.setOrden(getNextOrder(tareaStoredUnit.getAsignatura().getId()));
-        tareaStoredUnit.setTipoActividad(Actividades.TAREA.name());
+        tareaStoredUnit.setTipoActividad(Entidades.TAREA.name());
 
         tareaStoredUnit = tareaRepo.save(tareaStoredUnit);
 
         return new ActividadResponse(tareaStoredUnit,
                 fileStorageService.uploadNotRepeatedFiles(
-                        Actividades.TAREA.name(),
+                        Entidades.TAREA.name(),
                         idTarea,
-                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Actividades.TAREA.name(), idTarea), files)
+                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TAREA.name(), idTarea), files)
         );
     }
 }

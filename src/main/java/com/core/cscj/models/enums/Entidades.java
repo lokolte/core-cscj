@@ -1,6 +1,6 @@
 package com.core.cscj.models.enums;
 
-public enum Actividades {
+public enum Entidades {
 
     CLASE,
 
@@ -8,6 +8,8 @@ public enum Actividades {
 
     PLANIFICACION,
 
-    EVALUACION
+    EVALUACION,
+
+    ENTREGA
 
 }

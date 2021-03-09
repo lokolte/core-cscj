@@ -75,6 +75,12 @@ public class Person implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private Set<Evaluacion> evaluaciones;
 
+	@OneToMany(mappedBy="alumno", fetch = FetchType.LAZY)
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Set<Entrega> entregas;
+
 	public Person() {
 	}
 
