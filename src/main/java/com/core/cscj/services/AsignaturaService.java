@@ -10,6 +10,7 @@ import com.core.cscj.models.Actividad;
 import com.core.cscj.models.enums.Entidades;
 import com.core.cscj.models.enums.Roles;
 import com.core.cscj.models.responses.ActividadResponse;
+import com.core.cscj.models.responses.EntregaResponse;
 import com.core.cscj.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class AsignaturaService {
 
     @Autowired
     private AccountRepo accountRepo;
+
+    @Autowired
+    private EntregaRepo entregaRepo;
 
     @Autowired
     private ArchivosAdjuntosRepo archivosAdjuntosRepo;
@@ -92,7 +96,7 @@ public class AsignaturaService {
 
         Clase claseStored = claseRepo.save(clase);
 
-        return new ActividadResponse(claseStored, (files != null) ?
+        return new ActividadResponse(claseStored, null, (files != null) ?
                 fileStorageService.uploadMultipleFiles(Entidades.CLASE.name(), claseStored.getId(), files) : new ArrayList<>());
     }
 
@@ -107,7 +111,7 @@ public class AsignaturaService {
 
         Tarea tareaStored = tareaRepo.save(tarea);
 
-        return new ActividadResponse(tareaStored, (files != null) ?
+        return new ActividadResponse(tareaStored, null, (files != null) ?
                 fileStorageService.uploadMultipleFiles(Entidades.TAREA.name(), tareaStored.getId(), files) : new ArrayList<>());
     }
 
@@ -118,17 +122,32 @@ public class AsignaturaService {
 
         List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.CLASE.name(), idClase);
 
-        return new ActividadResponse(clase.get(), archivosAdjuntos);
+        return new ActividadResponse(clase.get(), null, archivosAdjuntos);
     }
 
-    public ActividadResponse findTarea(Integer idTarea){
+    public ActividadResponse findTarea(String document, Integer idTarea){
+        //Find user related info like roles
+        Account account = accountRepo.findByDocument(document);
+        if(account == null) return new ActividadResponse();
+        List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
+
         Optional<Tarea> tarea = tareaRepo.findById(idTarea);
 
         if(!tarea.isPresent()) return new ActividadResponse();
 
         List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TAREA.name(), idTarea);
 
-        return new ActividadResponse(tarea.get(), archivosAdjuntos);
+        Entrega entregaStored = null;
+        List<ArchivosAdjuntos> archivosDeEntrega = new ArrayList<>();
+
+        // if users has the role ALUMNO, then we will attach his entrega if it exist
+        if(roles.contains(Roles.ALUMNO.name())){
+            entregaStored = entregaRepo.findEntregaByIdAlumnoAndIdTarea(account.getPerson().getId(), idTarea);
+            if(entregaStored != null)
+                archivosDeEntrega = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entregaStored.getId());
+        }
+
+        return new ActividadResponse(tarea.get(), new EntregaResponse(entregaStored, archivosDeEntrega), archivosAdjuntos);
     }
 
     public ActividadResponse updateClase(Integer idClase, Clase clase, MultipartFile[] files){
@@ -145,7 +164,7 @@ public class AsignaturaService {
 
         claseStoredUnit = claseRepo.save(claseStoredUnit);
 
-        return new ActividadResponse(claseStoredUnit,
+        return new ActividadResponse(claseStoredUnit, null,
                 fileStorageService.uploadNotRepeatedFiles(
                         Entidades.CLASE.name(),
                         idClase,
@@ -167,7 +186,7 @@ public class AsignaturaService {
 
         tareaStoredUnit = tareaRepo.save(tareaStoredUnit);
 
-        return new ActividadResponse(tareaStoredUnit,
+        return new ActividadResponse(tareaStoredUnit, null,
                 fileStorageService.uploadNotRepeatedFiles(
                         Entidades.TAREA.name(),
                         idTarea,

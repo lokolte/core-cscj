@@ -8,14 +8,16 @@ import java.util.List;
 
 public class ActividadResponse implements Serializable {
     private Actividad actividad;
+    private EntregaResponse entrega;
     private List<ArchivosAdjuntos> archivosAdjuntos;
 
     public ActividadResponse() {
     }
 
-    public ActividadResponse(Actividad actividad, List<ArchivosAdjuntos> archivosAdjuntos) {
+    public ActividadResponse(Actividad actividad, EntregaResponse entrega, List<ArchivosAdjuntos> archivosAdjuntos) {
         this.actividad = actividad;
         this.archivosAdjuntos = archivosAdjuntos;
+        this.entrega = entrega;
     }
 
     public Actividad getActividad() {
@@ -24,6 +26,14 @@ public class ActividadResponse implements Serializable {
 
     public void setActividad(Actividad actividad) {
         this.actividad = actividad;
+    }
+
+    public EntregaResponse getEntrega() {
+        return entrega;
+    }
+
+    public void setEntrega(EntregaResponse entrega) {
+        this.entrega = entrega;
     }
 
     public List<ArchivosAdjuntos> getArchivosAdjuntos() {

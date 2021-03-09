@@ -44,7 +44,7 @@ public class EntregaService {
 
         Entrega entregaToStore = entregaRepo.findEntregaByIdAlumnoAndIdTarea(alumno.getId(), idTarea);
 
-        if(entregaToStore == null) entregaToStore = new Entrega();;
+        if(entregaToStore == null) entregaToStore = new Entrega();
 
         entregaToStore.setFechaEntrega(new Timestamp(new Date().getTime()));
         entregaToStore.setAlumno(alumno);

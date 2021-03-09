@@ -31,8 +31,10 @@ public class ActividadController {
     }
 
     @GetMapping(value="/tareas/{idTarea}")
-    public ActividadResponse findTarea(@PathVariable("idTarea") Integer idTarea) {
-        return asignaturaService.findTarea(idTarea);
+    public ActividadResponse findTarea(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable("idTarea") Integer idTarea) {
+        return asignaturaService.findTarea(jwtUtil.getDocumentFromJwtToken(authorization), idTarea);
     }
 
     @PutMapping(value="/clases/{idClase}")
