@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.enums.Entidades;
+import com.core.cscj.models.enums.Roles;
 import com.core.cscj.models.responses.CursoResponse;
 import com.core.cscj.models.responses.EntregaResponse;
 import com.core.cscj.models.responses.EntregasResponse;
@@ -69,14 +70,52 @@ public class EntregaService {
         Optional<Tarea> tarea = tareaRepo.findById(idTarea);
         if(!tarea.isPresent()) return new EntregasResponse();
 
+        Curso curso = tarea.get().getAsignatura().getCurso();
+
+        // get all alumnos from the curso, excluding proferoes, coordinadores, tutores and admin, only alumno is accepted
+        List<Person> alumnos = curso.getPersons()
+                .stream().collect(Collectors.toList())
+                .stream().filter(
+                        alumnoItem ->
+                                alumnoItem.getAccounts().stream().collect(Collectors.toList())
+                                        .get(0)
+                                        .getRoles().stream().collect(Collectors.toList())
+                                        .stream().map(
+                                                role -> role.getName()
+                                        ).collect(Collectors.toList())
+                                        .contains(Roles.ALUMNO.name())
+                ).collect(Collectors.toList());
+
+        List<Entrega> entregas = entregaRepo.findEntregasByIdTarea(idTarea);
+
+        HashMap<Integer, EntregaResponse> entregasFinalMap = new HashMap<>();
+
+        entregas.forEach(
+                entrega ->
+                        entregasFinalMap
+                                .put(
+                                        entrega.getAlumno().getId(),
+                                        new EntregaResponse(
+                                                entrega,
+                                                archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                        )
+                                )
+        );
+
+        for(Person alumno : alumnos) {
+            EntregaResponse entregaObtenida = entregasFinalMap.get(alumno.getId());
+            if (entregaObtenida == null){
+                Entrega newEntrega = new Entrega();
+                newEntrega.setFechaEntrega(null);
+                newEntrega.setTarea(tarea.get());
+                newEntrega.setAlumno(alumno);
+                entregasFinalMap.put(alumno.getId(), new EntregaResponse(newEntrega, new ArrayList<>()));
+            }
+        }
+
         return new EntregasResponse(
                 tarea.get(),
-                entregaRepo.findEntregasByIdTarea(idTarea).stream().map(
-                    entrega -> new EntregaResponse(
-                        entrega,
-                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
-                    )
-                ).collect(Collectors.toList())
+                entregasFinalMap.entrySet().stream().map(entregaMapItem -> entregaMapItem.getValue()).sorted().collect(Collectors.toList())
         );
     }
 }

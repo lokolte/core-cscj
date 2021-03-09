@@ -6,7 +6,7 @@ import com.core.cscj.models.entities.Entrega;
 import java.io.Serializable;
 import java.util.List;
 
-public class EntregaResponse implements Serializable {
+public class EntregaResponse implements Serializable, Comparable<EntregaResponse> {
     private Entrega entrega;
     private List<ArchivosAdjuntos> archivosAdjuntos;
 
@@ -16,6 +16,11 @@ public class EntregaResponse implements Serializable {
     public EntregaResponse(Entrega entrega, List<ArchivosAdjuntos> archivosAdjuntos) {
         this.entrega = entrega;
         this.archivosAdjuntos = archivosAdjuntos;
+    }
+
+    @Override
+    public int compareTo(EntregaResponse entregaResponse){
+        return this.getEntrega().getAlumno().getLastname().compareTo(entregaResponse.getEntrega().getAlumno().getLastname());
     }
 
     public Entrega getEntrega() {

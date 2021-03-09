@@ -50,7 +50,7 @@ public class ActividadController {
     }
 
     @GetMapping(value="/tareas/{idTarea}/entregas")
-    public EntregasResponse getAllEntregasFromAsignatura(@RequestHeader("Authorization") String authorization, @PathVariable("idTarea") Integer idTarea) {
+    public EntregasResponse getAllEntregasFromAsignatura(@PathVariable("idTarea") Integer idTarea) {
         return entregaService.findAllEntregasByIdTarea(idTarea);
     }
 
