@@ -144,18 +144,20 @@ public class FileStorageService {
                 .collect(Collectors.toList());
     }
 
+    // this function needs to be refactored, we need to delete just the file deleted in another call
     public List<ArchivosAdjuntos> uploadNotRepeatedFiles(String tipoEntidad, Integer idEntidad, List<ArchivosAdjuntos> archivosAdjuntos, MultipartFile[] files){
-        for (ArchivosAdjuntos archivoAdjunto : archivosAdjuntos) {
-            try {
-                String directory = getConfiguredDir() + "/" + tipoEntidad + "/" + idEntidad + "/" + archivoAdjunto.getId();
-                FileUtils.deleteDirectory(new File(directory));
-                archivosAdjuntosRepo.delete(archivoAdjunto);
-            } catch (MalformedURLException ex) {
-                throw new MyFileNotFoundException("Archivo no encontrado " + archivoAdjunto.getNombre(), ex);
-            } catch (IOException ioEx) {
-                throw new FileStorageException("Existio un error al borrar el archivo.", ioEx);
+        if(files.length > 0)
+            for (ArchivosAdjuntos archivoAdjunto : archivosAdjuntos) {
+                try {
+                    String directory = getConfiguredDir() + "/" + tipoEntidad + "/" + idEntidad + "/" + archivoAdjunto.getId();
+                    FileUtils.deleteDirectory(new File(directory));
+                    archivosAdjuntosRepo.delete(archivoAdjunto);
+                } catch (MalformedURLException ex) {
+                    throw new MyFileNotFoundException("Archivo no encontrado " + archivoAdjunto.getNombre(), ex);
+                } catch (IOException ioEx) {
+                    throw new FileStorageException("Existio un error al borrar el archivo.", ioEx);
+                }
             }
-        }
         return uploadMultipleFiles(tipoEntidad, idEntidad, files);
     }
 }
