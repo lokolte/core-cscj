@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 /**
@@ -37,6 +38,12 @@ public class Tarea implements Actividad {
 
     @Column(name="orden", nullable=false)
     private Integer orden;
+
+    @Column(name="creation_date")
+    private Timestamp creationDate;
+
+    @Column(name="last_modified_date")
+    private Timestamp lastModifiedDate;
 
     @ManyToOne
     @JoinColumn(name="asignatura_id")
@@ -99,11 +106,35 @@ public class Tarea implements Actividad {
         this.orden = orden;
     }
 
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Timestamp creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Timestamp getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Timestamp lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
     public Asignatura getAsignatura() {
         return asignatura;
     }
 
     public void setAsignatura(Asignatura asignatura) {
         this.asignatura = asignatura;
+    }
+
+    public Set<Entrega> getEntregas() {
+        return entregas;
+    }
+
+    public void setEntregas(Set<Entrega> entregas) {
+        this.entregas = entregas;
     }
 }

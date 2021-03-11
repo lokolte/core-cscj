@@ -7,6 +7,8 @@ import com.core.cscj.models.Actividad;
 import com.core.cscj.models.enums.Entidades;
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 /**
  * The persistent class for the contact database table.
  *
@@ -32,6 +34,12 @@ public class Clase implements Actividad {
 
     @Column(name="orden", nullable=false)
     private Integer orden;
+
+    @Column(name="creation_date")
+    private Timestamp creationDate;
+
+    @Column(name="last_modified_date")
+    private Timestamp lastModifiedDate;
 
     @ManyToOne
     @JoinColumn(name="asignatura_id")
@@ -86,6 +94,22 @@ public class Clase implements Actividad {
 
     public void setOrden(Integer orden) {
         this.orden = orden;
+    }
+
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Timestamp creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Timestamp getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Timestamp lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     public Asignatura getAsignatura() {

@@ -1,6 +1,8 @@
 package com.core.cscj.services;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -93,6 +95,7 @@ public class AsignaturaService {
         clase.setAsignatura(asignatura.get());
         clase.setOrden(getNextOrder(idAsignatura));
         clase.setTipoActividad(Entidades.CLASE.name());
+        clase.setCreationDate(new Timestamp(new Date().getTime()));
 
         Clase claseStored = claseRepo.save(clase);
 
@@ -108,6 +111,7 @@ public class AsignaturaService {
         tarea.setAsignatura(asignatura.get());
         tarea.setOrden(getNextOrder(idAsignatura));
         tarea.setTipoActividad(Entidades.TAREA.name());
+        tarea.setCreationDate(new Timestamp(new Date().getTime()));
 
         Tarea tareaStored = tareaRepo.save(tarea);
 
@@ -159,8 +163,8 @@ public class AsignaturaService {
 
         claseStoredUnit.setNombre(clase.getNombre());
         claseStoredUnit.setDescription(clase.getDescription());
-        claseStoredUnit.setOrden(getNextOrder(claseStoredUnit.getAsignatura().getId()));
         claseStoredUnit.setTipoActividad(Entidades.CLASE.name());
+        claseStoredUnit.setLastModifiedDate(new Timestamp(new Date().getTime()));
 
         claseStoredUnit = claseRepo.save(claseStoredUnit);
 
@@ -181,8 +185,8 @@ public class AsignaturaService {
 
         tareaStoredUnit.setNombre(tarea.getNombre());
         tareaStoredUnit.setDescription(tarea.getDescription());
-        tareaStoredUnit.setOrden(getNextOrder(tareaStoredUnit.getAsignatura().getId()));
         tareaStoredUnit.setTipoActividad(Entidades.TAREA.name());
+        tareaStoredUnit.setLastModifiedDate(new Timestamp(new Date().getTime()));
 
         tareaStoredUnit = tareaRepo.save(tareaStoredUnit);
 

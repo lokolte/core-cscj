@@ -45,6 +45,12 @@ public class Evaluacion implements Actividad {
     @Column(name="fecha_fin")
     private Timestamp fechaFin;
 
+    @Column(name="creation_date")
+    private Timestamp creationDate;
+
+    @Column(name="last_modified_date")
+    private Timestamp lastModifiedDate;
+
     @ManyToOne
     @JoinColumn(name="person_id")
     private Person profesor;
@@ -129,6 +135,22 @@ public class Evaluacion implements Actividad {
 
     public void setFechaFin(Timestamp fechaFin) {
         this.fechaFin = fechaFin;
+    }
+
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Timestamp creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Timestamp getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Timestamp lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     public Person getProfesor() {
