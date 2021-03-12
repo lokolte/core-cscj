@@ -48,7 +48,7 @@ public class VideoClaseService {
             return videoClaseRepo.findAll().stream().filter(videoclase ->
                             (videoclase.getDate().getYear() == todayDate.getYear()
                             && videoclase.getDate().getMonth() == todayDate.getMonth()
-                            && videoclase.getDate().getDay() == todayDate.getDay()
+                            && getDay(videoclase.getDate()) == getDay(todayDate)
                             && videoclase.getAsignatura().getCurso().getId() == curso.getId())).collect(Collectors.toList())
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
@@ -67,6 +67,12 @@ public class VideoClaseService {
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
                                     videoClaseFinal)).collect(Collectors.toList());
+    }
+
+    private Integer getDay(Date date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.DAY_OF_MONTH);
     }
 
     public VideoClase createVideoClase(VideoClaseRequest videoClaseRequest) throws ParseException {
