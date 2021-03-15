@@ -77,10 +77,6 @@ public class FileStorageService {
         String fileName = getFileName(file);
 
         try {
-            // Check if the file's name contains invalid characters
-            if(fileName.contains("..")) {
-                throw new FileStorageException("Lo sentimos! El archivo contiene caracteres inválidos " + fileName);
-            }
             // Copy file to the target location (Replacing existing file with the same name)
             Path targetLocation = createDir(tipoActividad + "/" + idActividad + "/" + idArchivoAdjunto).resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
