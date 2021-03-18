@@ -29,4 +29,9 @@ public class VideoClaseController {
     public VideoClase crearVideoClase(@RequestBody VideoClaseRequest videoClaseRequest)  throws ParseException {
         return videoClaseService.createVideoClase(videoClaseRequest);
     }
+
+    @DeleteMapping(value = "/{idVideoClase}")
+    public void deleteVideoClase(@PathVariable("idVideoClase") Integer idVideoClase)  throws Exception {
+        videoClaseService.deleteVideoClase(idVideoClase);
+    }
 }

@@ -94,4 +94,12 @@ public class VideoClaseService {
 
         return videoClaseRepo.save(videoClase);
     }
+
+    public void deleteVideoClase(Integer idVideoClase) throws Exception {
+        Optional<VideoClase> videoClase = videoClaseRepo.findById(idVideoClase);
+
+        if(!videoClase.isPresent()) throw new Exception("No existe la video clase con id: " + idVideoClase);
+
+        videoClaseRepo.delete(videoClase.get());
+    }
 }

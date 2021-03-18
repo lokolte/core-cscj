@@ -1181,6 +1181,10 @@ INSERT INTO public.person_cursos(
     person_id, curso_id)
 VALUES ((select id from public.person where document = '4549970'), (select id from public.curso where orden = 10));
 
+---- Modificacion para agregarle a la profesora Mirna al 1er curso
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '1267808'), (select id from public.curso where orden = 10));
 
 --Asignaturas del 1ero de la Media
 INSERT INTO public.asignatura(
