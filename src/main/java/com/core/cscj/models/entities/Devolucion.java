@@ -2,6 +2,7 @@ package com.core.cscj.models.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Set;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,10 +16,10 @@ import lombok.ToString;
  *
  */
 @Entity
-@Table(name="entrega")
+@Table(name="devolucion")
 @Data
-@NamedQuery(name="Entrega.findAll", query="SELECT e FROM Entrega e")
-public class Entrega implements Serializable {
+@NamedQuery(name="Devolucion.findAll", query="SELECT d FROM Devolucion d")
+public class Devolucion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -26,8 +27,11 @@ public class Entrega implements Serializable {
     @Column(unique=true, nullable=false)
     private Integer id;
 
-    @Column(name="fecha_entrega")
-    private Timestamp fechaEntrega;
+    @Column(length=10)
+    private String puntaje;
+
+    @Column(length=20000)
+    private String observaciones;
 
     @Column(name="creation_date")
     private Timestamp creationDate;
@@ -35,21 +39,14 @@ public class Entrega implements Serializable {
     @Column(name="last_modified_date")
     private Timestamp lastModifiedDate;
 
-    @ManyToOne
-    @JoinColumn(name="person_id")
-    private Person alumno;
-
-    @ManyToOne
-    @JoinColumn(name="tarea_id")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "entrega_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Tarea tarea;
+    private Entrega entrega;
 
-    @OneToOne(mappedBy = "entrega", fetch = FetchType.LAZY)
-    private Devolucion devolucion;
-
-    public Entrega() {
+    public Devolucion() {
     }
 
     public Integer getId() {
@@ -60,12 +57,20 @@ public class Entrega implements Serializable {
         this.id = id;
     }
 
-    public Timestamp getFechaEntrega() {
-        return fechaEntrega;
+    public String getPuntaje() {
+        return puntaje;
     }
 
-    public void setFechaEntrega(Timestamp fechaEntrega) {
-        this.fechaEntrega = fechaEntrega;
+    public void setPuntaje(String puntaje) {
+        this.puntaje = puntaje;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
     }
 
     public Timestamp getCreationDate() {
@@ -84,19 +89,11 @@ public class Entrega implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Person getAlumno() {
-        return alumno;
+    public Entrega getEntrega() {
+        return entrega;
     }
 
-    public void setAlumno(Person alumno) {
-        this.alumno = alumno;
-    }
-
-    public Tarea getTarea() {
-        return tarea;
-    }
-
-    public void setTarea(Tarea tarea) {
-        this.tarea = tarea;
+    public void setEntrega(Entrega entrega) {
+        this.entrega = entrega;
     }
 }

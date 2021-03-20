@@ -28,6 +28,9 @@ public class EntregaService {
     private EntregaRepo entregaRepo;
 
     @Autowired
+    private DevolucionRepo devolucionRepo;
+
+    @Autowired
     private ArchivosAdjuntosRepo archivosAdjuntosRepo;
 
     @Autowired
@@ -120,5 +123,43 @@ public class EntregaService {
                 tarea.get(),
                 entregasFinalMap.entrySet().stream().map(entregaMapItem -> entregaMapItem.getValue()).sorted().collect(Collectors.toList())
         );
+    }
+
+    public EntregaResponse upsertEntregaDevolucion(Integer idEntrega, Devolucion devolucion){
+        Optional<Entrega> entregaOptional = entregaRepo.findById(idEntrega);
+
+        if(!entregaOptional.isPresent()) return new EntregaResponse();
+
+        Entrega entrega = entregaOptional.get();
+
+        Devolucion devolucionToStore = entrega.getDevolucion();
+
+        if(devolucionToStore == null) {
+            devolucionToStore = new Devolucion();
+            devolucionToStore.setCreationDate(new Timestamp(new Date().getTime()));
+        } else devolucionToStore.setLastModifiedDate(new Timestamp(new Date().getTime()));
+
+        devolucionToStore.setPuntaje(devolucion.getPuntaje());
+        devolucionToStore.setObservaciones(devolucion.getObservaciones());
+        devolucionToStore.setEntrega(entrega);
+        entrega.setDevolucion(devolucionToStore);
+
+        devolucionRepo.save(devolucionToStore);
+        entrega = entregaRepo.save(entrega);
+
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId());
+
+        return new EntregaResponse(
+                entrega,
+                archivosAdjuntos
+        );
+    }
+
+    public Devolucion findEntregaDevolucion(Integer idEntrega) {
+        Optional<Entrega> entregaOptional = entregaRepo.findById(idEntrega);
+
+        if(!entregaOptional.isPresent()) return null;
+
+        return entregaOptional.get().getDevolucion();
     }
 }
