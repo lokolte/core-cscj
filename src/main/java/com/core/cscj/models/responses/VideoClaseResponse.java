@@ -1,13 +1,10 @@
 package com.core.cscj.models.responses;
 
-import com.core.cscj.models.Actividad;
-import com.core.cscj.models.entities.ArchivosAdjuntos;
 import com.core.cscj.models.entities.Asignatura;
 import com.core.cscj.models.entities.Curso;
 import com.core.cscj.models.entities.VideoClase;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class VideoClaseResponse implements Serializable {
     private Curso curso;

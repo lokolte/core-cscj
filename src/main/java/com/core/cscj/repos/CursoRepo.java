@@ -1,5 +1,6 @@
 package com.core.cscj.repos;
 
+import com.core.cscj.models.entities.Tarea;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.core.cscj.models.entities.Curso;
@@ -23,4 +24,7 @@ public interface CursoRepo extends JpaRepository<Curso, Integer>{
 
     @Query("select c from Curso c where c.orden = :orden")
     Curso findCursoByOrden(@Param("orden") Integer orden);
+
+    @Query("select t from Curso c join c.asignaturas a join a.tareas t where c.id = :idCurso order by t.creationDate desc")
+    List<Tarea> findTareasFromCurso(@Param("idCurso") Integer idCurso);
 }

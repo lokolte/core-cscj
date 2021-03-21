@@ -20,7 +20,7 @@ public class EntregaController {
     }
 
     @GetMapping(value="/{idEntrega}/devolucion")
-    public Devolucion getAllEntregasFromAsignatura(@PathVariable("idEntrega") Integer idEntrega) {
+    public Devolucion getDevolucionFromEntrega(@PathVariable("idEntrega") Integer idEntrega) {
         return entregaService.findEntregaDevolucion(idEntrega);
     }
 }

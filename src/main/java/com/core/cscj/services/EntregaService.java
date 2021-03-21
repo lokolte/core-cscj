@@ -22,6 +22,9 @@ public class EntregaService {
     private PersonRepo personRepo;
 
     @Autowired
+    private CursoRepo cursoRepo;
+
+    @Autowired
     private TareaRepo tareaRepo;
 
     @Autowired
@@ -163,14 +166,35 @@ public class EntregaService {
         return entregaOptional.get().getDevolucion();
     }
 
-    public List<EntregaResponse> findAllEntregasFromAlumno(Integer idAlumno) {
+    public List<EntregasResponse> findAllEntregasFromAlumno(Integer idAlumno) {
+        Optional<Person> personOptional = personRepo.findById(idAlumno);
+
+        if(!personOptional.isPresent()) return new ArrayList<>();
+
+        Person person = personOptional.get();
+
+        List<Curso> cursos = person.getCursos().stream().collect(Collectors.toList());
+
+        if(cursos.size() == 0) return new ArrayList<>();
+
+        List<Tarea> tareas = cursoRepo.findTareasFromCurso(cursos.get(0).getId());
+
         List<Entrega> entregas = entregaRepo.findAllEntregasByIdAlumno(idAlumno);
 
-        return entregas.stream().map(
-                entrega -> new EntregaResponse(
-                        entrega,
-                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
-                )
-        ).collect(Collectors.toList());
+        return tareas.stream().map(
+                tarea ->
+                        new EntregasResponse(
+                                tarea,
+                                entregas.stream().filter(
+                                        entrega -> entrega.getTarea().getId() == tarea.getId()
+                                ).map(
+                                        entrega ->
+                                                new EntregaResponse(
+                                                        entrega,
+                                                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                )
+                                ).collect(Collectors.toList())
+                        )
+        ).sorted().collect(Collectors.toList());
     }
 }

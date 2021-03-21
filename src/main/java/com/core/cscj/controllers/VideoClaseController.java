@@ -36,7 +36,7 @@ public class VideoClaseController {
     }
 
     @GetMapping(value = "/{idVideoClase}")
-    public VideoClase getVideoClase(@PathVariable("idVideoClase") Integer idVideoClase)  throws Exception {
+    public VideoClaseResponse getVideoClase(@PathVariable("idVideoClase") Integer idVideoClase)  throws Exception {
         return videoClaseService.getVideoClase(idVideoClase);
     }
 }

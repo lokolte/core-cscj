@@ -110,11 +110,13 @@ public class VideoClaseService {
         videoClaseRepo.delete(videoClase.get());
     }
 
-    public VideoClase getVideoClase(Integer idVideoClase) throws Exception {
+    public VideoClaseResponse getVideoClase(Integer idVideoClase) throws Exception {
         Optional<VideoClase> videoClase = videoClaseRepo.findById(idVideoClase);
 
         if(!videoClase.isPresent()) throw new Exception("No existe la video clase con id: " + idVideoClase);
 
-        return videoClase.get();
+        return new VideoClaseResponse(videoClase.get().getAsignatura().getCurso(),
+                videoClase.get().getAsignatura(),
+                videoClase.get());
     }
 }
