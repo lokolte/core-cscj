@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 public class VideoClaseRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private Integer id;
     private Integer curso;
     private Integer materia;
     private Integer minsCatedra;
@@ -17,6 +18,14 @@ public class VideoClaseRequest implements Serializable {
     private String fecha;
 
     public VideoClaseRequest(){}
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Integer getCurso() {
         return curso;

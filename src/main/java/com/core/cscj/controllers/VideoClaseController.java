@@ -26,12 +26,17 @@ public class VideoClaseController {
     }
 
     @PostMapping
-    public VideoClase crearVideoClase(@RequestBody VideoClaseRequest videoClaseRequest)  throws ParseException {
-        return videoClaseService.createVideoClase(videoClaseRequest);
+    public VideoClase upsertVideoClase(@RequestBody VideoClaseRequest videoClaseRequest)  throws ParseException {
+        return videoClaseService.upsertVideoClase(videoClaseRequest);
     }
 
     @DeleteMapping(value = "/{idVideoClase}")
     public void deleteVideoClase(@PathVariable("idVideoClase") Integer idVideoClase)  throws Exception {
         videoClaseService.deleteVideoClase(idVideoClase);
+    }
+
+    @GetMapping(value = "/{idVideoClase}")
+    public VideoClase getVideoClase(@PathVariable("idVideoClase") Integer idVideoClase)  throws Exception {
+        return videoClaseService.getVideoClase(idVideoClase);
     }
 }

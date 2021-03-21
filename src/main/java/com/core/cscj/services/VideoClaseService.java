@@ -75,14 +75,21 @@ public class VideoClaseService {
         return calendar.get(Calendar.DAY_OF_MONTH);
     }
 
-    public VideoClase createVideoClase(VideoClaseRequest videoClaseRequest) throws ParseException {
+    public VideoClase upsertVideoClase(VideoClaseRequest videoClaseRequest) throws ParseException {
         Optional<Asignatura> asignatura = asignaturaRepo.findById(videoClaseRequest.getMateria());
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         Date date = formatter.parse(videoClaseRequest.getFecha());
 
-        VideoClase videoClase = new VideoClase();
+        VideoClase videoClase;
+
+        if(videoClaseRequest.getId() != null) {
+            Optional<VideoClase> videoClaseOptional = videoClaseRepo.findById(videoClaseRequest.getId());
+            if(videoClaseOptional.isPresent()) videoClase = videoClaseOptional.get();
+            else videoClase = new VideoClase();
+        } else videoClase = new VideoClase();
+
         videoClase.setAsignatura(asignatura.get());
         videoClase.setMinsCatedra(videoClaseRequest.getMinsCatedra());
         videoClase.setHsCatedra(videoClaseRequest.getHsCatedra());
@@ -101,5 +108,13 @@ public class VideoClaseService {
         if(!videoClase.isPresent()) throw new Exception("No existe la video clase con id: " + idVideoClase);
 
         videoClaseRepo.delete(videoClase.get());
+    }
+
+    public VideoClase getVideoClase(Integer idVideoClase) throws Exception {
+        Optional<VideoClase> videoClase = videoClaseRepo.findById(idVideoClase);
+
+        if(!videoClase.isPresent()) throw new Exception("No existe la video clase con id: " + idVideoClase);
+
+        return videoClase.get();
     }
 }
