@@ -3,6 +3,7 @@ package com.core.cscj.controllers;
 import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.entities.Asignatura;
 import com.core.cscj.models.entities.Person;
+import com.core.cscj.models.responses.AlumnoEntregasResponse;
 import com.core.cscj.models.responses.CursoResponse;
 import com.core.cscj.models.responses.EntregasResponse;
 import com.core.cscj.services.*;
@@ -45,7 +46,7 @@ public class PersonController {
     }
 
     @GetMapping(value="/{idAlumno}/entregas")
-    public List<EntregasResponse> getAllEntregasFromAlumno(@PathVariable("idAlumno") Integer idAlumno) {
+    public AlumnoEntregasResponse getAllEntregasFromAlumno(@PathVariable("idAlumno") Integer idAlumno) {
         return entregaService.findAllEntregasFromAlumno(idAlumno);
     }
 }

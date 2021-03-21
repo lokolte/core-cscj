@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.enums.Entidades;
 import com.core.cscj.models.enums.Roles;
+import com.core.cscj.models.responses.AlumnoEntregasResponse;
 import com.core.cscj.models.responses.CursoResponse;
 import com.core.cscj.models.responses.EntregaResponse;
 import com.core.cscj.models.responses.EntregasResponse;
@@ -166,22 +167,24 @@ public class EntregaService {
         return entregaOptional.get().getDevolucion();
     }
 
-    public List<EntregasResponse> findAllEntregasFromAlumno(Integer idAlumno) {
+    public AlumnoEntregasResponse findAllEntregasFromAlumno(Integer idAlumno) {
         Optional<Person> personOptional = personRepo.findById(idAlumno);
 
-        if(!personOptional.isPresent()) return new ArrayList<>();
+        if(!personOptional.isPresent()) return new AlumnoEntregasResponse();
 
         Person person = personOptional.get();
 
         List<Curso> cursos = person.getCursos().stream().collect(Collectors.toList());
 
-        if(cursos.size() == 0) return new ArrayList<>();
+        if(cursos.size() == 0) return new AlumnoEntregasResponse();
 
-        List<Tarea> tareas = cursoRepo.findTareasFromCurso(cursos.get(0).getId());
+        Curso curso = cursos.get(0);
+
+        List<Tarea> tareas = cursoRepo.findTareasFromCurso(curso.getId());
 
         List<Entrega> entregas = entregaRepo.findAllEntregasByIdAlumno(idAlumno);
 
-        return tareas.stream().map(
+        return new AlumnoEntregasResponse(curso, tareas.stream().map(
                 tarea ->
                         new EntregasResponse(
                                 tarea,
@@ -195,6 +198,6 @@ public class EntregaService {
                                                 )
                                 ).collect(Collectors.toList())
                         )
-        ).sorted().collect(Collectors.toList());
+        ).sorted().collect(Collectors.toList()));
     }
 }
