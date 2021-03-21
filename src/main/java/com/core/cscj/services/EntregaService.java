@@ -162,4 +162,15 @@ public class EntregaService {
 
         return entregaOptional.get().getDevolucion();
     }
+
+    public List<EntregaResponse> findAllEntregasFromAlumno(Integer idAlumno) {
+        List<Entrega> entregas = entregaRepo.findAllEntregasByIdAlumno(idAlumno);
+
+        return entregas.stream().map(
+                entrega -> new EntregaResponse(
+                        entrega,
+                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                )
+        ).collect(Collectors.toList());
+    }
 }

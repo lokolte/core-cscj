@@ -14,4 +14,7 @@ public interface EntregaRepo extends JpaRepository<Entrega, Integer>{
 
     @Query("select e from Entrega e where e.alumno.id= :idAlumno and e.tarea.id = :idTarea")
     Entrega findEntregaByIdAlumnoAndIdTarea(@Param("idAlumno") Integer idAlumno, @Param("idTarea") Integer idTarea);
+
+    @Query("select e from Entrega e where e.alumno.id= :idAlumno")
+    List<Entrega> findAllEntregasByIdAlumno(@Param("idAlumno") Integer idAlumno);
 }
