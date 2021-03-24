@@ -6,7 +6,7 @@ import com.core.cscj.models.entities.VideoClase;
 
 import java.io.Serializable;
 
-public class VideoClaseResponse implements Serializable {
+public class VideoClaseResponse implements Serializable, Comparable<VideoClaseResponse> {
     private Curso curso;
     private Asignatura asignatura;
     private VideoClase videoClase;
@@ -18,6 +18,11 @@ public class VideoClaseResponse implements Serializable {
         this.curso = curso;
         this.asignatura = asignatura;
         this.videoClase = videoClase;
+    }
+
+    @Override
+    public int compareTo(VideoClaseResponse videoClaseResponse){
+        return videoClaseResponse.getVideoClase().getDate().compareTo(this.getVideoClase().getDate());
     }
 
     public Curso getCurso() {

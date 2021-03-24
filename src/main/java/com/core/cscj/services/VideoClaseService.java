@@ -53,7 +53,7 @@ public class VideoClaseService {
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
-                                    videoClaseFinal)).collect(Collectors.toList());
+                                    videoClaseFinal)).sorted().collect(Collectors.toList());
         }else if(roles.contains(Roles.COORDINADOR.name())){
             List<Integer> cursos = person.getCursos().stream().map(curso -> curso.getId()).collect(Collectors.toList());
             return videoClaseRepo.findAll().stream().filter(videoclase ->
@@ -61,12 +61,12 @@ public class VideoClaseService {
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
-                                    videoClaseFinal)).collect(Collectors.toList());
+                                    videoClaseFinal)).sorted().collect(Collectors.toList());
         }else return videoClaseRepo.findVideoClaseByProfesor(person.getId())
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
-                                    videoClaseFinal)).collect(Collectors.toList());
+                                    videoClaseFinal)).sorted().collect(Collectors.toList());
     }
 
     private Integer getDay(Date date){

@@ -8,9 +8,9 @@ import com.core.cscj.models.entities.*;
 import com.core.cscj.models.enums.Entidades;
 import com.core.cscj.models.enums.Roles;
 import com.core.cscj.models.responses.AlumnoEntregasResponse;
-import com.core.cscj.models.responses.CursoResponse;
 import com.core.cscj.models.responses.EntregaResponse;
 import com.core.cscj.models.responses.EntregasResponse;
+import com.core.cscj.models.responses.VideoClaseResponse;
 import com.core.cscj.repos.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class EntregaService {
     @Autowired
     private PersonRepo personRepo;
+
+    @Autowired
+    private AccountRepo accountRepo;
 
     @Autowired
     private CursoRepo cursoRepo;
@@ -167,37 +170,67 @@ public class EntregaService {
         return entregaOptional.get().getDevolucion();
     }
 
-    public AlumnoEntregasResponse findAllEntregasFromAlumno(Integer idAlumno) {
-        Optional<Person> personOptional = personRepo.findById(idAlumno);
+    public AlumnoEntregasResponse findAllEntregasFromAlumno(String document, Integer idAlumno) {
+        // Get data related to the current user of the system
+        Person person = personRepo.findByDocument(document);
+        if(person == null) return new AlumnoEntregasResponse();
 
-        if(!personOptional.isPresent()) return new AlumnoEntregasResponse();
+        Account account = accountRepo.findByDocument(document);
+        if(account == null) return new AlumnoEntregasResponse();
 
-        Person person = personOptional.get();
+        List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
 
-        List<Curso> cursos = person.getCursos().stream().collect(Collectors.toList());
+        Person alumno;
+        if(person.getId() == idAlumno) alumno = person;
+        else {
+            // Get data about the current Alumno that is required
+            Optional<Person> alumnoOptional = personRepo.findById(idAlumno);
+            if(!alumnoOptional.isPresent()) return new AlumnoEntregasResponse();
+            alumno = alumnoOptional.get();
+        }
 
+        List<Curso> cursos = alumno.getCursos().stream().collect(Collectors.toList());
         if(cursos.size() == 0) return new AlumnoEntregasResponse();
-
         Curso curso = cursos.get(0);
 
         List<Tarea> tareas = cursoRepo.findTareasFromCurso(curso.getId());
-
         List<Entrega> entregas = entregaRepo.findAllEntregasByIdAlumno(idAlumno);
 
-        return new AlumnoEntregasResponse(curso, tareas.stream().map(
-                tarea ->
-                        new EntregasResponse(
-                                tarea,
-                                entregas.stream().filter(
-                                        entrega -> entrega.getTarea().getId() == tarea.getId()
-                                ).map(
-                                        entrega ->
-                                                new EntregaResponse(
-                                                        entrega,
-                                                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
-                                                )
-                                ).collect(Collectors.toList())
-                        )
-        ).sorted().collect(Collectors.toList()));
+        if(roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.TUTOR.name())) {
+            return new AlumnoEntregasResponse(curso, tareas.stream().map(
+                    tarea ->
+                            new EntregasResponse(
+                                    tarea,
+                                    entregas.stream().filter(
+                                            entrega -> entrega.getTarea().getId() == tarea.getId()
+                                    ).map(
+                                            entrega ->
+                                                    new EntregaResponse(
+                                                            entrega,
+                                                            archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                    )
+                                    ).collect(Collectors.toList())
+                            )
+            ).sorted().collect(Collectors.toList()));
+        }else
+            return new AlumnoEntregasResponse(
+                    curso,
+                    tareas.stream().filter(
+                            tarea -> tarea.getAsignatura().getProfesor().getId() == person.getId()
+                    ).map(
+                            tarea ->
+                                    new EntregasResponse(
+                                            tarea,
+                                            entregas.stream().filter(
+                                                    entrega -> entrega.getTarea().getId() == tarea.getId()
+                                            ).map(
+                                                    entrega ->
+                                                            new EntregaResponse(
+                                                                    entrega,
+                                                                    archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                            )
+                                            ).collect(Collectors.toList())
+                                    )
+                    ).sorted().collect(Collectors.toList()));
     }
 }

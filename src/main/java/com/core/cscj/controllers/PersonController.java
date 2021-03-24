@@ -31,8 +31,10 @@ public class PersonController {
     private JwtUtil jwtUtil;
 
     @GetMapping(value="/cursos")
-    public List<CursoResponse> getAllCursosFromProfesor(@RequestHeader("Authorization") String authorization, @RequestParam Boolean withAsignaturas) {
-        return cursoService.findAllCursosFromPerson(jwtUtil.getDocumentFromJwtToken(authorization), withAsignaturas);
+    public List<CursoResponse> getAllCursosFromProfesor(@RequestHeader("Authorization") String authorization,
+                                                        @RequestParam Boolean withAsignaturas,
+                                                        @RequestParam(defaultValue = "false") Boolean fromVideClase) {
+        return cursoService.findAllCursosFromPerson(jwtUtil.getDocumentFromJwtToken(authorization), withAsignaturas, fromVideClase);
     }
 
     @GetMapping(value="/{idPerson}")
@@ -46,7 +48,7 @@ public class PersonController {
     }
 
     @GetMapping(value="/{idAlumno}/entregas")
-    public AlumnoEntregasResponse getAllEntregasFromAlumno(@PathVariable("idAlumno") Integer idAlumno) {
-        return entregaService.findAllEntregasFromAlumno(idAlumno);
+    public AlumnoEntregasResponse getAllEntregasFromAlumno(@RequestHeader("Authorization") String authorization, @PathVariable("idAlumno") Integer idAlumno) {
+        return entregaService.findAllEntregasFromAlumno(jwtUtil.getDocumentFromJwtToken(authorization), idAlumno);
     }
 }
