@@ -16,6 +16,7 @@ public class VideoClaseRequest implements Serializable {
     private String link;
     private String titulo;
     private String fecha;
+    private Timestamp fechaStr;
 
     public VideoClaseRequest(){}
 
@@ -97,5 +98,13 @@ public class VideoClaseRequest implements Serializable {
 
     public void setFecha(String fecha) {
         this.fecha = fecha;
+    }
+
+    public Timestamp getFechaStr() {
+        return fechaStr;
+    }
+
+    public void setFechaStr(Timestamp fechaStr) {
+        this.fechaStr = fechaStr;
     }
 }

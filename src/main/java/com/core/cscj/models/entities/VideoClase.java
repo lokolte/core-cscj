@@ -29,6 +29,9 @@ public class VideoClase implements Serializable {
     @Column(name="date", nullable=false)
     private Timestamp date;
 
+    @Column(name="date_without_format")
+    private Timestamp dateWithoutFormat;
+
     @Column(name = "hs_catedra", nullable=false)
     private Integer hsCatedra;
 
@@ -73,6 +76,14 @@ public class VideoClase implements Serializable {
 
     public void setDate(Timestamp date) {
         this.date = date;
+    }
+
+    public Timestamp getDateWithoutFormat() {
+        return dateWithoutFormat;
+    }
+
+    public void setDateWithoutFormat(Timestamp dateWithoutFormat) {
+        this.dateWithoutFormat = dateWithoutFormat;
     }
 
     public Integer getHsCatedra() {

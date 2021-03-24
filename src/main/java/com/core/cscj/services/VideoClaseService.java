@@ -94,6 +94,7 @@ public class VideoClaseService {
         videoClase.setMinsCatedra(videoClaseRequest.getMinsCatedra());
         videoClase.setHsCatedra(videoClaseRequest.getHsCatedra());
         videoClase.setDate(new Timestamp(date.getTime()));
+        videoClase.setDateWithoutFormat(videoClaseRequest.getFechaStr());
         videoClase.setInicio(videoClaseRequest.getInicio());
         videoClase.setFin(videoClaseRequest.getFin());
         videoClase.setTitle(videoClaseRequest.getTitulo());
