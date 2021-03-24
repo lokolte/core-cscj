@@ -33,8 +33,8 @@ public class PersonController {
     @GetMapping(value="/cursos")
     public List<CursoResponse> getAllCursosFromProfesor(@RequestHeader("Authorization") String authorization,
                                                         @RequestParam Boolean withAsignaturas,
-                                                        @RequestParam(defaultValue = "false") Boolean fromVideClase) {
-        return cursoService.findAllCursosFromPerson(jwtUtil.getDocumentFromJwtToken(authorization), withAsignaturas, fromVideClase);
+                                                        @RequestParam(defaultValue = "false") Boolean fromVideoClase) {
+        return cursoService.findAllCursosFromPerson(jwtUtil.getDocumentFromJwtToken(authorization), withAsignaturas, fromVideoClase);
     }
 
     @GetMapping(value="/{idPerson}")
