@@ -1,13 +1,13 @@
 package com.core.cscj.models.entities;
 
 import java.io.Serializable;
+import java.util.Set;
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
-
+import lombok.ToString;
 
 /**
  * The persistent class for the account database table.
@@ -26,23 +26,22 @@ public class Account implements Serializable {
 	private Integer id;
 
 	@Column(unique=true, nullable=false, length=100)
-	private String email;
+	private String document;
 
 	@Column(nullable=false, length=100)
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 
-	//bi-directional many-to-one association to Person
 	@ManyToOne
 	@JoinColumn(name="person_id")
-	@JsonIgnoreProperties("accounts")
+	@ToString.Exclude
 	private Person person;
 
-	//bi-directional many-to-one association to Role
-	@ManyToOne
-	@JoinColumn(name="role_id")
-	@JsonIgnoreProperties("accounts")
-	private Role role;
+	@ManyToMany
+	@JoinTable(name = "account_roles",
+			joinColumns = @JoinColumn(name = "account_id"),
+			inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles;
 
 	public Account() {
 	}
@@ -55,12 +54,12 @@ public class Account implements Serializable {
 		this.id = id;
 	}
 
-	public String getEmail() {
-		return this.email;
+	public String getDocument() {
+		return this.document;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setDocument(String document) {
+		this.document = document;
 	}
 
 	public String getPassword() {
@@ -79,12 +78,12 @@ public class Account implements Serializable {
 		this.person = person;
 	}
 
-	public Role getRole() {
-		return this.role;
+	public Set<Role> getRoles() {
+		return this.roles;
 	}
 
-	public void setRole(Role role) {
-		this.role = role;
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 
 }

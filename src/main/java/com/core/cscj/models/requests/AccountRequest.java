@@ -1,22 +1,23 @@
 package com.core.cscj.models.requests;
 
 import java.io.Serializable;
+import java.util.Set;
 
 public class AccountRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private String email;
+	private String document;
 
 	private String password;
 
-	private RoleRequest role;
+	private Set<RoleRequest> roles;
 
-	public String getEmail() {
-		return email;
+	public String getDocument() {
+		return document;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setDocument(String document) {
+		this.document = document;
 	}
 
 	public String getPassword() {
@@ -27,11 +28,11 @@ public class AccountRequest implements Serializable {
 		this.password = password;
 	}
 
-	public RoleRequest getRole() {
-		return role;
+	public Set<RoleRequest> getRoles() {
+		return roles;
 	}
 
-	public void setRole(RoleRequest role) {
-		this.role = role;
+	public void setRoles(Set<RoleRequest> roles) {
+		this.roles = roles;
 	}
 }

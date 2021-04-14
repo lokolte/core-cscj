@@ -1,6 +1,7 @@
 package com.core.cscj.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class PersonService {
 	@Autowired
 	private AccountRepo accountRepo;
 
-	public Person insert(PersonRequest personRequest, String email) {
-		Account account = accountRepo.findByEmail(email);
+	public Person insert(PersonRequest personRequest, String document) {
+		Account account = accountRepo.findByDocument(document);
 
 		Person person = new Person();
 		person.setDocument(personRequest.getDocument());
@@ -42,13 +43,18 @@ public class PersonService {
 		return personRepo.findAll();
 	}
 
-	public Person findByEmail(String email) {
-		return accountRepo.findByEmail(email).getPerson();
+	public Person findByDocument(String document) {
+		return accountRepo.findByDocument(document).getPerson();
 	}
 
-	public Person modify(String email, Person person) {
+	public Person findById(Integer idPerson){
+		Optional<Person> person = personRepo.findById(idPerson);
 
-		Account account = accountRepo.findByEmail(email);
+		return person.orElseGet(Person::new);
+	}
+
+	public Person modify(Person person) {
+		Account account = accountRepo.findByDocument(person.getDocument());
 
 		Person personRecovered = personRepo.findByDocument(person.getDocument());
 
@@ -68,9 +74,8 @@ public class PersonService {
 		return personResult;
 	}
 
-	public void delete(String email) {
-
-		Account account = accountRepo.findByEmail(email);
+	public void delete(String document) {
+		Account account = accountRepo.findByDocument(document);
 
 		Person personToDelete = account.getPerson();
 
