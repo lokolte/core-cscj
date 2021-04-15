@@ -24,13 +24,13 @@ public class Opcion implements Serializable {
     @Column(unique=true, nullable=false)
     private Integer id;
 
-    @Column(nullable=false, length=700)
+    @Column(nullable=false, length=1000)
     private String texto;
 
     @Column(nullable=false)
     private Boolean principal;
 
-    @Column(name="orden", nullable=false)
+    @Column(nullable=false)
     private Integer orden;
 
     @ManyToOne

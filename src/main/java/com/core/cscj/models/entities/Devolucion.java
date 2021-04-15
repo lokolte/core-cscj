@@ -2,7 +2,6 @@ package com.core.cscj.models.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Set;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,7 +26,7 @@ public class Devolucion implements Serializable {
     @Column(unique=true, nullable=false)
     private Integer id;
 
-    @Column(length=10)
+    @Column(length=200)
     private String puntaje;
 
     @Column(length=20000)

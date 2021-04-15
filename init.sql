@@ -8,6 +8,9 @@ INSERT INTO public.role(id, name)
 	VALUES (4, 'TUTOR');
 INSERT INTO public.role(id, name)
 	VALUES (5, 'ALUMNO');
+--- NEW Role for direccion and psicologia
+INSERT INTO public.role(id, name)
+    VALUES (6, 'SUPERVISOR');
 
 INSERT INTO public.person(id, document, name, lastname, birth_date, phone, sex, address)
 	VALUES (1, '4204613', 'Jesus', 'Aguilar', now(), '0982912326', 'MASCULINO', 'Juan de Garay 1634');
@@ -1566,3 +1569,39 @@ VALUES ((select id from public.account where document = '2036115'), 2);
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '2036115') WHERE curso_id=(select id from public.curso where orden = 7) and orden=11;
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '2036115') WHERE curso_id=(select id from public.curso where orden = 8) and orden=11;
 UPDATE public.asignatura SET person_id=(select id from public.person where document = '2036115') WHERE curso_id=(select id from public.curso where orden = 9) and orden=11;
+
+----- Alter table for Tema
+ALTER TABLE public.tema DROP COLUMN tema;
+
+----- Alter table for Evaluacion
+ALTER TABLE public.evaluacion DROP COLUMN fecha_inicio;
+ALTER TABLE public.evaluacion DROP COLUMN fecha_fin;
+ALTER TABLE public.evaluacion DROP COLUMN periodo;
+ALTER TABLE public.evaluacion DROP COLUMN person_id;
+
+------ New User for direccion and psicologia with SUPERVISOR role
+---- Maria Reineria Ortigoza Medina CI N° 961159
+INSERT INTO public.person(id, document, name, lastname, birth_date, phone, sex, address)
+VALUES ((select max(id)+1 from public.person), '961159', 'Maria Reineria', 'Ortigoza Medina', null, '0984700078', 'FEMENINO', 'Ramon de las Llanas 1815 casi Alferez Silva');
+
+INSERT INTO public.account(id, document, password, person_id)
+VALUES ((select max(id)+1 from public.account), '961159', '961159', (select id from public.person where document = '961159'));
+
+INSERT INTO public.account_roles(account_id, role_id)
+VALUES ((select id from public.account where document = '961159'), 6);
+
+---- Luisa Elizabeth Sosa Medina CI N° 1223148
+INSERT INTO public.person(id, document, name, lastname, birth_date, phone, sex, address)
+VALUES ((select max(id)+1 from public.person), '1223148', 'Luisa Elizabeth', 'Sosa Medina', null, null, null, null);
+
+INSERT INTO public.account(id, document, password, person_id)
+VALUES ((select max(id)+1 from public.account), '1223148', '1223148', (select id from public.person where document = '1223148'));
+
+INSERT INTO public.account_roles(account_id, role_id)
+VALUES ((select id from public.account where document = '1223148'), 6);
+
+----- Create asignatura Coordinacion for all corrdinators for every course
+INSERT INTO public.asignatura(
+    id, description, nombre, orden, curso_id, person_id)
+VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'Coordinacion',
+        (select max(orden))), (select id from public.curso where orden = 8), (select id from public.person where document = '4936007'));

@@ -53,7 +53,13 @@ public class AsignaturaService {
 
         if(condition){
             List<Planificacion> planificaciones = asignaturaRepo.findPlanificacionesFromAsignatura(idAsignatura);
+            List<Evaluacion> evaluaciones = asignaturaRepo.findEvaluacionesFromAsignatura(idAsignatura);
             planificaciones.forEach(planificacion -> actividades.add(planificacion));
+            evaluaciones.forEach(evaluacion -> actividades.add(evaluacion));
+        } else {
+            List<Evaluacion> evaluaciones = asignaturaRepo.findEvaluacionesFromAsignatura(idAsignatura);
+            evaluaciones.stream().filter(evaluacion -> evaluacion.getHabilitado()).collect(Collectors.toList())
+                    .forEach(evaluacion -> actividades.add(evaluacion));
         }
 
         return actividades.stream().sorted().collect(Collectors.toList());
@@ -66,7 +72,8 @@ public class AsignaturaService {
 
         List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
 
-        return finAllActividadesFromAsignaturaById(idAsignatura, roles.contains(Roles.PROFESOR.name()) || roles.contains(Roles.COORDINADOR.name()));
+        return finAllActividadesFromAsignaturaById(idAsignatura, roles.contains(Roles.PROFESOR.name()) ||
+                roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.SUPERVISOR.name()));
     }
 
     public Asignatura findAsignaturaById(Integer idAsignatura){
@@ -77,7 +84,7 @@ public class AsignaturaService {
         return asignaturaRepo.findAsignaturasFromCursoByPersona(idPersona, idCurso);
     }
 
-    private Integer getNextOrder(Integer idAsignatura){
+    public Integer getNextOrder(Integer idAsignatura){
         List<Actividad> actividades = finAllActividadesFromAsignaturaById(idAsignatura, true);
 
         Integer maxOrder = 0;
@@ -87,7 +94,7 @@ public class AsignaturaService {
         return maxOrder +1;
     }
 
-    public ActividadResponse createClase(Integer idAsignatura, Clase clase, MultipartFile[] files){
+    public ActividadResponse createClase(Integer idAsignatura, Clase clase, MultipartFile[] files) {
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
         if(!asignatura.isPresent()) return new ActividadResponse();
@@ -103,7 +110,7 @@ public class AsignaturaService {
                 fileStorageService.uploadMultipleFiles(Entidades.CLASE.name(), claseStored.getId(), files) : new ArrayList<>());
     }
 
-    public ActividadResponse createTarea(Integer idAsignatura, Tarea tarea, MultipartFile[] files){
+    public ActividadResponse createTarea(Integer idAsignatura, Tarea tarea, MultipartFile[] files) {
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
         if(!asignatura.isPresent()) return null;
@@ -154,7 +161,7 @@ public class AsignaturaService {
         return new ActividadResponse(tarea.get(), new EntregaResponse(entregaStored, archivosDeEntrega), archivosAdjuntos);
     }
 
-    public ActividadResponse updateClase(Integer idClase, Clase clase, MultipartFile[] files){
+    public ActividadResponse updateClase(Integer idClase, Clase clase, MultipartFile[] files) {
         Optional<Clase> claseStored = claseRepo.findById(idClase);
 
         if(!claseStored.isPresent()) return new ActividadResponse();
@@ -176,7 +183,7 @@ public class AsignaturaService {
         );
     }
 
-    public ActividadResponse updateTarea(Integer idTarea, Tarea tarea, MultipartFile[] files){
+    public ActividadResponse updateTarea(Integer idTarea, Tarea tarea, MultipartFile[] files) {
         Optional<Tarea> tareaStored = tareaRepo.findById(idTarea);
 
         if(!tareaStored.isPresent()) return new ActividadResponse();

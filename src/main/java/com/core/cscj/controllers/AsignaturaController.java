@@ -5,8 +5,11 @@ import com.core.cscj.models.Actividad;
 import com.core.cscj.models.entities.Asignatura;
 import com.core.cscj.models.entities.Clase;
 import com.core.cscj.models.entities.Tarea;
+import com.core.cscj.models.requests.EvaluacionRequest;
 import com.core.cscj.models.responses.ActividadResponse;
+import com.core.cscj.models.responses.EvaluacionResponse;
 import com.core.cscj.services.AsignaturaService;
+import com.core.cscj.services.EvaluacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +21,9 @@ import java.util.List;
 public class AsignaturaController {
     @Autowired
     private AsignaturaService asignaturaService;
+
+    @Autowired
+    private EvaluacionService evaluacionService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -44,6 +50,13 @@ public class AsignaturaController {
                                          @RequestPart(value = "tarea") Tarea tarea,
                                          @RequestPart(value = "files", required = false) MultipartFile[] files) {
         return asignaturaService.createTarea(idAsignatura, tarea, files);
+    }
+
+    @PostMapping(value="/{idAsignatura}/evaluaciones")
+    public EvaluacionResponse upsertEvaluacion(@PathVariable("idAsignatura") Integer idAsignatura,
+                                          @RequestPart(value = "evaluacion") EvaluacionRequest evaluacionRequest,
+                                          @RequestPart(value = "files", required = false) MultipartFile[] files) {
+        return evaluacionService.upsertEvaluacion(idAsignatura, evaluacionRequest, files);
     }
 
 }

@@ -10,6 +10,10 @@ public enum Entidades {
 
     EVALUACION,
 
+    TEMA,
+
+    OPCION,
+
     ENTREGA
 
 }

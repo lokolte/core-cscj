@@ -37,9 +37,10 @@ public class CursoService {
     }
 
     private List<Asignatura> findCursoWithAsignaturasFromPersonBasedOnRole(Integer idCurso, Integer idPersona, List<String> roles, Boolean fromVideoClase){
-        if((roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.ADMIN.name())) && !fromVideoClase) {
+        if(((roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name())) && !fromVideoClase)
+                || roles.contains(Roles.SUPERVISOR.name()) || roles.contains(Roles.ADMIN.name())) {
             return findAllAsignaturasFromCurso(idCurso);
-        }else{
+        } else {
             return asignaturaRepo.findAsignaturasFromCursoByPersona(idPersona, idCurso);
         }
     }
@@ -48,12 +49,20 @@ public class CursoService {
         Account account = accountRepo.findByDocument(document);
         List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
 
-        return account.getPerson().getCursos().stream().sorted().collect(Collectors.toList()).stream()
-                    .map(curso ->
+        if(roles.contains(Roles.SUPERVISOR.name()))
+            return cursoRepo.findAll().stream().map(
+                    curso ->
                             (withAsignaturas) ?
                                     new CursoResponse(curso, findCursoWithAsignaturasFromPersonBasedOnRole(curso.getId(), account.getPerson().getId(), roles, fromVideoClase))
                                     : new CursoResponse(curso, new ArrayList<>())
-                    ).collect(Collectors.toList());
+            ).collect(Collectors.toList());
+
+        else return account.getPerson().getCursos().stream().sorted().collect(Collectors.toList()).stream()
+                .map(curso ->
+                        (withAsignaturas) ?
+                                new CursoResponse(curso, findCursoWithAsignaturasFromPersonBasedOnRole(curso.getId(), account.getPerson().getId(), roles, fromVideoClase))
+                                : new CursoResponse(curso, new ArrayList<>())
+                ).collect(Collectors.toList());
     }
 
     public List<Person> findAllAlumnos(Integer idCurso){

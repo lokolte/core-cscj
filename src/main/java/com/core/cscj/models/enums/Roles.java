@@ -10,6 +10,8 @@ public enum Roles {
 
 	TUTOR,
 
-	ALUMNO
+	ALUMNO,
+
+	SUPERVISOR
 	
 }

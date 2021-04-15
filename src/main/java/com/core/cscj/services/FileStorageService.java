@@ -3,6 +3,9 @@ package com.core.cscj.services;
 import com.core.cscj.exceptions.FileStorageException;
 import com.core.cscj.exceptions.MyFileNotFoundException;
 import com.core.cscj.models.entities.ArchivosAdjuntos;
+import com.core.cscj.models.requests.ArchivoAdjuntoRequest;
+import com.core.cscj.models.requests.OrdenArchivosAdjuntosRequest;
+import com.core.cscj.models.requests.TemaRequest;
 import com.core.cscj.models.responses.LoadedFile;
 import com.core.cscj.properties.FileStorageProperties;
 import com.core.cscj.repos.ArchivosAdjuntosRepo;
@@ -46,7 +49,7 @@ public class FileStorageService {
         return configuredDir;
     }
 
-    private Path createDir(String aditional){
+    private Path createDir(String aditional) {
         String postfix = (aditional != null) ? "/" + aditional : "";
 
         Path fileStorageLocation = Paths.get(getConfiguredDir() + postfix)
@@ -72,10 +75,7 @@ public class FileStorageService {
         return StringUtils.cleanPath(file.getOriginalFilename());
     }
 
-    private void storeFile(String tipoActividad, Integer idActividad, Integer idArchivoAdjunto, MultipartFile file) {
-        // Normalize file name
-        String fileName = getFileName(file);
-
+    private void storeFile(String tipoActividad, Integer idActividad, Integer idArchivoAdjunto, MultipartFile file, String fileName) {
         try {
             // Copy file to the target location (Replacing existing file with the same name)
             Path targetLocation = createDir(tipoActividad + "/" + idActividad + "/" + idArchivoAdjunto).resolve(fileName);
@@ -99,7 +99,7 @@ public class FileStorageService {
         }
     }
 
-    public ArchivosAdjuntos uploadFile(String tipoActividad, Integer idActividad, MultipartFile file) {
+    public ArchivosAdjuntos uploadFile(String tipoActividad, Integer idActividad, MultipartFile file, String fileNameExtracted) {
         ArchivosAdjuntos archivoAdjunto = new ArchivosAdjuntos(
                 "",
                 new Timestamp(new Date().getTime()),
@@ -111,7 +111,10 @@ public class FileStorageService {
         );
         archivoAdjunto = archivosAdjuntosRepo.save(archivoAdjunto);
 
-        String fileName = getFileName(file);
+        String fileName;
+        if(fileNameExtracted != null)
+            fileName = fileNameExtracted;
+        else fileName = getFileName(file);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("archivos/download/" + tipoActividad + "/" + idActividad + "/" + archivoAdjunto.getId() + "/")
@@ -128,7 +131,7 @@ public class FileStorageService {
 
         archivoAdjunto = archivosAdjuntosRepo.save(archivoAdjunto);
 
-        storeFile(tipoActividad, idActividad, archivoAdjunto.getId(), file);
+        storeFile(tipoActividad, idActividad, archivoAdjunto.getId(), file, fileName);
 
         return archivoAdjunto;
     }
@@ -136,12 +139,12 @@ public class FileStorageService {
     public List<ArchivosAdjuntos> uploadMultipleFiles(String tipoActividad, Integer idActividad, MultipartFile[] files) {
         return Arrays.asList(files)
                 .stream()
-                .map(file -> uploadFile(tipoActividad, idActividad, file))
+                .map(file -> uploadFile(tipoActividad, idActividad, file, null))
                 .collect(Collectors.toList());
     }
 
     // this function needs to be refactored, we need to delete just the file deleted in another call
-    public List<ArchivosAdjuntos> uploadNotRepeatedFiles(String tipoEntidad, Integer idEntidad, List<ArchivosAdjuntos> archivosAdjuntos, MultipartFile[] files){
+    public List<ArchivosAdjuntos> uploadNotRepeatedFiles(String tipoEntidad, Integer idEntidad, List<ArchivosAdjuntos> archivosAdjuntos, MultipartFile[] files) {
         if(files.length > 0)
             for (ArchivosAdjuntos archivoAdjunto : archivosAdjuntos) {
                 try {
@@ -155,5 +158,72 @@ public class FileStorageService {
                 }
             }
         return uploadMultipleFiles(tipoEntidad, idEntidad, files);
+    }
+
+    public List<ArchivosAdjuntos> uploadMultipleFilesWihtFormatName(
+            String tipoActividad, Integer idActividad,
+            List<OrdenArchivosAdjuntosRequest> ordenArchivosAdjuntosRequests,
+            Integer orden, MultipartFile[] files
+    ) {
+        return Arrays.asList(files)
+                .stream()
+                .map(file -> uploadOnlyCoincidence(tipoActividad, idActividad, ordenArchivosAdjuntosRequests, orden, file))
+                .filter(archivosAdjuntos -> archivosAdjuntos != null)
+                .collect(Collectors.toList());
+    }
+
+    private ArchivosAdjuntos uploadOnlyCoincidence(String tipoActividad, Integer idActividad,
+                                                   List<OrdenArchivosAdjuntosRequest> ordenArchivosAdjuntosRequests,
+                                                   Integer orden, MultipartFile file){
+        String fileName = obtainNameFromTemaRequest(ordenArchivosAdjuntosRequests, orden, file);
+
+        if(fileName != null)
+            return uploadFile(tipoActividad, idActividad, file, fileName);
+        else return null;
+    }
+
+    private String obtainNameFromTemaRequest(List<OrdenArchivosAdjuntosRequest> ordenArchivosAdjuntosRequests, Integer orden, MultipartFile file) {
+        String[] values = getFileName(file).split(":", 0);
+
+        if(values.length != 2) throw new FileStorageException("El formato de los nombres de los archivos debe ser \"ordenTema:ordenArchivo\".");
+
+        Integer ordenTema = Integer.valueOf(values[0]);
+        Integer ordenArchivo = Integer.valueOf(values[1]);
+
+        List<OrdenArchivosAdjuntosRequest> ordenArchivosAdjuntosRequestsFiltered = ordenArchivosAdjuntosRequests.stream().filter(
+                tema -> tema.getOrden() == orden && orden == ordenTema
+        ).collect(Collectors.toList());
+
+        if(ordenArchivosAdjuntosRequestsFiltered.size() != 1) return null;
+
+        List<ArchivoAdjuntoRequest> archivoAdjuntoFiltered = ordenArchivosAdjuntosRequestsFiltered.get(0).getArchivosAdjuntos().stream().filter(
+                archivoAdjunto -> archivoAdjunto.getOrden() == ordenArchivo
+        ).collect(Collectors.toList());
+
+        if(archivoAdjuntoFiltered.size() != 1) throw new FileStorageException("El formato de los nombres de los archivos debe ser \"ordenTema:ordenArchivo\".");
+
+        return archivoAdjuntoFiltered.get(0).getNombre();
+    }
+
+    // this function needs to be refactored, we need to delete just the file deleted in another call
+    public List<ArchivosAdjuntos> uploadNotRepeatedFilesWihtFormatName(
+            String tipoEntidad, Integer idEntidad,
+            List<ArchivosAdjuntos> archivosAdjuntos,
+            List<OrdenArchivosAdjuntosRequest> ordenArchivosAdjuntosRequests,
+            Integer orden, MultipartFile[] files
+    ) {
+        if(files.length > 0)
+            for (ArchivosAdjuntos archivoAdjunto : archivosAdjuntos) {
+                try {
+                    String directory = getConfiguredDir() + "/" + tipoEntidad + "/" + idEntidad + "/" + archivoAdjunto.getId();
+                    FileUtils.deleteDirectory(new File(directory));
+                    archivosAdjuntosRepo.delete(archivoAdjunto);
+                } catch (MalformedURLException ex) {
+                    throw new MyFileNotFoundException("Archivo no encontrado " + archivoAdjunto.getNombre(), ex);
+                } catch (IOException ioEx) {
+                    throw new FileStorageException("Existio un error al borrar el archivo.", ioEx);
+                }
+            }
+        return uploadMultipleFilesWihtFormatName(tipoEntidad, idEntidad, ordenArchivosAdjuntosRequests, orden, files);
     }
 }
