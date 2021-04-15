@@ -21,6 +21,9 @@ public class VideoClaseService {
     private AccountRepo accountRepo;
 
     @Autowired
+    private CursoRepo cursoRepo;
+
+    @Autowired
     private AsignaturaRepo asignaturaRepo;
 
     @Autowired
@@ -53,7 +56,7 @@ public class VideoClaseService {
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
                                     videoClaseFinal)).sorted().collect(Collectors.toList());
-        } else if(roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.SUPERVISOR.name())){
+        } else if(roles.contains(Roles.COORDINADOR.name())){
             List<Integer> cursos = person.getCursos().stream().map(curso -> curso.getId()).collect(Collectors.toList());
             return videoClaseRepo.findAll().stream().filter(videoclase ->
                     (cursos.contains(videoclase.getAsignatura().getCurso().getId()))).collect(Collectors.toList())
@@ -61,7 +64,15 @@ public class VideoClaseService {
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
                                     videoClaseFinal)).sorted().collect(Collectors.toList());
-        }else return videoClaseRepo.findVideoClaseByProfesor(person.getId())
+        } else if(roles.contains(Roles.SUPERVISOR.name())){
+            return videoClaseRepo.findAll()
+                    .stream().map(videoClaseFinal ->
+                            new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
+                                    videoClaseFinal.getAsignatura(),
+                                    videoClaseFinal)).sorted().collect(Collectors.toList());
+
+        // This is for roles.contains(Roles.PROFESOR.name())
+        } else return videoClaseRepo.findVideoClaseByProfesor(person.getId())
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),

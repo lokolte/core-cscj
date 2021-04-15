@@ -37,8 +37,8 @@ public class CursoService {
     }
 
     private List<Asignatura> findCursoWithAsignaturasFromPersonBasedOnRole(Integer idCurso, Integer idPersona, List<String> roles, Boolean fromVideoClase){
-        if(((roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name())) && !fromVideoClase)
-                || roles.contains(Roles.SUPERVISOR.name()) || roles.contains(Roles.ADMIN.name())) {
+        if(((roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.SUPERVISOR.name())) && !fromVideoClase)
+                || roles.contains(Roles.ADMIN.name())) {
             return findAllAsignaturasFromCurso(idCurso);
         } else {
             return asignaturaRepo.findAsignaturasFromCursoByPersona(idPersona, idCurso);
