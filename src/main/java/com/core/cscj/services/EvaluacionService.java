@@ -62,9 +62,11 @@ public class EvaluacionService {
                 evaluacion.getTemas().stream().map(
                         tema -> new TemaResponse(
                                 tema,
-                                archivosAdjuntos
+                                archivosAdjuntos.stream().filter(
+                                        archivoAdjunto -> archivoAdjunto.getIdEntidad() == tema.getId()
+                                ).collect(Collectors.toList())
                         )
-                ).collect(Collectors.toList())
+                ).sorted().collect(Collectors.toList())
         );
     }
 
@@ -147,7 +149,7 @@ public class EvaluacionService {
                                         files
                                 )
                         )
-                ).collect(Collectors.toList())
+                ).sorted().collect(Collectors.toList())
         );
     }
 

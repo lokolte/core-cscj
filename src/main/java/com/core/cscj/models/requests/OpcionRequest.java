@@ -3,7 +3,6 @@ package com.core.cscj.models.requests;
 import java.io.Serializable;
 
 public class OpcionRequest implements Serializable {
-    private Integer id;
     private String texto;
     private Boolean principal;
     private Integer orden;
@@ -11,19 +10,10 @@ public class OpcionRequest implements Serializable {
     public OpcionRequest() {
     }
 
-    public OpcionRequest(Integer id, Boolean principal, Integer orden, String texto) {
-        this.id = id;
+    public OpcionRequest(Boolean principal, Integer orden, String texto) {
         this.texto = texto;
         this.principal = principal;
         this.orden = orden;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getTexto() {
