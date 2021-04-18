@@ -134,8 +134,9 @@ public class EvaluacionService {
                         temaRequest -> {
                             if(temaRequest.getId() != null){
                                 temasRequests.put(temaRequest.getId(), temaRequest);
-
-                                if(temaRequest.getArchivosAdjuntos() != null && temaRequest.getArchivosAdjuntos().size() > 0) {
+                                if(temaRequest.getArchivosAdjuntos() != null && temaRequest.getArchivosAdjuntos().size() > 0
+                                        && temaRequest.getArchivosAdjuntos().stream()
+                                        .filter(archivoAdjunto -> archivoAdjunto.getOrden() != null).collect(Collectors.toList()).size() > 0) {
                                     if(archivosAdjuntos.get(temaRequest.getId()) != null){
                                         archivosAdjuntos.get(temaRequest.getId())
                                                 .forEach(
@@ -207,7 +208,6 @@ public class EvaluacionService {
                 .forEach(
                         archivosAdjuntosList -> archivosAdjuntosFinal.addAll(archivosAdjuntosList)
                 );
-
 
         return new EvaluacionResponse(
                 evaluacionFinal,
