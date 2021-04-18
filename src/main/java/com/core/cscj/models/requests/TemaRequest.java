@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class TemaRequest implements Serializable {
+    Integer id;
     private String sentencia;
     private String puntos;
     private String tipoTema;
@@ -16,7 +17,8 @@ public class TemaRequest implements Serializable {
     public TemaRequest() {
     }
 
-    public TemaRequest(String sentencia, Boolean permitirAdjuntos, String tipoTema, String puntos, Integer orden, List<OpcionRequest> opciones, List<ArchivoAdjuntoRequest> archivosAdjuntos) {
+    public TemaRequest(Integer id, String sentencia, Boolean permitirAdjuntos, String tipoTema, String puntos, Integer orden, List<OpcionRequest> opciones, List<ArchivoAdjuntoRequest> archivosAdjuntos) {
+        this.id = id;
         this.sentencia = sentencia;
         this.puntos = puntos;
         this.tipoTema = tipoTema;
@@ -24,6 +26,14 @@ public class TemaRequest implements Serializable {
         this.orden = orden;
         this.opciones = opciones;
         this.archivosAdjuntos = archivosAdjuntos;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getSentencia() {

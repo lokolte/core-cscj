@@ -15,4 +15,10 @@ public class EvaluacionController {
     public EvaluacionResponse getEvaluacionByIdWithoutAlumnoDataAndRespuestas(@PathVariable("idEvaluacion") Integer idEvaluacion) {
         return evaluacionService.findEvaluacionByIdWithoutAlumnoDataAndRespuestas(idEvaluacion);
     }
+
+    @PostMapping(value="/{idEvaluacion}")
+    public EvaluacionResponse habilitacionEvaluacion(@PathVariable("idEvaluacion") Integer idEvaluacion,
+                                 @RequestParam Boolean habilitado) {
+        return evaluacionService.comenzarTerminarExamen(idEvaluacion, habilitado);
+    }
 }

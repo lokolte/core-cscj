@@ -205,25 +205,15 @@ public class FileStorageService {
         return archivoAdjuntoFiltered.get(0).getNombre();
     }
 
-    // this function needs to be refactored, we need to delete just the file deleted in another call
-    public List<ArchivosAdjuntos> uploadNotRepeatedFilesWihtFormatName(
-            String tipoEntidad, Integer idEntidad,
-            List<ArchivosAdjuntos> archivosAdjuntos,
-            List<OrdenArchivosAdjuntosRequest> ordenArchivosAdjuntosRequests,
-            Integer orden, MultipartFile[] files
-    ) {
-        if(files.length > 0)
-            for (ArchivosAdjuntos archivoAdjunto : archivosAdjuntos) {
-                try {
-                    String directory = getConfiguredDir() + "/" + tipoEntidad + "/" + idEntidad + "/" + archivoAdjunto.getId();
-                    FileUtils.deleteDirectory(new File(directory));
-                    archivosAdjuntosRepo.delete(archivoAdjunto);
-                } catch (MalformedURLException ex) {
-                    throw new MyFileNotFoundException("Archivo no encontrado " + archivoAdjunto.getNombre(), ex);
-                } catch (IOException ioEx) {
-                    throw new FileStorageException("Existio un error al borrar el archivo.", ioEx);
-                }
-            }
-        return uploadMultipleFilesWihtFormatName(tipoEntidad, idEntidad, ordenArchivosAdjuntosRequests, orden, files);
+    public void deleteFile(String tipoEntidad, Integer idEntidad, ArchivosAdjuntos archivoAdjunto) {
+        try {
+            String directory = getConfiguredDir() + "/" + tipoEntidad + "/" + idEntidad + "/" + archivoAdjunto.getId();
+            FileUtils.deleteDirectory(new File(directory));
+            archivosAdjuntosRepo.delete(archivoAdjunto);
+        } catch (MalformedURLException ex) {
+            throw new MyFileNotFoundException("Archivo no encontrado " + archivoAdjunto.getNombre(), ex);
+        } catch (IOException ioEx) {
+            throw new FileStorageException("Existio un error al borrar el archivo.", ioEx);
+        }
     }
 }
