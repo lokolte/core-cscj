@@ -5,8 +5,7 @@ import com.core.cscj.exceptions.MyFileNotFoundException;
 import com.core.cscj.models.entities.ArchivosAdjuntos;
 import com.core.cscj.models.requests.ArchivoAdjuntoRequest;
 import com.core.cscj.models.requests.OrdenArchivosAdjuntosRequest;
-import com.core.cscj.models.requests.TemaRequest;
-import com.core.cscj.models.responses.LoadedFile;
+import com.core.cscj.models.responses.LoadedFileResponse;
 import com.core.cscj.properties.FileStorageProperties;
 import com.core.cscj.repos.ArchivosAdjuntosRepo;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
@@ -121,7 +120,7 @@ public class FileStorageService {
                 .path(fileName)
                 .toUriString();
 
-        LoadedFile loadedFile = new LoadedFile(fileName, fileDownloadUri,
+        LoadedFileResponse loadedFile = new LoadedFileResponse(fileName, fileDownloadUri,
                 file.getContentType(), file.getSize());
 
         archivoAdjunto.setNombre(loadedFile.getFileName());
@@ -185,13 +184,13 @@ public class FileStorageService {
     private String obtainNameFromTemaRequest(List<OrdenArchivosAdjuntosRequest> ordenArchivosAdjuntosRequests, Integer orden, MultipartFile file) {
         String[] values = getFileName(file).split(":", 0);
 
-        if(values.length != 2) throw new FileStorageException("El formato de los nombres de los archivos debe ser \"ordenTema:ordenArchivo\".");
+        if(values.length != 2) throw new FileStorageException("El formato de los nombres de los archivos debe ser \"ordenItem:ordenArchivo\".");
 
-        Integer ordenTema = Integer.valueOf(values[0]);
+        Integer ordenItem = Integer.valueOf(values[0]);
         Integer ordenArchivo = Integer.valueOf(values[1]);
 
         List<OrdenArchivosAdjuntosRequest> ordenArchivosAdjuntosRequestsFiltered = ordenArchivosAdjuntosRequests.stream().filter(
-                tema -> tema.getOrden() == orden && orden == ordenTema
+                item -> item.getOrden().equals(orden) && ordenItem.equals(orden)
         ).collect(Collectors.toList());
 
         if(ordenArchivosAdjuntosRequestsFiltered.size() != 1) return null;
@@ -200,7 +199,7 @@ public class FileStorageService {
                 archivoAdjunto -> archivoAdjunto.getOrden() == ordenArchivo
         ).collect(Collectors.toList());
 
-        if(archivoAdjuntoFiltered.size() != 1) throw new FileStorageException("El formato de los nombres de los archivos debe ser \"ordenTema:ordenArchivo\".");
+        if(archivoAdjuntoFiltered.size() != 1) throw new FileStorageException("El formato de los nombres de los archivos debe ser \"ordenItem:ordenArchivo\".");
 
         return archivoAdjuntoFiltered.get(0).getNombre();
     }

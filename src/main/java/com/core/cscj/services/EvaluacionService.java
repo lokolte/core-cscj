@@ -7,10 +7,7 @@ import java.util.stream.Stream;
 
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.enums.Entidades;
-import com.core.cscj.models.requests.EvaluacionRequest;
-import com.core.cscj.models.requests.OpcionRequest;
-import com.core.cscj.models.requests.OrdenArchivosAdjuntosRequest;
-import com.core.cscj.models.requests.TemaRequest;
+import com.core.cscj.models.requests.*;
 import com.core.cscj.models.responses.*;
 import com.core.cscj.repos.*;
 
@@ -33,10 +30,22 @@ public class EvaluacionService {
     private OpcionRepo opcionRepo;
 
     @Autowired
+    private RespuestaRepo respuestaRepo;
+
+    @Autowired
+    private RespuestaTemaRepo respuestaTemaRepo;
+
+    @Autowired
+    private RespuestaOpcionRepo respuestaOpcionRepo;
+
+    @Autowired
     private ArchivosAdjuntosRepo archivosAdjuntosRepo;
 
     @Autowired
     private AsignaturaService asignaturaService;
+
+    @Autowired
+    private PersonRepo personRepo;
 
     @Autowired
     private FileStorageService fileStorageService;
@@ -84,7 +93,7 @@ public class EvaluacionService {
         );
     }
 
-    public EvaluacionResponse findEvaluacionByIdWithoutAlumnoDataAndRespuestas(Integer idEvaluacion){
+    public EvaluacionResponse findEvaluacionResponseById(Integer idEvaluacion){
         Optional<Evaluacion> evaluacionOptional = evaluacionRepo.findById(idEvaluacion);
 
         if(!evaluacionOptional.isPresent()) {
@@ -122,12 +131,11 @@ public class EvaluacionService {
                 HashMap<Integer, Tema> temasStored = new HashMap<>();
                 HashMap<Integer, TemaRequest> temasRequests = new HashMap<>();
 
-                evaluacionToStore.getTemas().stream().forEach(
-                        tema -> archivosAdjuntos.put(tema.getId(), archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TEMA.name(), tema.getId()))
-                );
-
                 evaluacionToStore.getTemas().forEach(
-                        tema -> temasStored.put(tema.getId(), tema)
+                        tema -> {
+                            archivosAdjuntos.put(tema.getId(), archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TEMA.name(), tema.getId()));
+                            temasStored.put(tema.getId(), tema);
+                        }
                 );
 
                 evaluacionRequest.getTemas().forEach(
@@ -165,7 +173,7 @@ public class EvaluacionService {
                                             );
                                     archivosAdjuntos.remove(tema.getId());
                                 }
-                                temaRepo.delete(deleteOpcionesTema(tema));
+                                temaRepo.delete(deleteOpcionesFromTema(tema));
                                 temasToDelete.add(tema.getId());
                             }
                         }
@@ -238,7 +246,7 @@ public class EvaluacionService {
         );
     }
 
-    private Tema deleteOpcionesTema(Tema tema){
+    private Tema deleteOpcionesFromTema(Tema tema){
         tema.getOpciones()
                 .forEach(
                         opcion -> opcionRepo.delete(opcion)
@@ -256,7 +264,7 @@ public class EvaluacionService {
 
         Tema temaToStore;
         if(temaOptional.isPresent()) {
-            temaToStore = deleteOpcionesTema(temaOptional.get());
+            temaToStore = deleteOpcionesFromTema(temaOptional.get());
         } else temaToStore = new Tema();
 
         temaToStore.setEvaluacion(evaluacionStored);
@@ -274,7 +282,7 @@ public class EvaluacionService {
 
         temaStored.setOpciones(opciones);
 
-        return temaRepo.save(temaToStore);
+        return temaRepo.save(temaStored);
     }
 
     private Opcion createOpcion(OpcionRequest opcionRequest, Tema temaStored){
@@ -287,5 +295,203 @@ public class EvaluacionService {
         Opcion opcionStored = opcionRepo.save(opcionToStore);
 
         return opcionStored;
+    }
+
+    public RespuestaResponse upsertRespuesta(String document, Integer idEvaluacion, RespuestaRequest respuestaRequest, MultipartFile[] files) {
+        Optional<Evaluacion> evaluacionOptional = evaluacionRepo.findById(idEvaluacion);
+        if(!evaluacionOptional.isPresent()) return new RespuestaResponse();
+
+        Evaluacion evaluacion = evaluacionOptional.get();
+
+        Person alumno = personRepo.findByDocument(document);
+        if(alumno == null) return new RespuestaResponse();
+
+        Respuesta respuestaToStore;
+        HashMap<Integer, List<ArchivosAdjuntos>> archivosAdjuntos = new HashMap<>();
+
+        Optional<Respuesta> respuestaOptional = Optional.empty();
+        if(respuestaRequest.getId() != null)
+            respuestaOptional = respuestaRepo.findById(respuestaRequest.getId());
+
+        if(!respuestaOptional.isPresent()) {
+            respuestaToStore = new Respuesta();
+            respuestaToStore.setAlumno(alumno);
+            respuestaToStore.setEvaluacion(evaluacion);
+            respuestaToStore.setCreationDate(new Timestamp(new Date().getTime()));
+        } else {
+            respuestaToStore = respuestaOptional.get();
+            respuestaToStore.setLastModifiedDate(new Timestamp(new Date().getTime()));
+
+            if (respuestaRequest.getRespuestasTemas() != null) {
+                List<Integer> temasToDelete = new ArrayList<>();
+                HashMap<Integer, RespuestaTema> respuestasTemasStored = new HashMap<>();
+                HashMap<Integer, RespuestaTemaRequest> respuestasTemasRequests = new HashMap<>();
+
+                respuestaToStore.getRespuestaTemas().forEach(
+                        respuestaTema -> {
+                            archivosAdjuntos.put(respuestaTema.getId(), archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId()));
+                            respuestasTemasStored.put(respuestaTema.getId(), respuestaTema);
+                        }
+                );
+
+                respuestaRequest.getRespuestasTemas().forEach(
+                        respuestaTemaRequest -> {
+                            if(respuestaTemaRequest.getId() != null){
+                                respuestasTemasRequests.put(respuestaTemaRequest.getId(), respuestaTemaRequest);
+                                if(respuestaTemaRequest.getArchivosAdjuntos() != null && respuestaTemaRequest.getArchivosAdjuntos().size() > 0
+                                        && respuestaTemaRequest.getArchivosAdjuntos().stream()
+                                        .filter(archivoAdjunto -> archivoAdjunto.getOrden() != null).collect(Collectors.toList()).size() > 0) {
+                                    if(archivosAdjuntos.get(respuestaTemaRequest.getId()) != null){
+                                        archivosAdjuntos.get(respuestaTemaRequest.getId())
+                                                .forEach(
+                                                        archivoAdjunto -> {
+                                                            fileStorageService.deleteFile(Entidades.RESPUESTA_TEMA.name(), respuestaTemaRequest.getId(), archivoAdjunto);
+                                                            archivosAdjuntosRepo.delete(archivoAdjunto);
+                                                        }
+                                                );
+                                        archivosAdjuntos.remove(respuestaTemaRequest.getId());
+                                    }
+                                }
+                            }
+                        }
+                );
+
+                respuestasTemasStored.values().forEach(
+                        respuestaTema -> {
+                            if(respuestasTemasRequests.get(respuestaTema.getId()) == null) {
+                                if(archivosAdjuntos.get(respuestaTema.getId()) != null) {
+                                    archivosAdjuntos.get(respuestaTema.getId())
+                                            .forEach(
+                                                    archivoAdjunto -> {
+                                                        fileStorageService.deleteFile(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId(), archivoAdjunto);
+                                                        archivosAdjuntosRepo.delete(archivoAdjunto);
+                                                    }
+                                            );
+                                    archivosAdjuntos.remove(respuestaTema.getId());
+                                }
+                                respuestaTemaRepo.delete(deleteRespuestaOpcionesFromRespuestaTema(respuestaTema));
+                                temasToDelete.add(respuestaTema.getId());
+                            }
+                        }
+                );
+
+                temasToDelete.forEach(
+                        idTema -> respuestasTemasStored.remove(idTema)
+                );
+
+                respuestaToStore.setRespuestaTemas(new HashSet<>(respuestasTemasStored.values()));
+            }
+        }
+
+        Respuesta respuestaStored = respuestaRepo.save(respuestaToStore);
+
+        Set<RespuestaTema> respuestaTemas = respuestaRequest.getRespuestasTemas().stream().map(
+                respuestaTemaRequest -> upsertRespuestaTema(respuestaTemaRequest, respuestaStored)
+        ).collect(Collectors.toSet());
+
+        respuestaStored.setRespuestaTemas(respuestaTemas);
+        Respuesta respuestaStoredFinal = respuestaRepo.save(respuestaStored);
+
+        List<ArchivosAdjuntos> archivosAdjuntosFinal = new ArrayList<>();
+        archivosAdjuntos.values()
+                .forEach(
+                        archivosAdjuntosList -> archivosAdjuntosFinal.addAll(archivosAdjuntosList)
+                );
+
+        return new RespuestaResponse(
+                createEvaluacionResponse(evaluacion),
+                new RespuestaItemResponse(
+                        respuestaStoredFinal.getId(),
+                        respuestaStoredFinal.getCreationDate(),
+                        respuestaStoredFinal.getLastModifiedDate(),
+                        respuestaStoredFinal.getAlumno(),
+                        respuestaStoredFinal.getRespuestaTemas().stream().map(
+                                respuestaTema ->
+                                        new RespuestaTemaResponse(
+                                                new RespuestaTemaItemResponse(
+                                                        respuestaTema.getId(),
+                                                        respuestaTema.getTema().getId(),
+                                                        respuestaTema.getOrden(),
+                                                        respuestaTema.getTexto(),
+                                                        respuestaTema.getRespuestaOpciones().stream().map(
+                                                                respuestaOpcion ->
+                                                                        new RespuestaOpcionResponse(
+                                                                                respuestaOpcion.getId(),
+                                                                                respuestaOpcion.getOpcion().getId(),
+                                                                                respuestaOpcion.getTexto()
+                                                                        )
+                                                        ).collect(Collectors.toList())
+                                                ),
+                                                //Aca guardar los archivos adjuntos con formato en nombres de ordenRespuestaTema:ordenArchivo
+                                                (files != null && files.length > 0) ?
+                                                        Stream.concat(
+                                                                fileStorageService.uploadMultipleFilesWihtFormatName(
+                                                                        Entidades.RESPUESTA_TEMA.name(),
+                                                                        respuestaTema.getId(),
+                                                                        respuestaRequest.getRespuestasTemas().stream().map(
+                                                                                respuestaTemaRequest -> new OrdenArchivosAdjuntosRequest(respuestaTemaRequest.getOrden(), respuestaTemaRequest.getArchivosAdjuntos())
+                                                                        ).collect(Collectors.toList()),
+                                                                        respuestaTema.getOrden(),
+                                                                        files
+                                                                ).stream(),
+                                                                archivosAdjuntosFinal.stream()
+                                                                        .filter(
+                                                                                archivoAdjunto -> respuestaTema.getId() == archivoAdjunto.getIdEntidad()
+                                                                        )
+                                                        ).collect(Collectors.toList())
+                                                        : archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId())
+                                        )
+                        ).sorted().collect(Collectors.toList())
+                )
+        );
+    }
+
+    private RespuestaTema deleteRespuestaOpcionesFromRespuestaTema(RespuestaTema respuestaTema){
+        respuestaTema.getRespuestaOpciones()
+                .forEach(
+                        respuestaOpcion -> respuestaOpcionRepo.delete(respuestaOpcion)
+                );
+
+        respuestaTema.setRespuestaOpciones(null);
+
+        return respuestaTemaRepo.save(respuestaTema);
+    }
+
+    private RespuestaTema upsertRespuestaTema(RespuestaTemaRequest respuestaTemaRequest, Respuesta respuestaStored){
+        Optional<RespuestaTema> respuestaTemaOptional = Optional.empty();
+        if(respuestaTemaRequest.getId() != null)
+            respuestaTemaOptional = respuestaTemaRepo.findById(respuestaTemaRequest.getId());
+
+        RespuestaTema respuestaTemaToStore;
+
+        if(respuestaTemaOptional.isPresent()) {
+            respuestaTemaToStore = deleteRespuestaOpcionesFromRespuestaTema(respuestaTemaOptional.get());
+        } else respuestaTemaToStore = new RespuestaTema();
+
+        respuestaTemaToStore.setRespuesta(respuestaStored);
+        respuestaTemaToStore.setTema(temaRepo.findById(respuestaTemaRequest.getIdTema()).get());
+        respuestaTemaToStore.setOrden(respuestaTemaRequest.getOrden());
+        respuestaTemaToStore.setTexto(respuestaTemaRequest.getTexto());
+
+        RespuestaTema respuestaTemaStored = respuestaTemaRepo.save(respuestaTemaToStore);
+
+        Set<RespuestaOpcion> opciones = respuestaTemaRequest.getOpciones().stream().map(
+                opcionRequest -> createRespuestaOpcion(opcionRequest, respuestaTemaStored)
+        ).collect(Collectors.toSet());
+
+        respuestaTemaStored.setRespuestaOpciones(opciones);
+
+        return respuestaTemaRepo.save(respuestaTemaStored);
+    }
+
+    private RespuestaOpcion createRespuestaOpcion(RespuestaOpcionRequest respuestaOpcionRequest, RespuestaTema respuestaTemaStored){
+        RespuestaOpcion respuestaOpcionToStore = new RespuestaOpcion();
+        respuestaOpcionToStore.setRespuestaTema(respuestaTemaStored);
+        respuestaOpcionToStore.setOpcion(opcionRepo.findById(respuestaOpcionRequest.getIdOpcion()).get());
+        respuestaOpcionToStore.setTexto(respuestaOpcionRequest.getTexto());
+
+        RespuestaOpcion respuestaOpcionStored = respuestaOpcionRepo.save(respuestaOpcionToStore);
+
+        return respuestaOpcionStored;
     }
 }

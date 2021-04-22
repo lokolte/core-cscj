@@ -81,6 +81,12 @@ public class Person implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private Set<Entrega> entregas;
 
+	@OneToMany(mappedBy="alumno", fetch = FetchType.LAZY)
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Set<Respuesta> respuestas;
+
 	public Person() {
 	}
 
@@ -178,5 +184,21 @@ public class Person implements Serializable {
 
 	public void setEvaluaciones(Set<Evaluacion> evaluaciones) {
 		this.evaluaciones = evaluaciones;
+	}
+
+	public Set<Entrega> getEntregas() {
+		return entregas;
+	}
+
+	public void setEntregas(Set<Entrega> entregas) {
+		this.entregas = entregas;
+	}
+
+	public Set<Respuesta> getRespuestas() {
+		return respuestas;
+	}
+
+	public void setRespuestas(Set<Respuesta> respuestas) {
+		this.respuestas = respuestas;
 	}
 }

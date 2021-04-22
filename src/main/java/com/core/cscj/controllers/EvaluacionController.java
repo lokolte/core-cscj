@@ -13,7 +13,7 @@ public class EvaluacionController {
 
     @GetMapping(value="/{idEvaluacion}")
     public EvaluacionResponse getEvaluacionByIdWithoutAlumnoDataAndRespuestas(@PathVariable("idEvaluacion") Integer idEvaluacion) {
-        return evaluacionService.findEvaluacionByIdWithoutAlumnoDataAndRespuestas(idEvaluacion);
+        return evaluacionService.findEvaluacionResponseById(idEvaluacion);
     }
 
     @PostMapping(value="/{idEvaluacion}")

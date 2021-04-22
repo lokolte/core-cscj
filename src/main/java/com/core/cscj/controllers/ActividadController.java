@@ -3,11 +3,14 @@ package com.core.cscj.controllers;
 import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.entities.Clase;
 import com.core.cscj.models.entities.Tarea;
+import com.core.cscj.models.requests.RespuestaRequest;
 import com.core.cscj.models.responses.ActividadResponse;
 import com.core.cscj.models.responses.EntregaResponse;
 import com.core.cscj.models.responses.EntregasResponse;
+import com.core.cscj.models.responses.RespuestaResponse;
 import com.core.cscj.services.AsignaturaService;
 import com.core.cscj.services.EntregaService;
+import com.core.cscj.services.EvaluacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +24,9 @@ public class ActividadController {
 
     @Autowired
     private EntregaService entregaService;
+
+    @Autowired
+    private EvaluacionService evaluacionService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -61,5 +67,13 @@ public class ActividadController {
                                          @RequestHeader("Authorization") String authorization,
                                          @RequestPart(value = "files", required = false) MultipartFile[] files) {
         return entregaService.upsertEntrega(jwtUtil.getDocumentFromJwtToken(authorization), idTarea, files);
+    }
+
+    @PostMapping(value="/evaluaciones/{idEvaluacion}/respuesta")
+    public RespuestaResponse upsertRespuesta(@PathVariable("idEvaluacion") Integer idEvaluacion,
+                                             @RequestHeader("Authorization") String authorization,
+                                             @RequestPart(value = "respuesta") RespuestaRequest respuestaRequest,
+                                             @RequestPart(value = "files", required = false) MultipartFile[] files) {
+        return evaluacionService.upsertRespuesta(jwtUtil.getDocumentFromJwtToken(authorization), idEvaluacion, respuestaRequest, files);
     }
 }

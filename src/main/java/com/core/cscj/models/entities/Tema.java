@@ -51,6 +51,12 @@ public class Tema implements Serializable {
     @OneToMany(mappedBy="tema")
     private Set<Opcion> opciones;
 
+    @OneToMany(mappedBy="tema")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<RespuestaTema> respuestasTemas;
+
     public Tema() {
     }
 
@@ -116,5 +122,13 @@ public class Tema implements Serializable {
 
     public void setOpciones(Set<Opcion> opciones) {
         this.opciones = opciones;
+    }
+
+    public Set<RespuestaTema> getRespuestasTemas() {
+        return respuestasTemas;
+    }
+
+    public void setRespuestasTemas(Set<RespuestaTema> respuestasTemas) {
+        this.respuestasTemas = respuestasTemas;
     }
 }

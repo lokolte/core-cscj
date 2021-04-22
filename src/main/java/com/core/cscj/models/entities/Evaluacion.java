@@ -107,6 +107,12 @@ public class Evaluacion implements Actividad {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Tema> temas;
 
+    @OneToMany(mappedBy="evaluacion")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<Respuesta> respuestas;
+
     public Evaluacion() {
         this.tipoActividad = Entidades.EVALUACION.name();
     }
@@ -214,12 +220,36 @@ public class Evaluacion implements Actividad {
         this.inicio = inicio;
     }
 
+    public Timestamp getInicioDate() {
+        return inicioDate;
+    }
+
+    public void setInicioDate(Timestamp inicioDate) {
+        this.inicioDate = inicioDate;
+    }
+
     public String getFin() {
         return fin;
     }
 
     public void setFin(String fin) {
         this.fin = fin;
+    }
+
+    public Timestamp getFinDate() {
+        return finDate;
+    }
+
+    public void setFinDate(Timestamp finDate) {
+        this.finDate = finDate;
+    }
+
+    public String getTotalPuntos() {
+        return totalPuntos;
+    }
+
+    public void setTotalPuntos(String totalPuntos) {
+        this.totalPuntos = totalPuntos;
     }
 
     public Integer getHsCatedra() {
@@ -276,5 +306,13 @@ public class Evaluacion implements Actividad {
 
     public void setTemas(Set<Tema> temas) {
         this.temas = temas;
+    }
+
+    public Set<Respuesta> getRespuestas() {
+        return respuestas;
+    }
+
+    public void setRespuestas(Set<Respuesta> respuestas) {
+        this.respuestas = respuestas;
     }
 }

@@ -14,6 +14,8 @@ public enum Entidades {
 
     OPCION,
 
-    ENTREGA
+    ENTREGA,
+
+    RESPUESTA_TEMA
 
 }

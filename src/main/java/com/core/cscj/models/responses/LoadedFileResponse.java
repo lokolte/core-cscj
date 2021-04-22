@@ -1,12 +1,12 @@
 package com.core.cscj.models.responses;
 
-public class LoadedFile {
+public class LoadedFileResponse {
     private String fileName;
     private String fileDownloadUri;
     private String fileType;
     private long size;
 
-    public LoadedFile(String fileName, String fileDownloadUri, String fileType, long size) {
+    public LoadedFileResponse(String fileName, String fileDownloadUri, String fileType, long size) {
         this.fileName = fileName;
         this.fileDownloadUri = fileDownloadUri;
         this.fileType = fileType;
