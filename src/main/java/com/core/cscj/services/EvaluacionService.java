@@ -297,6 +297,54 @@ public class EvaluacionService {
         return opcionStored;
     }
 
+    private RespuestaResponse createRespuestaResponse(Evaluacion evaluacion, Respuesta respuesta){
+        List<ArchivosAdjuntos> archivosAdjuntos = new ArrayList<>();
+
+        respuesta.getRespuestaTemas().stream().forEach(
+                respuestaTema -> archivosAdjuntos.addAll(archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId()))
+        );
+
+        return new RespuestaResponse(
+                createEvaluacionResponse(evaluacion),
+                new RespuestaItemResponse(
+                        respuesta.getId(),
+                        respuesta.getCreationDate(),
+                        respuesta.getLastModifiedDate(),
+                        respuesta.getAlumno(),
+                        respuesta.getRespuestaTemas().stream().map(
+                                respuestaTema ->
+                                        new RespuestaTemaResponse(
+                                                new RespuestaTemaItemResponse(
+                                                        respuestaTema.getId(),
+                                                        respuestaTema.getTema().getId(),
+                                                        respuestaTema.getOrden(),
+                                                        respuestaTema.getTexto(),
+                                                        respuestaTema.getRespuestaOpciones().stream().map(
+                                                                respuestaOpcion ->
+                                                                        new RespuestaOpcionResponse(
+                                                                                respuestaOpcion.getId(),
+                                                                                respuestaOpcion.getOpcion().getId(),
+                                                                                respuestaOpcion.getTexto()
+                                                                        )
+                                                        ).collect(Collectors.toList())
+                                                ),
+                                                archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId())
+                                        )
+                        ).sorted().collect(Collectors.toList())
+                )
+        );
+    }
+
+    public RespuestaResponse findRespuestaResponseById(Integer idRespuesta){
+        Optional<Respuesta> respuestaOptional = respuestaRepo.findById(idRespuesta);
+
+        if(!respuestaOptional.isPresent()) {
+            return new RespuestaResponse();
+        }
+
+        return createRespuestaResponse(respuestaOptional.get().getEvaluacion(), respuestaOptional.get());
+    }
+
     public RespuestaResponse upsertRespuesta(String document, Integer idEvaluacion, RespuestaRequest respuestaRequest, MultipartFile[] files) {
         Optional<Evaluacion> evaluacionOptional = evaluacionRepo.findById(idEvaluacion);
         if(!evaluacionOptional.isPresent()) return new RespuestaResponse();
