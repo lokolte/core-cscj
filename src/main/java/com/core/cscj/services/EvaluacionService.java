@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.enums.Entidades;
+import com.core.cscj.models.enums.Roles;
 import com.core.cscj.models.requests.*;
 import com.core.cscj.models.responses.*;
 import com.core.cscj.repos.*;
@@ -643,6 +644,7 @@ public class EvaluacionService {
         }
 
         return new RespuestasEvaluacionResponse(
+                evaluacionOptional.get().getAsignatura().getCurso(),
                 createEvaluacionResponse(evaluacionOptional.get()),
                 evaluacionOptional.get().getRespuestas().stream().map(
                         respuesta -> createRespuestaItemResponse(respuesta, respuesta.getCorreccion())
@@ -661,7 +663,7 @@ public class EvaluacionService {
                 asignaturaOptional.get().getCurso(),
                 asignaturaOptional.get(),
                 asignaturaOptional.get().getEvaluaciones().stream().map(
-                        this::createEvaluacionResponse
+                        evaluacion -> createEvaluacionResponse(evaluacion)
                 ).sorted().collect(Collectors.toList())
         );
     }
