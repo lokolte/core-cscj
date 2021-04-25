@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
-public class RespuestaItemResponse implements Serializable {
+public class RespuestaItemResponse implements Serializable, Comparable<RespuestaItemResponse> {
     private Integer id;
     private Timestamp creationDate;
     private Timestamp lastModifiedDate;
@@ -24,6 +24,11 @@ public class RespuestaItemResponse implements Serializable {
         this.alumno = alumno;
         this.correccion = correccion;
         this.respuestasTemas = respuestasTemas;
+    }
+
+    @Override
+    public int compareTo(RespuestaItemResponse respuestaItemResponse) {
+        return this.getAlumno().getLastname().compareTo(respuestaItemResponse.getAlumno().getLastname());
     }
 
     public Integer getId() {
