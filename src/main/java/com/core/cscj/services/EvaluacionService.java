@@ -303,7 +303,7 @@ public class EvaluacionService {
         return opcionStored;
     }
 
-    private RespuestaResponse createRespuestaResponse(Evaluacion evaluacion, Respuesta respuesta, Correccion correccion){
+    private RespuestaItemResponse createRespuestaItemResponse(Respuesta respuesta, Correccion correccion){
         List<ArchivosAdjuntos> archivosAdjuntos = new ArrayList<>();
 
         respuesta.getRespuestaTemas().stream().forEach(
@@ -331,35 +331,39 @@ public class EvaluacionService {
                     ).sorted().collect(Collectors.toList())
             );
 
+        return new RespuestaItemResponse(
+                respuesta.getId(),
+                respuesta.getCreationDate(),
+                respuesta.getLastModifiedDate(),
+                respuesta.getAlumno(),
+                correccionResponse,
+                respuesta.getRespuestaTemas().stream().map(
+                        respuestaTema ->
+                                new RespuestaTemaResponse(
+                                        new RespuestaTemaItemResponse(
+                                                respuestaTema.getId(),
+                                                respuestaTema.getTema().getId(),
+                                                respuestaTema.getOrden(),
+                                                respuestaTema.getTexto(),
+                                                respuestaTema.getRespuestaOpciones().stream().map(
+                                                        respuestaOpcion ->
+                                                                new RespuestaOpcionResponse(
+                                                                        respuestaOpcion.getId(),
+                                                                        respuestaOpcion.getOpcion().getId(),
+                                                                        respuestaOpcion.getTexto()
+                                                                )
+                                                ).collect(Collectors.toList())
+                                        ),
+                                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId())
+                                )
+                ).sorted().collect(Collectors.toList())
+        );
+    }
+
+    private RespuestaResponse createRespuestaResponse(Evaluacion evaluacion, Respuesta respuesta, Correccion correccion){
         return new RespuestaResponse(
                 createEvaluacionResponse(evaluacion),
-                new RespuestaItemResponse(
-                        respuesta.getId(),
-                        respuesta.getCreationDate(),
-                        respuesta.getLastModifiedDate(),
-                        respuesta.getAlumno(),
-                        correccionResponse,
-                        respuesta.getRespuestaTemas().stream().map(
-                                respuestaTema ->
-                                        new RespuestaTemaResponse(
-                                                new RespuestaTemaItemResponse(
-                                                        respuestaTema.getId(),
-                                                        respuestaTema.getTema().getId(),
-                                                        respuestaTema.getOrden(),
-                                                        respuestaTema.getTexto(),
-                                                        respuestaTema.getRespuestaOpciones().stream().map(
-                                                                respuestaOpcion ->
-                                                                        new RespuestaOpcionResponse(
-                                                                                respuestaOpcion.getId(),
-                                                                                respuestaOpcion.getOpcion().getId(),
-                                                                                respuestaOpcion.getTexto()
-                                                                        )
-                                                        ).collect(Collectors.toList())
-                                                ),
-                                                archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId())
-                                        )
-                        ).sorted().collect(Collectors.toList())
-                )
+                createRespuestaItemResponse(respuesta, respuesta.getCorreccion())
         );
     }
 
@@ -626,5 +630,20 @@ public class EvaluacionService {
         correccionTemaToStore.setRespuestaTema(respuestaTemaRepo.findById(correccionTemaRequest.getIdRespuestaTema()).get());
 
         return correccionTemaRepo.save(correccionTemaToStore);
+    }
+
+    public RespuestasEvaluacionResponse findAllRespuestasFromEvaluacion(Integer idEvaluacion){
+        Optional<Evaluacion> evaluacionOptional = evaluacionRepo.findById(idEvaluacion);
+
+        if(!evaluacionOptional.isPresent()) {
+            return new RespuestasEvaluacionResponse();
+        }
+
+        return new RespuestasEvaluacionResponse(
+                createEvaluacionResponse(evaluacionOptional.get()),
+                evaluacionOptional.get().getRespuestas().stream().map(
+                        respuesta -> createRespuestaItemResponse(respuesta, respuesta.getCorreccion())
+                ).sorted().collect(Collectors.toList())
+        );
     }
 }

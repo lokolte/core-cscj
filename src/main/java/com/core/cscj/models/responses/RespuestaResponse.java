@@ -16,7 +16,7 @@ public class RespuestaResponse implements Serializable, Comparable<RespuestaResp
 
     @Override
     public int compareTo(RespuestaResponse respuestaResponse){
-        return respuestaResponse.getRespuesta().getCreationDate().compareTo(this.getRespuesta().getCreationDate());
+        return this.respuesta.getAlumno().getLastname().compareTo(respuestaResponse.getRespuesta().getAlumno().getLastname());
     }
 
     public EvaluacionResponse getEvaluacion() {

@@ -3,6 +3,7 @@ package com.core.cscj.controllers;
 import com.core.cscj.models.requests.CorreccionRequest;
 import com.core.cscj.models.responses.EvaluacionResponse;
 import com.core.cscj.models.responses.RespuestaResponse;
+import com.core.cscj.models.responses.RespuestasEvaluacionResponse;
 import com.core.cscj.services.EvaluacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +30,14 @@ public class EvaluacionController {
         return evaluacionService.comenzarTerminarExamen(idEvaluacion, habilitado);
     }
 
-    @PostMapping(value="/respuestas/{idRespuesta}")
+    @PostMapping(value="/respuestas/{idRespuesta}/correcciones")
     public RespuestaResponse upsertCorreccion(@PathVariable("idRespuesta") Integer idRespuesta,
                                               @RequestBody CorreccionRequest correccionRequest) {
         return evaluacionService.upsertCorreccionRespuesta(idRespuesta, correccionRequest);
+    }
+
+    @GetMapping(value="/{idEvaluacion}/respuestas")
+    public RespuestasEvaluacionResponse getAllRespuestasFromEvaluacion(@PathVariable("idEvaluacion") Integer idEvaluacion) {
+        return evaluacionService.findAllRespuestasFromEvaluacion(idEvaluacion);
     }
 }
