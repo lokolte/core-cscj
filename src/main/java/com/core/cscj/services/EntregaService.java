@@ -195,8 +195,8 @@ public class EntregaService {
         List<Tarea> tareas = cursoRepo.findTareasFromCurso(curso.getId());
         List<Entrega> entregas = entregaRepo.findAllEntregasByIdAlumno(idAlumno);
 
-        if(roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name()) ||
-                roles.contains(Roles.SUPERVISOR.name()) || roles.contains(Roles.TUTOR.name())) {
+        if(roles.contains(Roles.TUTOR.name()) || roles.contains(Roles.ALUMNO.name())
+                || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.SUPERVISOR.name())) {
             return new AlumnoEntregasResponse(curso, tareas.stream().map(
                     tarea ->
                             new EntregasResponse(

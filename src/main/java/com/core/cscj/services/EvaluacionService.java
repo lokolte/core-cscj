@@ -130,6 +130,15 @@ public class EvaluacionService {
         if(!evaluacionOptional.isPresent()) {
             evaluacionToStore = new Evaluacion();
             evaluacionToStore.setAsignatura(asignatura);
+            evaluacionToStore.setAlumnos(
+                    asignatura.getCurso().getPersons().stream().filter(
+                            person -> {
+                                Account account = person.getAccounts().stream().collect(Collectors.toList()).get(0);
+                                List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
+                                return roles.contains(Roles.ALUMNO.name());
+                            }
+                    ).collect(Collectors.toSet())
+            );
             evaluacionToStore.setCreationDate(new Timestamp(new Date().getTime()));
             evaluacionToStore.setHabilitado(false);
         } else {
@@ -307,7 +316,7 @@ public class EvaluacionService {
         return opcionStored;
     }
 
-    private RespuestaItemResponse createRespuestaItemResponse(Respuesta respuesta, Correccion correccion){
+    private RespuestaItemResponse createRespuestaItemResponse(Respuesta respuesta, Correccion correccion, Person alumno){
         List<ArchivosAdjuntos> archivosAdjuntos = new ArrayList<>();
 
         respuesta.getRespuestaTemas().stream().forEach(
@@ -339,7 +348,7 @@ public class EvaluacionService {
                 respuesta.getId(),
                 respuesta.getCreationDate(),
                 respuesta.getLastModifiedDate(),
-                respuesta.getAlumno(),
+                alumno,
                 correccionResponse,
                 respuesta.getRespuestaTemas().stream().map(
                         respuestaTema ->
@@ -364,10 +373,10 @@ public class EvaluacionService {
         );
     }
 
-    private RespuestaResponse createRespuestaResponse(Evaluacion evaluacion, Respuesta respuesta, Correccion correccion){
+    private RespuestaResponse createRespuestaResponse(Evaluacion evaluacion, Respuesta respuesta, Correccion correccion, Person alumno){
         return new RespuestaResponse(
                 createEvaluacionResponse(evaluacion),
-                createRespuestaItemResponse(respuesta, respuesta.getCorreccion())
+                (respuesta != null) ? createRespuestaItemResponse(respuesta,  correccion, alumno) : new RespuestaItemResponse(alumno)
         );
     }
 
@@ -378,7 +387,7 @@ public class EvaluacionService {
             return new RespuestaResponse();
         }
 
-        return createRespuestaResponse(respuestaOptional.get().getEvaluacion(), respuestaOptional.get(), respuestaOptional.get().getCorreccion());
+        return createRespuestaResponse(respuestaOptional.get().getEvaluacion(), respuestaOptional.get(), respuestaOptional.get().getCorreccion(), respuestaOptional.get().getAlumno());
     }
 
     public RespuestaResponse upsertRespuesta(String document, Integer idEvaluacion, RespuestaRequest respuestaRequest, MultipartFile[] files) {
@@ -611,7 +620,7 @@ public class EvaluacionService {
         respuesta.setCorreccion(correccionFinal);
         Respuesta respuestaStored = respuestaRepo.save(respuesta);
 
-        return createRespuestaResponse(respuestaStored.getEvaluacion(), respuestaStored, respuestaStored.getCorreccion());
+        return createRespuestaResponse(respuestaStored.getEvaluacion(), respuestaStored, respuestaStored.getCorreccion(), respuestaStored.getAlumno());
     }
 
     private CorreccionTema upsertCorreccionTema(CorreccionTemaRequest correccionTemaRequest, Correccion correccionStored){
@@ -647,7 +656,7 @@ public class EvaluacionService {
                 evaluacionOptional.get().getAsignatura().getCurso(),
                 createEvaluacionResponse(evaluacionOptional.get()),
                 evaluacionOptional.get().getRespuestas().stream().map(
-                        respuesta -> createRespuestaItemResponse(respuesta, respuesta.getCorreccion())
+                        respuesta -> createRespuestaItemResponse(respuesta, respuesta.getCorreccion(), respuesta.getAlumno())
                 ).sorted().collect(Collectors.toList())
         );
     }
@@ -666,5 +675,53 @@ public class EvaluacionService {
                         evaluacion -> createEvaluacionResponse(evaluacion)
                 ).sorted().collect(Collectors.toList())
         );
+    }
+
+    public List<RespuestaResponse> findAllEvaluacionesAndRespuestasFromAlumno(String document, Integer idAlumno){
+        Account account = accountRepo.findByDocument(document);
+        if(account == null) return new ArrayList<>();
+
+        List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
+
+        Optional<Person> alumnoOptional = personRepo.findById(idAlumno);
+        if(!alumnoOptional.isPresent()) return new ArrayList<>();
+
+        if(roles.contains(Roles.TUTOR.name()) || roles.contains(Roles.ALUMNO.name())
+                || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.SUPERVISOR.name())) {
+            return alumnoOptional.get().getEvaluaciones()
+                    .stream().map(
+                            evaluacion -> {
+                                List<Respuesta> respuestas = evaluacion.getRespuestas()
+                                        .stream().filter(
+                                                respuesta -> respuesta.getAlumno().getId() == alumnoOptional.get().getId()
+                                        ).collect(Collectors.toList());
+                                return createRespuestaResponse(
+                                        evaluacion,
+                                        (respuestas.size() == 1) ? respuestas.get(0) : null,
+                                        (respuestas.size() == 1) ? respuestas.get(0).getCorreccion() : null,
+                                        alumnoOptional.get()
+                                );
+                            }
+                    ).sorted().collect(Collectors.toList());
+        } else { // es profesor
+            return alumnoOptional.get().getEvaluaciones()
+                    .stream().filter(
+                            evaluacion -> evaluacion.getAsignatura().getProfesor().getId() == account.getPerson().getId()
+                    )
+                    .map(
+                            evaluacion -> {
+                                List<Respuesta> respuestas = evaluacion.getRespuestas()
+                                        .stream().filter(
+                                                respuesta -> respuesta.getAlumno().getId() == alumnoOptional.get().getId()
+                                        ).collect(Collectors.toList());
+                                return createRespuestaResponse(
+                                        evaluacion,
+                                        (!respuestas.isEmpty()) ? respuestas.get(0) : null,
+                                        (!respuestas.isEmpty()) ? respuestas.get(0).getCorreccion() : null,
+                                        alumnoOptional.get()
+                                );
+                            }
+                    ).sorted().collect(Collectors.toList());
+        }
     }
 }

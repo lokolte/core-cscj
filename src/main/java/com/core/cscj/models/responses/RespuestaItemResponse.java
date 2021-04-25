@@ -17,6 +17,10 @@ public class RespuestaItemResponse implements Serializable, Comparable<Respuesta
     public RespuestaItemResponse() {
     }
 
+    public RespuestaItemResponse(Person alumno) {
+        this.alumno = alumno;
+    }
+
     public RespuestaItemResponse(Integer id, Timestamp creationDate, Timestamp lastModifiedDate, Person alumno, CorreccionResponse correccion, List<RespuestaTemaResponse> respuestasTemas) {
         this.id = id;
         this.creationDate = creationDate;

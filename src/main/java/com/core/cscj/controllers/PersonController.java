@@ -3,9 +3,7 @@ package com.core.cscj.controllers;
 import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.entities.Asignatura;
 import com.core.cscj.models.entities.Person;
-import com.core.cscj.models.responses.AlumnoEntregasResponse;
-import com.core.cscj.models.responses.CursoResponse;
-import com.core.cscj.models.responses.EntregasResponse;
+import com.core.cscj.models.responses.*;
 import com.core.cscj.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +24,9 @@ public class PersonController {
 
     @Autowired
     private EntregaService entregaService;
+
+    @Autowired
+    private EvaluacionService evaluacionService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -50,5 +51,10 @@ public class PersonController {
     @GetMapping(value="/{idAlumno}/entregas")
     public AlumnoEntregasResponse getAllEntregasFromAlumno(@RequestHeader("Authorization") String authorization, @PathVariable("idAlumno") Integer idAlumno) {
         return entregaService.findAllEntregasFromAlumno(jwtUtil.getDocumentFromJwtToken(authorization), idAlumno);
+    }
+
+    @GetMapping(value="/{idAlumno}/evaluaciones")
+    public List<RespuestaResponse> getAllRespuestasFromEvaluacion(@RequestHeader("Authorization") String authorization, @PathVariable("idAlumno") Integer idAlumno) {
+        return evaluacionService.findAllEvaluacionesAndRespuestasFromAlumno(jwtUtil.getDocumentFromJwtToken(authorization), idAlumno);
     }
 }
