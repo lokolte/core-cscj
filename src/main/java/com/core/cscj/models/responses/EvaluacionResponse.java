@@ -6,7 +6,7 @@ import com.core.cscj.models.entities.Evaluacion;
 import java.io.Serializable;
 import java.util.List;
 
-public class EvaluacionResponse implements Serializable {
+public class EvaluacionResponse implements Serializable, Comparable<EvaluacionResponse> {
     private Evaluacion evaluacion;
     private Curso curso;
     private List<TemaResponse> temas;
@@ -18,6 +18,11 @@ public class EvaluacionResponse implements Serializable {
         this.evaluacion = evaluacion;
         this.curso = curso;
         this.temas = temas;
+    }
+
+    @Override
+    public int compareTo(EvaluacionResponse evaluacionResponse) {
+        return evaluacionResponse.getEvaluacion().getCreationDate().compareTo(this.getEvaluacion().getCreationDate());
     }
 
     public Evaluacion getEvaluacion() {

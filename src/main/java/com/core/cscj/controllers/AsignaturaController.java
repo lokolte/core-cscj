@@ -8,6 +8,7 @@ import com.core.cscj.models.entities.Tarea;
 import com.core.cscj.models.requests.EvaluacionRequest;
 import com.core.cscj.models.responses.ActividadResponse;
 import com.core.cscj.models.responses.EvaluacionResponse;
+import com.core.cscj.models.responses.RespuestasAsignaturaResponse;
 import com.core.cscj.services.AsignaturaService;
 import com.core.cscj.services.EvaluacionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,4 +60,8 @@ public class AsignaturaController {
         return evaluacionService.upsertEvaluacion(idAsignatura, evaluacionRequest, files);
     }
 
+    @GetMapping(value="/{idAsignatura}/evaluaciones")
+    public RespuestasAsignaturaResponse getAllRespuestasFromEvaluacion(@PathVariable("idAsignatura") Integer idAsignatura) {
+        return evaluacionService.findAllEvaluacionesFromAsignatura(idAsignatura);
+    }
 }

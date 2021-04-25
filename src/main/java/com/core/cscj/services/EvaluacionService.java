@@ -42,13 +42,16 @@ public class EvaluacionService {
     private ArchivosAdjuntosRepo archivosAdjuntosRepo;
 
     @Autowired
-    private PersonRepo personRepo;
-
-    @Autowired
     private CorreccionRepo correccionRepo;
 
     @Autowired
     private CorreccionTemaRepo correccionTemaRepo;
+
+    @Autowired
+    private AccountRepo accountRepo;
+
+    @Autowired
+    private PersonRepo personRepo;
 
     @Autowired
     private AsignaturaService asignaturaService;
@@ -643,6 +646,22 @@ public class EvaluacionService {
                 createEvaluacionResponse(evaluacionOptional.get()),
                 evaluacionOptional.get().getRespuestas().stream().map(
                         respuesta -> createRespuestaItemResponse(respuesta, respuesta.getCorreccion())
+                ).sorted().collect(Collectors.toList())
+        );
+    }
+
+    public RespuestasAsignaturaResponse findAllEvaluacionesFromAsignatura(Integer idAsignatura){
+        Optional<Asignatura> asignaturaOptional = asignaturaRepo.findById(idAsignatura);
+
+        if(!asignaturaOptional.isPresent()) {
+            return new RespuestasAsignaturaResponse();
+        }
+
+        return new RespuestasAsignaturaResponse(
+                asignaturaOptional.get().getCurso(),
+                asignaturaOptional.get(),
+                asignaturaOptional.get().getEvaluaciones().stream().map(
+                        this::createEvaluacionResponse
                 ).sorted().collect(Collectors.toList())
         );
     }
