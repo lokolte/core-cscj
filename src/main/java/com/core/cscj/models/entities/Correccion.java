@@ -16,10 +16,10 @@ import lombok.ToString;
  *
  */
 @Entity
-@Table(name="respuesta")
+@Table(name="correccion")
 @Data
-@NamedQuery(name="Respuesta.findAll", query="SELECT r FROM Respuesta r")
-public class Respuesta implements Serializable {
+@NamedQuery(name="Correccion.findAll", query="SELECT c FROM Correccion c")
+public class Correccion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -27,36 +27,32 @@ public class Respuesta implements Serializable {
     @Column(unique=true, nullable=false)
     private Integer id;
 
+    @Column(name="puntos_logrados", length=200)
+    private String puntosLogrados;
+
+    @Column(length=20000)
+    private String observaciones;
+
     @Column(name="creation_date")
     private Timestamp creationDate;
 
     @Column(name="last_modified_date")
     private Timestamp lastModifiedDate;
 
-    @ManyToOne
-    @JoinColumn(name="evaluacion_id")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "respuesta_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Evaluacion evaluacion;
+    private Respuesta respuesta;
 
-    @ManyToOne
-    @JoinColumn(name="person_id")
+    @OneToMany(mappedBy="correccion")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Person alumno;
+    private Set<CorreccionTema> correccionTemas;
 
-    @OneToMany(mappedBy="respuesta")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Set<RespuestaTema> respuestaTemas;
-
-    @OneToOne(mappedBy = "respuesta", fetch = FetchType.LAZY)
-    private Correccion correccion;
-
-    public Respuesta() {
+    public Correccion() {
     }
 
     public Integer getId() {
@@ -65,6 +61,22 @@ public class Respuesta implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getPuntosLogrados() {
+        return puntosLogrados;
+    }
+
+    public void setPuntosLogrados(String puntosLogrados) {
+        this.puntosLogrados = puntosLogrados;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
     }
 
     public Timestamp getCreationDate() {
@@ -83,27 +95,19 @@ public class Respuesta implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Evaluacion getEvaluacion() {
-        return evaluacion;
+    public Respuesta getRespuesta() {
+        return respuesta;
     }
 
-    public void setEvaluacion(Evaluacion evaluacion) {
-        this.evaluacion = evaluacion;
+    public void setRespuesta(Respuesta respuesta) {
+        this.respuesta = respuesta;
     }
 
-    public Person getAlumno() {
-        return alumno;
+    public Set<CorreccionTema> getCorreccionTemas() {
+        return correccionTemas;
     }
 
-    public void setAlumno(Person alumno) {
-        this.alumno = alumno;
-    }
-
-    public Set<RespuestaTema> getRespuestaTemas() {
-        return respuestaTemas;
-    }
-
-    public void setRespuestaTemas(Set<RespuestaTema> respuestaTemas) {
-        this.respuestaTemas = respuestaTemas;
+    public void setCorreccionTemas(Set<CorreccionTema> correccionTemas) {
+        this.correccionTemas = correccionTemas;
     }
 }

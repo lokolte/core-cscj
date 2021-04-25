@@ -52,6 +52,9 @@ public class RespuestaTema implements Serializable {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<RespuestaOpcion> respuestaOpciones;
 
+    @OneToOne(mappedBy = "respuestaTema", fetch = FetchType.LAZY)
+    private CorreccionTema correccionTema;
+
     public RespuestaTema() {
     }
 

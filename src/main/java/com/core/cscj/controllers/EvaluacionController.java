@@ -1,5 +1,6 @@
 package com.core.cscj.controllers;
 
+import com.core.cscj.models.requests.CorreccionRequest;
 import com.core.cscj.models.responses.EvaluacionResponse;
 import com.core.cscj.models.responses.RespuestaResponse;
 import com.core.cscj.services.EvaluacionService;
@@ -26,5 +27,11 @@ public class EvaluacionController {
     public EvaluacionResponse habilitacionEvaluacion(@PathVariable("idEvaluacion") Integer idEvaluacion,
                                  @RequestParam Boolean habilitado) {
         return evaluacionService.comenzarTerminarExamen(idEvaluacion, habilitado);
+    }
+
+    @PostMapping(value="/respuestas/{idRespuesta}")
+    public RespuestaResponse upsertCorreccion(@PathVariable("idRespuesta") Integer idRespuesta,
+                                              @RequestBody CorreccionRequest correccionRequest) {
+        return evaluacionService.upsertCorreccionRespuesta(idRespuesta, correccionRequest);
     }
 }

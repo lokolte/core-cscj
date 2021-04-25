@@ -42,10 +42,16 @@ public class EvaluacionService {
     private ArchivosAdjuntosRepo archivosAdjuntosRepo;
 
     @Autowired
-    private AsignaturaService asignaturaService;
+    private PersonRepo personRepo;
 
     @Autowired
-    private PersonRepo personRepo;
+    private CorreccionRepo correccionRepo;
+
+    @Autowired
+    private CorreccionTemaRepo correccionTemaRepo;
+
+    @Autowired
+    private AsignaturaService asignaturaService;
 
     @Autowired
     private FileStorageService fileStorageService;
@@ -297,12 +303,33 @@ public class EvaluacionService {
         return opcionStored;
     }
 
-    private RespuestaResponse createRespuestaResponse(Evaluacion evaluacion, Respuesta respuesta){
+    private RespuestaResponse createRespuestaResponse(Evaluacion evaluacion, Respuesta respuesta, Correccion correccion){
         List<ArchivosAdjuntos> archivosAdjuntos = new ArrayList<>();
 
         respuesta.getRespuestaTemas().stream().forEach(
                 respuestaTema -> archivosAdjuntos.addAll(archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId()))
         );
+
+        CorreccionResponse correccionResponse = null;
+
+        if(correccion != null)
+            correccionResponse = new CorreccionResponse(
+                    correccion.getId(),
+                    correccion.getPuntosLogrados(),
+                    correccion.getObservaciones(),
+                    correccion.getCreationDate(),
+                    correccion.getLastModifiedDate(),
+                    correccion.getCorreccionTemas().stream().map(
+                            correccionTema ->
+                                    new CorreccionTemaResponse(
+                                            correccionTema.getId(),
+                                            correccionTema.getPuntosLogrados(),
+                                            correccionTema.getObservacion(),
+                                            correccionTema.getRespuestaTema().getId(),
+                                            correccionTema.getOrden()
+                                    )
+                    ).sorted().collect(Collectors.toList())
+            );
 
         return new RespuestaResponse(
                 createEvaluacionResponse(evaluacion),
@@ -311,6 +338,7 @@ public class EvaluacionService {
                         respuesta.getCreationDate(),
                         respuesta.getLastModifiedDate(),
                         respuesta.getAlumno(),
+                        correccionResponse,
                         respuesta.getRespuestaTemas().stream().map(
                                 respuestaTema ->
                                         new RespuestaTemaResponse(
@@ -342,7 +370,7 @@ public class EvaluacionService {
             return new RespuestaResponse();
         }
 
-        return createRespuestaResponse(respuestaOptional.get().getEvaluacion(), respuestaOptional.get());
+        return createRespuestaResponse(respuestaOptional.get().getEvaluacion(), respuestaOptional.get(), respuestaOptional.get().getCorreccion());
     }
 
     public RespuestaResponse upsertRespuesta(String document, Integer idEvaluacion, RespuestaRequest respuestaRequest, MultipartFile[] files) {
@@ -453,6 +481,7 @@ public class EvaluacionService {
                         respuestaStoredFinal.getCreationDate(),
                         respuestaStoredFinal.getLastModifiedDate(),
                         respuestaStoredFinal.getAlumno(),
+                        null,
                         respuestaStoredFinal.getRespuestaTemas().stream().map(
                                 respuestaTema ->
                                         new RespuestaTemaResponse(
@@ -541,5 +570,61 @@ public class EvaluacionService {
         RespuestaOpcion respuestaOpcionStored = respuestaOpcionRepo.save(respuestaOpcionToStore);
 
         return respuestaOpcionStored;
+    }
+
+    public RespuestaResponse upsertCorreccionRespuesta(Integer idRespuesta, CorreccionRequest correccionRequest){
+        Optional<Respuesta> respuestaOptional = respuestaRepo.findById(idRespuesta);
+
+        if(!respuestaOptional.isPresent()) return new RespuestaResponse();
+
+        Respuesta respuesta = respuestaOptional.get();
+
+        Correccion correccionToStore = respuesta.getCorreccion();
+
+        if(correccionToStore == null) {
+            correccionToStore = new Correccion();
+            correccionToStore.setRespuesta(respuesta);
+            correccionToStore.setCreationDate(new Timestamp(new Date().getTime()));
+        } else correccionToStore.setLastModifiedDate(new Timestamp(new Date().getTime()));
+
+        correccionToStore.setPuntosLogrados(correccionRequest.getPuntosLogrados());
+        correccionToStore.setObservaciones(correccionRequest.getObservaciones());
+
+        Correccion correccionStored = correccionRepo.save(correccionToStore);
+
+        Set<CorreccionTema> correccionTemas = correccionRequest.getCorreccionTemas().stream().map(
+                correccionTemaRequest -> upsertCorreccionTema(correccionTemaRequest, correccionStored)
+        ).collect(Collectors.toSet());
+
+        correccionStored.setCorreccionTemas(correccionTemas);
+
+        Correccion correccionFinal = correccionRepo.save(correccionStored);
+
+        respuesta.setCorreccion(correccionFinal);
+        Respuesta respuestaStored = respuestaRepo.save(respuesta);
+
+        return createRespuestaResponse(respuestaStored.getEvaluacion(), respuestaStored, respuestaStored.getCorreccion());
+    }
+
+    private CorreccionTema upsertCorreccionTema(CorreccionTemaRequest correccionTemaRequest, Correccion correccionStored){
+        Optional<CorreccionTema> correccionTemaOptional = Optional.empty();
+        if(correccionTemaRequest.getId() != null)
+            correccionTemaOptional = correccionTemaRepo.findById(correccionTemaRequest.getId());
+
+        CorreccionTema correccionTemaToStore;
+
+        if(correccionTemaOptional.isPresent()) {
+            correccionTemaToStore = correccionTemaOptional.get();
+        } else {
+            correccionTemaToStore = new CorreccionTema();
+            correccionTemaToStore.setCorreccion(correccionStored);
+        }
+
+        correccionTemaToStore.setOrden(correccionTemaRequest.getOrden());
+        correccionTemaToStore.setPuntosLogrados(correccionTemaRequest.getPuntosLogrados());
+        correccionTemaToStore.setObservacion(correccionTemaRequest.getObservaciones());
+        correccionTemaToStore.setRespuestaTema(respuestaTemaRepo.findById(correccionTemaRequest.getIdRespuestaTema()).get());
+
+        return correccionTemaRepo.save(correccionTemaToStore);
     }
 }

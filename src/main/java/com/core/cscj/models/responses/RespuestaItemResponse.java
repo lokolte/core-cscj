@@ -11,16 +11,18 @@ public class RespuestaItemResponse implements Serializable {
     private Timestamp creationDate;
     private Timestamp lastModifiedDate;
     private Person alumno;
+    private CorreccionResponse correccion;
     private List<RespuestaTemaResponse> respuestasTemas;
 
     public RespuestaItemResponse() {
     }
 
-    public RespuestaItemResponse(Integer id, Timestamp creationDate, Timestamp lastModifiedDate, Person alumno, List<RespuestaTemaResponse> respuestasTemas) {
+    public RespuestaItemResponse(Integer id, Timestamp creationDate, Timestamp lastModifiedDate, Person alumno, CorreccionResponse correccion, List<RespuestaTemaResponse> respuestasTemas) {
         this.id = id;
         this.creationDate = creationDate;
         this.lastModifiedDate = lastModifiedDate;
         this.alumno = alumno;
+        this.correccion = correccion;
         this.respuestasTemas = respuestasTemas;
     }
 
@@ -62,5 +64,13 @@ public class RespuestaItemResponse implements Serializable {
 
     public void setRespuestasTemas(List<RespuestaTemaResponse> respuestasTemas) {
         this.respuestasTemas = respuestasTemas;
+    }
+
+    public CorreccionResponse getCorreccion() {
+        return correccion;
+    }
+
+    public void setCorreccion(CorreccionResponse correccion) {
+        this.correccion = correccion;
     }
 }
