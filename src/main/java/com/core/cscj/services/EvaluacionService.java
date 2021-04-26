@@ -113,6 +113,16 @@ public class EvaluacionService {
         return createEvaluacionResponse(evaluacionOptional.get());
     }
 
+    private Set<Person> getAllAlumnosFromCurso(Curso curso) {
+        return curso.getPersons().stream().filter(
+                person -> {
+                    Account account = person.getAccounts().stream().collect(Collectors.toList()).get(0);
+                    List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
+                    return roles.contains(Roles.ALUMNO.name());
+                }
+        ).collect(Collectors.toSet());
+    }
+
     public EvaluacionResponse upsertEvaluacion(Integer idAsignatura, EvaluacionRequest evaluacionRequest, MultipartFile[] files){
         Optional<Asignatura> asignaturaOptional = asignaturaRepo.findById(idAsignatura);
 
@@ -130,15 +140,7 @@ public class EvaluacionService {
         if(!evaluacionOptional.isPresent()) {
             evaluacionToStore = new Evaluacion();
             evaluacionToStore.setAsignatura(asignatura);
-            evaluacionToStore.setAlumnos(
-                    asignatura.getCurso().getPersons().stream().filter(
-                            person -> {
-                                Account account = person.getAccounts().stream().collect(Collectors.toList()).get(0);
-                                List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
-                                return roles.contains(Roles.ALUMNO.name());
-                            }
-                    ).collect(Collectors.toSet())
-            );
+            evaluacionToStore.setAlumnos(getAllAlumnosFromCurso(asignatura.getCurso()));
             evaluacionToStore.setCreationDate(new Timestamp(new Date().getTime()));
             evaluacionToStore.setHabilitado(false);
         } else {
@@ -652,12 +654,30 @@ public class EvaluacionService {
             return new RespuestasEvaluacionResponse();
         }
 
+        HashMap<Integer, Person> alumnos = new HashMap<>();
+        evaluacionOptional.get()
+                .getAlumnos()
+                .stream().forEach(
+                        alumno -> alumnos.put(alumno.getId(), alumno)
+                );
+
+        HashMap<Integer, RespuestaItemResponse> respuestas = new HashMap<>();
+        evaluacionOptional.get()
+                .getRespuestas()
+                .stream().forEach(
+                        respuesta -> respuestas.put(respuesta.getAlumno().getId(), createRespuestaItemResponse(respuesta, respuesta.getCorreccion(), respuesta.getAlumno()))
+                );
+
         return new RespuestasEvaluacionResponse(
                 evaluacionOptional.get().getAsignatura().getCurso(),
                 createEvaluacionResponse(evaluacionOptional.get()),
-                evaluacionOptional.get().getRespuestas().stream().map(
-                        respuesta -> createRespuestaItemResponse(respuesta, respuesta.getCorreccion(), respuesta.getAlumno())
-                ).sorted().collect(Collectors.toList())
+                alumnos.values().stream().map(
+                        alumno -> {
+                            RespuestaItemResponse respuesta = respuestas.get(alumno.getId());
+                            if(respuesta != null) return respuesta;
+                            else return new RespuestaItemResponse(alumno);
+                        }
+                ).collect(Collectors.toList())
         );
     }
 
