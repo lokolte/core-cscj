@@ -27,13 +27,20 @@ public class CursoService {
     public CursoResponse findById(Integer idCurso, String document){
         Account account = accountRepo.findByDocument(document);
         List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
-        List<Curso> cursos = account.getPerson().getCursos().stream().filter(curso -> curso.getId().equals(idCurso)).collect(Collectors.toList());
 
-        Curso curso = (cursos.size() > 0) ? cursos.get(0) : null;
+        List<Curso> cursos;
+        Curso cursoStored;
 
-        if(curso == null) return null;
+        if(roles.contains(Roles.SUPERVISOR.name())) {
+            cursoStored = cursoRepo.findById(idCurso).orElse(null);
+        }else{
+            cursos = account.getPerson().getCursos().stream().filter(curso -> curso.getId().equals(idCurso)).collect(Collectors.toList());
+            cursoStored = (cursos.size() > 0) ? cursos.get(0) : null;
+        }
 
-        return new CursoResponse(curso, findCursoWithAsignaturasFromPersonBasedOnRole(curso.getId(), account.getPerson().getId(), roles, false));
+        if(cursoStored == null) return null;
+
+        return new CursoResponse(cursoStored, findCursoWithAsignaturasFromPersonBasedOnRole(cursoStored.getId(), account.getPerson().getId(), roles, false));
     }
 
     private List<Asignatura> findCursoWithAsignaturasFromPersonBasedOnRole(Integer idCurso, Integer idPersona, List<String> roles, Boolean fromVideoClase){
