@@ -385,7 +385,7 @@ public class EvaluacionService {
         return createRespuestaResponse(respuestaOptional.get().getEvaluacion(), respuestaOptional.get(), respuestaOptional.get().getCorreccion(), respuestaOptional.get().getAlumno());
     }
 
-    public RespuestaResponse upsertRespuesta(String document, Integer idEvaluacion, RespuestaRequest respuestaRequest, MultipartFile[] files) {
+    public RespuestaResponse upsertRespuesta(String document, Integer idEvaluacion, RespuestaRequest respuestaRequest, MultipartFile[] files) throws Exception {
         Optional<Evaluacion> evaluacionOptional = evaluacionRepo.findById(idEvaluacion);
         if(!evaluacionOptional.isPresent()) return new RespuestaResponse();
 
@@ -397,9 +397,15 @@ public class EvaluacionService {
         Respuesta respuestaToStore;
         HashMap<Integer, List<ArchivosAdjuntos>> archivosAdjuntos = new HashMap<>();
 
+        List<Respuesta> respuestasStored = evaluacion.getRespuestas().stream().filter(respuesta -> respuesta.getAlumno().getId() == alumno.getId()).collect(Collectors.toList());
+
         Optional<Respuesta> respuestaOptional = Optional.empty();
         if(respuestaRequest.getId() != null)
             respuestaOptional = respuestaRepo.findById(respuestaRequest.getId());
+//            throw new Exception("No se puede editar un examen que ya se rindio...");
+        else if(respuestasStored.size() > 0)
+            respuestaOptional = respuestasStored.stream().min(Comparator.comparing(Respuesta::getId));
+//            throw new Exception("No se puede editar un examen que ya se rindio...");
 
         if(!respuestaOptional.isPresent()) {
             respuestaToStore = new Respuesta();
@@ -658,7 +664,10 @@ public class EvaluacionService {
         evaluacionOptional.get()
                 .getRespuestas()
                 .stream().forEach(
-                        respuesta -> respuestas.put(respuesta.getAlumno().getId(), createRespuestaItemResponse(respuesta, respuesta.getCorreccion(), respuesta.getAlumno()))
+                        respuesta -> {
+                            if(respuestas.get(respuesta.getAlumno().getId()).getId() > respuesta.getId())
+                                respuestas.put(respuesta.getAlumno().getId(), createRespuestaItemResponse(respuesta, respuesta.getCorreccion(), respuesta.getAlumno()));
+                        }
                 );
 
         return new RespuestasEvaluacionResponse(
@@ -710,8 +719,8 @@ public class EvaluacionService {
                                         ).collect(Collectors.toList());
                                 return createRespuestaResponse(
                                         evaluacion,
-                                        (respuestas.size() == 1) ? respuestas.get(0) : null,
-                                        (respuestas.size() == 1) ? respuestas.get(0).getCorreccion() : null,
+                                        (respuestas.size() >= 1) ? respuestas.stream().min(Comparator.comparing(Respuesta::getId)).get() : null,
+                                        (respuestas.size() >= 1) ? respuestas.stream().min(Comparator.comparing(Respuesta::getId)).get().getCorreccion() : null,
                                         alumnoOptional.get()
                                 );
                             }
