@@ -64,7 +64,7 @@ public class EntregaService {
 
         entregaToStore = entregaRepo.save(entregaToStore);
 
-        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entregaToStore.getId());
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entregaToStore.getId());
 
         return new EntregaResponse(
                 entregaToStore,
@@ -109,7 +109,7 @@ public class EntregaService {
                                         entrega.getAlumno().getId(),
                                         new EntregaResponse(
                                                 entrega,
-                                                archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
                                         )
                                 )
         );
@@ -153,7 +153,7 @@ public class EntregaService {
         devolucionRepo.save(devolucionToStore);
         entrega = entregaRepo.save(entrega);
 
-        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId());
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId());
 
         return new EntregaResponse(
                 entrega,
@@ -207,7 +207,7 @@ public class EntregaService {
                                             entrega ->
                                                     new EntregaResponse(
                                                             entrega,
-                                                            archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                            archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
                                                     )
                                     ).collect(Collectors.toList())
                             )
@@ -227,7 +227,7 @@ public class EntregaService {
                                                     entrega ->
                                                             new EntregaResponse(
                                                                     entrega,
-                                                                    archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                                    archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
                                                             )
                                             ).collect(Collectors.toList())
                                     )

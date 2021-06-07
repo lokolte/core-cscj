@@ -1605,3 +1605,38 @@ INSERT INTO public.asignatura(
     id, description, nombre, orden, curso_id, person_id)
 VALUES ((select coalesce(max(id)::integer, 0) + 1 as id from public.asignatura), null, 'Coordinacion',
         (select max(orden))), (select id from public.curso where orden = 8), (select id from public.person where document = '4936007'));
+
+----- Added a new profesor guia Deisy Aureliana Vazquez Nuñez temporally as a Coordinador
+--- TODO: Add a new Rol - PROFESOR_GUIA que sea relacionado via curso_id <-> person_id para asignar profesores guia a nivel de curso
+--- TODO: Agregar este nuevo Rol al frontend
+INSERT INTO public.person(id,
+                          address, birth_date, document, lastname, name, phone, sex)
+VALUES ((select max(id)+1 from public.person),null, null, '4991645', 'Vazquez Nuñez', 'Deisy Aureliana', null, null);
+INSERT INTO public.account(id, document, password, person_id)
+VALUES ((select max(id)+1 from public.account), '4991645', '4991645', (select id from public.person where document = '4991645'));
+INSERT INTO public.account_roles(account_id, role_id)
+VALUES ((select id from public.account where document = '4991645'), 2);
+
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4991645'), (select id from public.curso where orden = 7));
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4991645'), (select id from public.curso where orden = 8));
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4991645'), (select id from public.curso where orden = 9));
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4991645'), (select id from public.curso where orden = 10));
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4991645'), (select id from public.curso where orden = 11));
+INSERT INTO public.person_cursos(
+    person_id, curso_id)
+VALUES ((select id from public.person where document = '4991645'), (select id from public.curso where orden = 12));
+
+
+----- Drop columns for planificaciones
+ALTER TABLE public.planificacion DROP COLUMN nombre;
+ALTER TABLE public.planificacion DROP COLUMN descripcion;

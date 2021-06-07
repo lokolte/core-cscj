@@ -30,6 +30,9 @@ public class AsignaturaService {
     private TareaRepo tareaRepo;
 
     @Autowired
+    private PlanificacionRepo planificacionRepo;
+
+    @Autowired
     private AccountRepo accountRepo;
 
     @Autowired
@@ -40,6 +43,9 @@ public class AsignaturaService {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private PersonService personService;
 
     private List<Actividad> finAllActividadesFromAsignaturaById(Integer idAsignatura, Boolean condition){
 
@@ -91,7 +97,7 @@ public class AsignaturaService {
         for(Actividad actividad : actividades)
             if(maxOrder < actividad.getOrden()) maxOrder = actividad.getOrden();
 
-        return maxOrder +1;
+        return maxOrder + 1;
     }
 
     public ActividadResponse createClase(Integer idAsignatura, Clase clase, MultipartFile[] files) {
@@ -126,12 +132,29 @@ public class AsignaturaService {
                 fileStorageService.uploadMultipleFiles(Entidades.TAREA.name(), tareaStored.getId(), files) : new ArrayList<>());
     }
 
+    public ActividadResponse createPlanificacion(Integer idAsignatura, Planificacion planificacion, MultipartFile[] files) {
+        Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
+
+        if(!asignatura.isPresent()) return new ActividadResponse();
+
+        planificacion.setAsignatura(asignatura.get());
+        planificacion.setOrden(getNextOrder(idAsignatura));
+        planificacion.setTipoActividad(Entidades.PLANIFICACION.name());
+        planificacion.setCantidadAlumnos(personService.getAllAlumnosFromCurso(asignatura.get().getCurso()).size());
+        planificacion.setCreationDate(new Timestamp(new Date().getTime()));
+
+        Planificacion planificacionStored = planificacionRepo.save(planificacion);
+
+        return new ActividadResponse(planificacionStored, null, (files != null) ?
+                fileStorageService.uploadMultipleFiles(Entidades.PLANIFICACION.name(), planificacionStored.getId(), files) : new ArrayList<>());
+    }
+
     public ActividadResponse findClase(Integer idClase){
         Optional<Clase> clase = claseRepo.findById(idClase);
 
         if(!clase.isPresent()) return new ActividadResponse();
 
-        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.CLASE.name(), idClase);
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.CLASE.name(), idClase);
 
         return new ActividadResponse(clase.get(), null, archivosAdjuntos);
     }
@@ -146,7 +169,7 @@ public class AsignaturaService {
 
         if(!tarea.isPresent()) return new ActividadResponse();
 
-        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TAREA.name(), idTarea);
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.TAREA.name(), idTarea);
 
         Entrega entregaStored = null;
         List<ArchivosAdjuntos> archivosDeEntrega = new ArrayList<>();
@@ -155,10 +178,20 @@ public class AsignaturaService {
         if(roles.contains(Roles.ALUMNO.name())){
             entregaStored = entregaRepo.findEntregaByIdAlumnoAndIdTarea(account.getPerson().getId(), idTarea);
             if(entregaStored != null)
-                archivosDeEntrega = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entregaStored.getId());
+                archivosDeEntrega = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entregaStored.getId());
         }
 
         return new ActividadResponse(tarea.get(), new EntregaResponse(entregaStored, archivosDeEntrega), archivosAdjuntos);
+    }
+
+    public ActividadResponse findPlanificacion(Integer idPlanificacion){
+        Optional<Planificacion> planificacion = planificacionRepo.findById(idPlanificacion);
+
+        if(!planificacion.isPresent()) return new ActividadResponse();
+
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.PLANIFICACION.name(), idPlanificacion);
+
+        return new ActividadResponse(planificacion.get(), null, archivosAdjuntos);
     }
 
     public ActividadResponse updateClase(Integer idClase, Clase clase, MultipartFile[] files) {
@@ -179,7 +212,7 @@ public class AsignaturaService {
                 fileStorageService.uploadNotRepeatedFiles(
                         Entidades.CLASE.name(),
                         idClase,
-                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.CLASE.name(), idClase), files)
+                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.CLASE.name(), idClase), files)
         );
     }
 
@@ -201,7 +234,38 @@ public class AsignaturaService {
                 fileStorageService.uploadNotRepeatedFiles(
                         Entidades.TAREA.name(),
                         idTarea,
-                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TAREA.name(), idTarea), files)
+                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.TAREA.name(), idTarea), files)
+        );
+    }
+
+    public ActividadResponse updatePlanificacion(Integer idPlanificacion, Planificacion planificacion, MultipartFile[] files) {
+        Optional<Planificacion> planificacionStoredOptional = planificacionRepo.findById(idPlanificacion);
+
+        if(!planificacionStoredOptional.isPresent()) return new ActividadResponse();
+
+        Planificacion planificacionStored = planificacionStoredOptional.get();
+
+        planificacionStored.setFecha(planificacion.getFecha());
+        planificacionStored.setTema(planificacion.getTema());
+        planificacionStored.setCapacidades(planificacion.getCapacidades());
+        planificacionStored.setIndicadores(planificacion.getIndicadores());
+        planificacionStored.setInicio(planificacion.getInicio());
+        planificacionStored.setDesarrollo(planificacion.getDesarrollo());
+        planificacionStored.setFijacion(planificacion.getFijacion());
+        planificacionStored.setObservacion(planificacion.getObservacion());
+        planificacionStored.setDuracion(planificacion.getDuracion());
+        planificacionStored.setCantidadAlumnos(personService.getAllAlumnosFromCurso(planificacionStored.getAsignatura().getCurso()).size());
+        planificacionStored.setAmbito(planificacion.getAmbito());
+        planificacionStored.setContenido(planificacion.getContenido());
+        planificacionStored.setLastModifiedDate(new Timestamp(new Date().getTime()));
+
+        planificacionStored = planificacionRepo.save(planificacionStored);
+
+        return new ActividadResponse(planificacionStored, null,
+                fileStorageService.uploadNotRepeatedFiles(
+                        Entidades.PLANIFICACION.name(),
+                        idPlanificacion,
+                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.PLANIFICACION.name(), idPlanificacion), files)
         );
     }
 }

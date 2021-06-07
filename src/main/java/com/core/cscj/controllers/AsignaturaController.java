@@ -4,6 +4,7 @@ import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.Actividad;
 import com.core.cscj.models.entities.Asignatura;
 import com.core.cscj.models.entities.Clase;
+import com.core.cscj.models.entities.Planificacion;
 import com.core.cscj.models.entities.Tarea;
 import com.core.cscj.models.requests.EvaluacionRequest;
 import com.core.cscj.models.responses.ActividadResponse;
@@ -51,6 +52,13 @@ public class AsignaturaController {
                                          @RequestPart(value = "tarea") Tarea tarea,
                                          @RequestPart(value = "files", required = false) MultipartFile[] files) {
         return asignaturaService.createTarea(idAsignatura, tarea, files);
+    }
+
+    @PostMapping(value="/{idAsignatura}/planificaciones")
+    public ActividadResponse createPlanificacion(@PathVariable("idAsignatura") Integer idAsignatura,
+                                         @RequestPart(value = "planificacion") Planificacion planificacion,
+                                         @RequestPart(value = "files", required = false) MultipartFile[] files) {
+        return asignaturaService.createPlanificacion(idAsignatura, planificacion, files);
     }
 
     @PostMapping(value="/{idAsignatura}/evaluaciones")

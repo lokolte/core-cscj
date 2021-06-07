@@ -2,7 +2,11 @@ package com.core.cscj.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.core.cscj.models.entities.Curso;
+import com.core.cscj.models.enums.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -88,6 +92,16 @@ public class PersonService {
 		personRepo.save(personToDelete);
 
 		personRepo.delete(personToDelete);
+	}
+
+	public Set<Person> getAllAlumnosFromCurso(Curso curso) {
+		return curso.getPersons().stream().filter(
+				person -> {
+					Account account = person.getAccounts().stream().collect(Collectors.toList()).get(0);
+					List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
+					return roles.contains(Roles.ALUMNO.name());
+				}
+		).collect(Collectors.toSet());
 	}
 
 }

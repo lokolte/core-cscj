@@ -60,6 +60,9 @@ public class EvaluacionService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private PersonService personService;
+
     public EvaluacionResponse comenzarTerminarExamen(Integer idEvaluacion, Boolean habilitado) {
         Optional<Evaluacion> evaluacionOptional = evaluacionRepo.findById(idEvaluacion);
 
@@ -86,7 +89,7 @@ public class EvaluacionService {
         List<ArchivosAdjuntos> archivosAdjuntos = new ArrayList<>();
 
         evaluacion.getTemas().stream().forEach(
-                tema -> archivosAdjuntos.addAll(archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TEMA.name(), tema.getId()))
+                tema -> archivosAdjuntos.addAll(archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.TEMA.name(), tema.getId()))
         );
 
         return new EvaluacionResponse(
@@ -113,16 +116,6 @@ public class EvaluacionService {
         return createEvaluacionResponse(evaluacionOptional.get());
     }
 
-    private Set<Person> getAllAlumnosFromCurso(Curso curso) {
-        return curso.getPersons().stream().filter(
-                person -> {
-                    Account account = person.getAccounts().stream().collect(Collectors.toList()).get(0);
-                    List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
-                    return roles.contains(Roles.ALUMNO.name());
-                }
-        ).collect(Collectors.toSet());
-    }
-
     public EvaluacionResponse upsertEvaluacion(Integer idAsignatura, EvaluacionRequest evaluacionRequest, MultipartFile[] files){
         Optional<Asignatura> asignaturaOptional = asignaturaRepo.findById(idAsignatura);
 
@@ -140,7 +133,7 @@ public class EvaluacionService {
         if(!evaluacionOptional.isPresent()) {
             evaluacionToStore = new Evaluacion();
             evaluacionToStore.setAsignatura(asignatura);
-            evaluacionToStore.setAlumnos(getAllAlumnosFromCurso(asignatura.getCurso()));
+            evaluacionToStore.setAlumnos(personService.getAllAlumnosFromCurso(asignatura.getCurso()));
             evaluacionToStore.setCreationDate(new Timestamp(new Date().getTime()));
             evaluacionToStore.setHabilitado(false);
         } else {
@@ -154,7 +147,7 @@ public class EvaluacionService {
 
                 evaluacionToStore.getTemas().forEach(
                         tema -> {
-                            archivosAdjuntos.put(tema.getId(), archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TEMA.name(), tema.getId()));
+                            archivosAdjuntos.put(tema.getId(), archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.TEMA.name(), tema.getId()));
                             temasStored.put(tema.getId(), tema);
                         }
                 );
@@ -261,7 +254,7 @@ public class EvaluacionService {
                                                             archivoAdjunto -> tema.getId() == archivoAdjunto.getIdEntidad()
                                                     )
                                         ).collect(Collectors.toList())
-                                        : archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.TEMA.name(), tema.getId())
+                                        : archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.TEMA.name(), tema.getId())
                         )
                 ).sorted().collect(Collectors.toList())
         );
@@ -322,7 +315,7 @@ public class EvaluacionService {
         List<ArchivosAdjuntos> archivosAdjuntos = new ArrayList<>();
 
         respuesta.getRespuestaTemas().stream().forEach(
-                respuestaTema -> archivosAdjuntos.addAll(archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId()))
+                respuestaTema -> archivosAdjuntos.addAll(archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId()))
         );
 
         CorreccionResponse correccionResponse = null;
@@ -369,7 +362,7 @@ public class EvaluacionService {
                                                                 )
                                                 ).collect(Collectors.toList())
                                         ),
-                                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId())
+                                        archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId())
                                 )
                 ).sorted().collect(Collectors.toList())
         );
@@ -424,7 +417,7 @@ public class EvaluacionService {
 
                 respuestaToStore.getRespuestaTemas().forEach(
                         respuestaTema -> {
-                            archivosAdjuntos.put(respuestaTema.getId(), archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId()));
+                            archivosAdjuntos.put(respuestaTema.getId(), archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId()));
                             respuestasTemasStored.put(respuestaTema.getId(), respuestaTema);
                         }
                 );
@@ -535,7 +528,7 @@ public class EvaluacionService {
                                                                                 archivoAdjunto -> respuestaTema.getId() == archivoAdjunto.getIdEntidad()
                                                                         )
                                                         ).collect(Collectors.toList())
-                                                        : archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId())
+                                                        : archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.RESPUESTA_TEMA.name(), respuestaTema.getId())
                                         )
                         ).sorted().collect(Collectors.toList())
                 )

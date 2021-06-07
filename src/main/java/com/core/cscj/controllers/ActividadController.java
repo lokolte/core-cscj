@@ -2,6 +2,7 @@ package com.core.cscj.controllers;
 
 import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.entities.Clase;
+import com.core.cscj.models.entities.Planificacion;
 import com.core.cscj.models.entities.Tarea;
 import com.core.cscj.models.requests.RespuestaRequest;
 import com.core.cscj.models.responses.ActividadResponse;
@@ -43,6 +44,11 @@ public class ActividadController {
         return asignaturaService.findTarea(jwtUtil.getDocumentFromJwtToken(authorization), idTarea);
     }
 
+    @GetMapping(value="/planificaciones/{idPlanificacion}")
+    public ActividadResponse findPlanificacion(@PathVariable("idPlanificacion") Integer idPlanificacion) {
+        return asignaturaService.findPlanificacion(idPlanificacion);
+    }
+
     @PutMapping(value="/clases/{idClase}")
     public ActividadResponse updateClase(@PathVariable("idClase") Integer idClase,
                                          @RequestPart(value = "clase") Clase clase,
@@ -55,6 +61,13 @@ public class ActividadController {
                                          @RequestPart(value = "tarea") Tarea tarea,
                                          @RequestPart(value = "files", required = false) MultipartFile[] files) {
         return asignaturaService.updateTarea(idTarea, tarea, files);
+    }
+
+    @PutMapping(value="/planificaciones/{idPlanificacion}")
+    public ActividadResponse updatePlanificacion(@PathVariable("idPlanificacion") Integer idPlanificacion,
+                                         @RequestPart(value = "planificacion") Planificacion planificacion,
+                                         @RequestPart(value = "files", required = false) MultipartFile[] files) {
+        return asignaturaService.updatePlanificacion(idPlanificacion, planificacion, files);
     }
 
     @GetMapping(value="/tareas/{idTarea}/entregas")

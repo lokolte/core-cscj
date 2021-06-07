@@ -23,17 +23,47 @@ public class Planificacion implements Actividad {
     @Column(unique=true, nullable=false)
     private Integer id;
 
-    @Column(nullable=false, length=700)
-    private String nombre;
-
-    @Column(length=1500)
-    private String description;
-
     @Column(name="tipo_actividad", nullable=false, length=300)
     private String tipoActividad;
 
     @Column(name="orden", nullable=false)
     private Integer orden;
+
+    @Column
+    private Timestamp fecha;
+
+    @Column(length=2000)
+    private String tema;
+
+    @Column(length=10000)
+    private String capacidades;
+
+    @Column(length=10000)
+    private String indicadores;
+
+    @Column(length=10000)
+    private String inicio;
+
+    @Column(length=10000)
+    private String desarrollo;
+
+    @Column(length=10000)
+    private String fijacion;
+
+    @Column(length=10000)
+    private String observacion;
+
+    @Column(length=10000)
+    private String duracion;
+
+    @Column(name="cantidad_alumnos")
+    private Integer cantidadAlumnos;
+
+    @Column(name="ambito", length=10000)
+    private String ambito;
+
+    @Column(name="contenido", length=10000)
+    private String contenido;
 
     @Column(name="creation_date")
     private Timestamp creationDate;
@@ -62,22 +92,6 @@ public class Planificacion implements Actividad {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String name) {
-        this.nombre = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     @Override
     public String getTipoActividad() {
         return tipoActividad;
@@ -94,6 +108,102 @@ public class Planificacion implements Actividad {
 
     public void setOrden(Integer orden) {
         this.orden = orden;
+    }
+
+    public Timestamp getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Timestamp fecha) {
+        this.fecha = fecha;
+    }
+
+    public String getTema() {
+        return tema;
+    }
+
+    public void setTema(String tema) {
+        this.tema = tema;
+    }
+
+    public String getCapacidades() {
+        return capacidades;
+    }
+
+    public void setCapacidades(String capacidades) {
+        this.capacidades = capacidades;
+    }
+
+    public String getIndicadores() {
+        return indicadores;
+    }
+
+    public void setIndicadores(String indicadores) {
+        this.indicadores = indicadores;
+    }
+
+    public String getInicio() {
+        return inicio;
+    }
+
+    public void setInicio(String inicio) {
+        this.inicio = inicio;
+    }
+
+    public String getDesarrollo() {
+        return desarrollo;
+    }
+
+    public void setDesarrollo(String desarrollo) {
+        this.desarrollo = desarrollo;
+    }
+
+    public String getFijacion() {
+        return fijacion;
+    }
+
+    public void setFijacion(String fijacion) {
+        this.fijacion = fijacion;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
+
+    public String getDuracion() {
+        return duracion;
+    }
+
+    public void setDuracion(String duracion) {
+        this.duracion = duracion;
+    }
+
+    public Integer getCantidadAlumnos() {
+        return cantidadAlumnos;
+    }
+
+    public void setCantidadAlumnos(Integer cantidadAlumnos) {
+        this.cantidadAlumnos = cantidadAlumnos;
+    }
+
+    public String getAmbito() {
+        return ambito;
+    }
+
+    public void setAmbito(String ambito) {
+        this.ambito = ambito;
+    }
+
+    public String getContenido() {
+        return contenido;
+    }
+
+    public void setContenido(String contenido) {
+        this.contenido = contenido;
     }
 
     public Timestamp getCreationDate() {
