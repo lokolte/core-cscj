@@ -665,7 +665,8 @@ public class EvaluacionService {
                 .getRespuestas()
                 .stream().forEach(
                         respuesta -> {
-                            if(respuestas.get(respuesta.getAlumno().getId()).getId() > respuesta.getId())
+                            RespuestaItemResponse respuestaItemResponse = respuestas.get(respuesta.getAlumno().getId());
+                            if(respuestaItemResponse == null || (respuestaItemResponse != null && respuestaItemResponse.getId() > respuesta.getId()))
                                 respuestas.put(respuesta.getAlumno().getId(), createRespuestaItemResponse(respuesta, respuesta.getCorreccion(), respuesta.getAlumno()));
                         }
                 );
