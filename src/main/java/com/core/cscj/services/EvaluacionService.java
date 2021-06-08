@@ -385,7 +385,7 @@ public class EvaluacionService {
         return createRespuestaResponse(respuestaOptional.get().getEvaluacion(), respuestaOptional.get(), respuestaOptional.get().getCorreccion(), respuestaOptional.get().getAlumno());
     }
 
-    public RespuestaResponse upsertRespuesta(String document, Integer idEvaluacion, RespuestaRequest respuestaRequest, MultipartFile[] files) throws Exception {
+    public RespuestaResponse upsertRespuesta(String document, Integer idEvaluacion, RespuestaRequest respuestaRequest, MultipartFile[] files) {
         Optional<Evaluacion> evaluacionOptional = evaluacionRepo.findById(idEvaluacion);
         if(!evaluacionOptional.isPresent()) return new RespuestaResponse();
 
