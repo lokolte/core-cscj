@@ -246,7 +246,7 @@ public class AsignaturaService {
         Planificacion planificacionStored = planificacionStoredOptional.get();
 
         planificacionStored.setFecha(planificacion.getFecha());
-        planificacionStored.setTema(planificacion.getTema());
+        planificacionStored.setNombre(planificacion.getNombre());
         planificacionStored.setCapacidades(planificacion.getCapacidades());
         planificacionStored.setIndicadores(planificacion.getIndicadores());
         planificacionStored.setInicio(planificacion.getInicio());

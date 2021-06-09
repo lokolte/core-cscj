@@ -1638,5 +1638,4 @@ VALUES ((select id from public.person where document = '4991645'), (select id fr
 
 
 ----- Drop columns for planificaciones
-ALTER TABLE public.planificacion DROP COLUMN nombre;
 ALTER TABLE public.planificacion DROP COLUMN descripcion;

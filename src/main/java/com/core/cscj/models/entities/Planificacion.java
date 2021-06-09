@@ -33,7 +33,7 @@ public class Planificacion implements Actividad {
     private Timestamp fecha;
 
     @Column(length=2000)
-    private String tema;
+    private String nombre;
 
     @Column(length=10000)
     private String capacidades;
@@ -118,12 +118,12 @@ public class Planificacion implements Actividad {
         this.fecha = fecha;
     }
 
-    public String getTema() {
-        return tema;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setTema(String tema) {
-        this.tema = tema;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getCapacidades() {
