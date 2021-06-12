@@ -81,7 +81,7 @@ public class Planificacion implements Actividad {
 
     @Override
     public int compareTo(Actividad planificacion){
-        return this.getOrden().compareTo(planificacion.getOrden());
+        return planificacion.getOrden().compareTo(this.getOrden());
     }
 
     public Integer getId() {

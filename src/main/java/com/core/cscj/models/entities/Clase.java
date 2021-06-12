@@ -51,7 +51,7 @@ public class Clase implements Actividad {
 
     @Override
     public int compareTo(Actividad clase){
-        return this.getOrden().compareTo(clase.getOrden());
+        return clase.getOrden().compareTo(this.getOrden());
     }
 
     public Integer getId() {

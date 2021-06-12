@@ -119,7 +119,7 @@ public class Evaluacion implements Actividad {
 
     @Override
     public int compareTo(Actividad evaluacion){
-        return this.getOrden().compareTo(evaluacion.getOrden());
+        return evaluacion.getOrden().compareTo(this.getOrden());
     }
 
     public Integer getId() {
