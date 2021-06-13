@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -144,7 +145,7 @@ public class FileStorageService {
 
     // this function needs to be refactored, we need to delete just the file deleted in another call
     public List<ArchivosAdjuntos> uploadNotRepeatedFiles(String tipoEntidad, Integer idEntidad, List<ArchivosAdjuntos> archivosAdjuntos, MultipartFile[] files) {
-        if(files != null && files.length > 0)
+        if(files != null && files.length > 0) {
             for (ArchivosAdjuntos archivoAdjunto : archivosAdjuntos) {
                 try {
                     String directory = getConfiguredDir() + "/" + tipoEntidad + "/" + idEntidad + "/" + archivoAdjunto.getId();
@@ -156,7 +157,8 @@ public class FileStorageService {
                     throw new FileStorageException("Existio un error al borrar el archivo.", ioEx);
                 }
             }
-        return uploadMultipleFiles(tipoEntidad, idEntidad, files);
+            return uploadMultipleFiles(tipoEntidad, idEntidad, files);
+        } else return archivosAdjuntos;
     }
 
     public List<ArchivosAdjuntos> uploadMultipleFilesWihtFormatName(
