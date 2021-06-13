@@ -144,7 +144,7 @@ public class FileStorageService {
 
     // this function needs to be refactored, we need to delete just the file deleted in another call
     public List<ArchivosAdjuntos> uploadNotRepeatedFiles(String tipoEntidad, Integer idEntidad, List<ArchivosAdjuntos> archivosAdjuntos, MultipartFile[] files) {
-        if(files.length > 0)
+        if(files != null && files.length > 0)
             for (ArchivosAdjuntos archivoAdjunto : archivosAdjuntos) {
                 try {
                     String directory = getConfiguredDir() + "/" + tipoEntidad + "/" + idEntidad + "/" + archivoAdjunto.getId();
