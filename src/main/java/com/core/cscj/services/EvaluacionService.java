@@ -12,6 +12,7 @@ import com.core.cscj.models.requests.*;
 import com.core.cscj.models.responses.*;
 import com.core.cscj.repos.*;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,7 +64,7 @@ public class EvaluacionService {
     @Autowired
     private PersonService personService;
 
-    public EvaluacionResponse comenzarTerminarExamen(Integer idEvaluacion, Boolean habilitado) {
+    public EvaluacionResponse comenzarTerminarExamen(Integer idEvaluacion, Boolean habilitado, Boolean reanudar) {
         Optional<Evaluacion> evaluacionOptional = evaluacionRepo.findById(idEvaluacion);
 
         Evaluacion evaluacion;
@@ -72,11 +73,14 @@ public class EvaluacionService {
 
         evaluacion = evaluacionOptional.get();
 
-        if((evaluacion.getInicioDate() == null) && habilitado)
+        if((evaluacion.getInicioDate() == null) && habilitado && !reanudar)
             evaluacion.setInicioDate(new Timestamp(new Date().getTime()));
-        else if((evaluacion.getFinDate() == null) && !habilitado)
+        else if((evaluacion.getFinDate() == null) && !habilitado && !reanudar)
             evaluacion.setFinDate(new Timestamp(new Date().getTime()));
-        else throw new IllegalArgumentException("No se puede habilitar o deshabilitar una prueba que ya se habilito o deshabilito respectivamente.");
+        else if((evaluacion.getInicioDate() != null) && (evaluacion.getFinDate() != null) && !evaluacion.getHabilitado() && habilitado && reanudar) {
+            evaluacion.setInicioDate(new Timestamp(new Date().getTime()));
+            evaluacion.setFinDate(null);
+        } else throw new IllegalArgumentException("No se pudo habilitar, deshabilitar o reanudar esta prueba con id: " + evaluacion.getId());
 
         evaluacion.setHabilitado(habilitado);
 

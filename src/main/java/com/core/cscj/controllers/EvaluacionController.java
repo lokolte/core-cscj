@@ -26,8 +26,9 @@ public class EvaluacionController {
 
     @PostMapping(value="/{idEvaluacion}")
     public EvaluacionResponse habilitacionEvaluacion(@PathVariable("idEvaluacion") Integer idEvaluacion,
-                                 @RequestParam Boolean habilitado) {
-        return evaluacionService.comenzarTerminarExamen(idEvaluacion, habilitado);
+                                                     @RequestParam Boolean habilitado,
+                                                     @RequestParam(defaultValue = "false") Boolean reanudar) {
+        return evaluacionService.comenzarTerminarExamen(idEvaluacion, habilitado, reanudar);
     }
 
     @PostMapping(value="/respuestas/{idRespuesta}/correcciones")
