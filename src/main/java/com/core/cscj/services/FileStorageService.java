@@ -93,9 +93,12 @@ public class FileStorageService {
         try {
             Path filePath = getPath(tipoEntidad + "/" + idEntidad + "/" + idArchivoAdjunto).resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
+            System.out.println("################################################## archivo: " + filePath.toUri().getPath());
             if(resource.exists()) {
+                System.out.println("################################################## existe: " + filePath.toUri().getPath());
                 return resource;
             } else {
+                System.out.println("################################################## no existe: " + filePath.toUri().getPath());
                 throw new MyFileNotFoundException("Archivo no encontrado " + fileName);
             }
         } catch (MalformedURLException ex) {
