@@ -56,9 +56,6 @@ public class FileStorageService {
                 .toAbsolutePath().normalize();
 
         try {
-            System.out.println("###################### dir: " + fileStorageLocation.toAbsolutePath().toString());
-            System.out.println("###################### dir: " + fileStorageLocation.toAbsolutePath().getFileName().toString());
-            System.out.println("###################### dir: " + fileStorageLocation.toAbsolutePath().normalize().toString());
             Files.createDirectories(fileStorageLocation);
         } catch (Exception ex) {
             throw new FileStorageException("No se puede crear el directorio donde los archivos seran guardados.", ex);
@@ -82,7 +79,6 @@ public class FileStorageService {
         try {
             // Copy file to the target location (Replacing existing file with the same name)
             Path targetLocation = createDir(tipoActividad + "/" + idActividad + "/" + idArchivoAdjunto).resolve(fileName);
-            System.out.println("##################################################### file: " + targetLocation.toAbsolutePath().toString());
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
             throw new FileStorageException("No se puede guardar el archivo " + fileName + ". Por favor intente nuevamente!", ex);
@@ -93,12 +89,9 @@ public class FileStorageService {
         try {
             Path filePath = getPath(tipoEntidad + "/" + idEntidad + "/" + idArchivoAdjunto).resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
-            System.out.println("################################################## archivo: " + filePath.toUri().getPath());
             if(resource.exists()) {
-                System.out.println("################################################## existe: " + filePath.toUri().getPath());
                 return resource;
             } else {
-                System.out.println("################################################## no existe: " + filePath.toUri().getPath());
                 throw new MyFileNotFoundException("Archivo no encontrado " + fileName);
             }
         } catch (MalformedURLException ex) {
