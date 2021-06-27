@@ -2,11 +2,12 @@ package com.core.cscj.models.responses;
 
 import com.core.cscj.models.Actividad;
 import com.core.cscj.models.entities.ArchivosAdjuntos;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class ActividadResponse implements Serializable {
+public class ActividadResponse implements Serializable, Comparable<ActividadResponse> {
     private Actividad actividad;
     private EntregaResponse entrega;
     private List<ArchivosAdjuntos> archivosAdjuntos;
@@ -18,6 +19,11 @@ public class ActividadResponse implements Serializable {
         this.actividad = actividad;
         this.archivosAdjuntos = archivosAdjuntos;
         this.entrega = entrega;
+    }
+
+    @Override
+    public int compareTo(ActividadResponse actividadResponse) {
+        return actividadResponse.getActividad().getOrden().compareTo(this.actividad.getOrden());
     }
 
     public Actividad getActividad() {

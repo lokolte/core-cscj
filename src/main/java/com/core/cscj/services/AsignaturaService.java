@@ -47,31 +47,31 @@ public class AsignaturaService {
     @Autowired
     private PersonService personService;
 
-    private List<Actividad> finAllActividadesFromAsignaturaById(Integer idAsignatura, Boolean condition){
+    private List<ActividadResponse> finAllActividadesFromAsignaturaById(Integer idAsignatura, Boolean condition){
 
-        List<Actividad> actividades = new ArrayList();
+        List<ActividadResponse> actividades = new ArrayList();
 
         List<Clase> clases = asignaturaRepo.findClasesFromAsignatura(idAsignatura);
         List<Tarea> tareas = asignaturaRepo.findTareasFromAsignatura(idAsignatura);
 
-        clases.forEach(clase -> actividades.add(clase));
-        tareas.forEach(tarea -> actividades.add(tarea));
+        clases.forEach(clase -> actividades.add(new ActividadResponse(clase, null, null)));
+        tareas.forEach(tarea -> actividades.add(new ActividadResponse(tarea, null, null)));
 
         if(condition){
             List<Planificacion> planificaciones = asignaturaRepo.findPlanificacionesFromAsignatura(idAsignatura);
             List<Evaluacion> evaluaciones = asignaturaRepo.findEvaluacionesFromAsignatura(idAsignatura);
-            planificaciones.forEach(planificacion -> actividades.add(planificacion));
-            evaluaciones.forEach(evaluacion -> actividades.add(evaluacion));
+            planificaciones.forEach(planificacion -> actividades.add(new ActividadResponse(planificacion, null, null)));
+            evaluaciones.forEach(evaluacion -> actividades.add(new ActividadResponse(evaluacion, null, null)));
         } else {
             List<Evaluacion> evaluaciones = asignaturaRepo.findEvaluacionesFromAsignatura(idAsignatura);
             evaluaciones.stream().filter(evaluacion -> evaluacion.getHabilitado()).collect(Collectors.toList())
-                    .forEach(evaluacion -> actividades.add(evaluacion));
+                    .forEach(evaluacion -> actividades.add(new ActividadResponse(evaluacion, null, null)));
         }
 
         return actividades.stream().sorted().collect(Collectors.toList());
     }
 
-    public List<Actividad> finAllActividades(Integer idAsignatura, String document){
+    public List<ActividadResponse> finAllActividades(Integer idAsignatura, String document){
         Account account = accountRepo.findByDocument(document);
 
         if(account == null) return new ArrayList<>();
@@ -91,11 +91,11 @@ public class AsignaturaService {
     }
 
     public Integer getNextOrder(Integer idAsignatura){
-        List<Actividad> actividades = finAllActividadesFromAsignaturaById(idAsignatura, true);
+        List<ActividadResponse> actividades = finAllActividadesFromAsignaturaById(idAsignatura, true);
 
         Integer maxOrder = 0;
-        for(Actividad actividad : actividades)
-            if(maxOrder < actividad.getOrden()) maxOrder = actividad.getOrden();
+        for(ActividadResponse actividadResponse : actividades)
+            if(maxOrder < actividadResponse.getActividad().getOrden()) maxOrder = actividadResponse.getActividad().getOrden();
 
         return maxOrder + 1;
     }

@@ -51,6 +51,11 @@
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>3.0.2</version>
+		</dependency>
 		<!-- Eliminar directorios -->
 		<dependency>
 			<groupId>commons-io</groupId>
