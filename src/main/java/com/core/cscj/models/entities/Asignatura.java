@@ -74,6 +74,12 @@ public class Asignatura implements Serializable, Comparable<Asignatura> {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<VideoClase> videoClases;
 
+    @OneToMany(mappedBy="asignatura", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<PlanillaMensual> planillasMensuales;
+
     public Asignatura() {
     }
 
@@ -168,5 +174,13 @@ public class Asignatura implements Serializable, Comparable<Asignatura> {
 
     public void setVideoClases(Set<VideoClase> videoClases) {
         this.videoClases = videoClases;
+    }
+
+    public Set<PlanillaMensual> getPlanillasMensuales() {
+        return planillasMensuales;
+    }
+
+    public void setPlanillasMensuales(Set<PlanillaMensual> planillasMensuales) {
+        this.planillasMensuales = planillasMensuales;
     }
 }
