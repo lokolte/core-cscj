@@ -5,6 +5,7 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -26,7 +27,13 @@ public class Tema implements Serializable {
     private Integer id;
 
     @Column(nullable=false, length=20000)
-    private String tema;
+    private String sentencia;
+
+    @Column(length = 100)
+    private String puntos;
+
+    @Column(length = 200)
+    private String tipoTema;
 
     @Column(name="permitir_adjuntos")
     private Boolean permitirAdjuntos;
@@ -36,12 +43,19 @@ public class Tema implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="evaluacion_id")
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Evaluacion evaluacion;
 
     @OneToMany(mappedBy="tema")
     private Set<Opcion> opciones;
+
+    @OneToMany(mappedBy="tema")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<RespuestaTema> respuestasTemas;
 
     public Tema() {
     }
@@ -54,20 +68,36 @@ public class Tema implements Serializable {
         this.id = id;
     }
 
-    public String getTema() {
-        return tema;
+    public String getSentencia() {
+        return sentencia;
     }
 
-    public void setTema(String tema) {
-        this.tema = tema;
+    public void setSentencia(String sentencia) {
+        this.sentencia = sentencia;
+    }
+
+    public String getPuntos() {
+        return puntos;
+    }
+
+    public void setPuntos(String puntos) {
+        this.puntos = puntos;
+    }
+
+    public String getTipoTema() {
+        return tipoTema;
+    }
+
+    public void setTipoTema(String tipoTema) {
+        this.tipoTema = tipoTema;
     }
 
     public Boolean getPermitirAdjuntos() {
         return permitirAdjuntos;
     }
 
-    public void setPermitirAdjuntos(Boolean description) {
-        this.permitirAdjuntos = description;
+    public void setPermitirAdjuntos(Boolean permitirAdjuntos) {
+        this.permitirAdjuntos = permitirAdjuntos;
     }
 
     public Integer getOrden() {
@@ -92,5 +122,13 @@ public class Tema implements Serializable {
 
     public void setOpciones(Set<Opcion> opciones) {
         this.opciones = opciones;
+    }
+
+    public Set<RespuestaTema> getRespuestasTemas() {
+        return respuestasTemas;
+    }
+
+    public void setRespuestasTemas(Set<RespuestaTema> respuestasTemas) {
+        this.respuestasTemas = respuestasTemas;
     }
 }

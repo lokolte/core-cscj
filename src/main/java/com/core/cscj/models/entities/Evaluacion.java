@@ -5,7 +5,10 @@ import javax.persistence.*;
 import com.core.cscj.models.Actividad;
 
 import com.core.cscj.models.enums.Entidades;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.sql.Timestamp;
 import java.util.Set;
@@ -24,11 +27,20 @@ public class Evaluacion implements Actividad {
     @Column(unique=true, nullable=false)
     private Integer id;
 
-    @Column(nullable=false, length=700)
+    @Column(nullable=false, length=500)
     private String nombre;
 
-    @Column(length=700)
-    private String periodo;
+    @Column(length=100)
+    private String etapa;
+
+    @Column(name="tipo_instrumento", length=1000)
+    private String tipoInstrumento;
+
+    @Column(length=10000)
+    private String capacidades;
+
+    @Column(length=10000)
+    private String indicadores;
 
     @Column(length=10000)
     private String instrucciones;
@@ -36,14 +48,39 @@ public class Evaluacion implements Actividad {
     @Column(name="tipo_actividad", nullable=false, length=300)
     private String tipoActividad;
 
-    @Column(name="orden", nullable=false)
+    //Is created at the creation moment considering the other activities of the asignatura
+    @Column(nullable=false)
     private Integer orden;
 
-    @Column(name="fecha_inicio")
-    private Timestamp fechaInicio;
+    //This is setted to false by default, but only setted on creation, will be updated by an extra endpoint
+    @Column(nullable=false)
+    private Boolean habilitado;
 
-    @Column(name="fecha_fin")
-    private Timestamp fechaFin;
+    @Column(nullable=false)
+    private Timestamp fecha;
+
+    @Column(length=50)
+    private String inicio;
+
+    //Updated when a evaluacion habilitado = true
+    @Column(name="inicio_date")
+    private Timestamp inicioDate;
+
+    @Column(length=50)
+    private String fin;
+
+    //Updated when habilitado = true and setted back to false
+    @Column(name="fin_date")
+    private Timestamp finDate;
+
+    @Column(name = "total_puntos", length=100)
+    private String totalPuntos;
+
+    @Column(name = "hs_catedra", nullable=false)
+    private Integer hsCatedra;
+
+    @Column(name = "mins_catedra", nullable=false)
+    private Integer minsCatedra;
 
     @Column(name="creation_date")
     private Timestamp creationDate;
@@ -51,16 +88,30 @@ public class Evaluacion implements Actividad {
     @Column(name="last_modified_date")
     private Timestamp lastModifiedDate;
 
-    @ManyToOne
-    @JoinColumn(name="person_id")
-    private Person profesor;
+    @ManyToMany
+    @JoinTable(name = "evaluacion_persons",
+            joinColumns = @JoinColumn(name = "evaluacion_id"),
+            inverseJoinColumns = @JoinColumn(name = "person_id"))
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<Person> alumnos;
 
     @ManyToOne
     @JoinColumn(name="asignatura_id")
     private Asignatura asignatura;
 
     @OneToMany(mappedBy="evaluacion")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<Tema> temas;
+
+    @OneToMany(mappedBy="evaluacion")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<Respuesta> respuestas;
 
     public Evaluacion() {
         this.tipoActividad = Entidades.EVALUACION.name();
@@ -68,7 +119,7 @@ public class Evaluacion implements Actividad {
 
     @Override
     public int compareTo(Actividad evaluacion){
-        return this.getOrden().compareTo(evaluacion.getOrden());
+        return evaluacion.getOrden().compareTo(this.getOrden());
     }
 
     public Integer getId() {
@@ -87,12 +138,36 @@ public class Evaluacion implements Actividad {
         this.nombre = nombre;
     }
 
-    public String getPeriodo() {
-        return periodo;
+    public String getEtapa() {
+        return etapa;
     }
 
-    public void setPeriodo(String periodo) {
-        this.periodo = periodo;
+    public void setEtapa(String etapa) {
+        this.etapa = etapa;
+    }
+
+    public String getTipoInstrumento() {
+        return tipoInstrumento;
+    }
+
+    public void setTipoInstrumento(String tipoInstrumento) {
+        this.tipoInstrumento = tipoInstrumento;
+    }
+
+    public String getCapacidades() {
+        return capacidades;
+    }
+
+    public void setCapacidades(String capacidades) {
+        this.capacidades = capacidades;
+    }
+
+    public String getIndicadores() {
+        return indicadores;
+    }
+
+    public void setIndicadores(String indicadores) {
+        this.indicadores = indicadores;
     }
 
     public String getInstrucciones() {
@@ -121,20 +196,76 @@ public class Evaluacion implements Actividad {
         this.orden = orden;
     }
 
-    public Timestamp getFechaInicio() {
-        return fechaInicio;
+    public Boolean getHabilitado() {
+        return habilitado;
     }
 
-    public void setFechaInicio(Timestamp fechaInicio) {
-        this.fechaInicio = fechaInicio;
+    public void setHabilitado(Boolean habilitado) {
+        this.habilitado = habilitado;
     }
 
-    public Timestamp getFechaFin() {
-        return fechaFin;
+    public Timestamp getFecha() {
+        return fecha;
     }
 
-    public void setFechaFin(Timestamp fechaFin) {
-        this.fechaFin = fechaFin;
+    public void setFecha(Timestamp fecha) {
+        this.fecha = fecha;
+    }
+
+    public String getInicio() {
+        return inicio;
+    }
+
+    public void setInicio(String inicio) {
+        this.inicio = inicio;
+    }
+
+    public Timestamp getInicioDate() {
+        return inicioDate;
+    }
+
+    public void setInicioDate(Timestamp inicioDate) {
+        this.inicioDate = inicioDate;
+    }
+
+    public String getFin() {
+        return fin;
+    }
+
+    public void setFin(String fin) {
+        this.fin = fin;
+    }
+
+    public Timestamp getFinDate() {
+        return finDate;
+    }
+
+    public void setFinDate(Timestamp finDate) {
+        this.finDate = finDate;
+    }
+
+    public String getTotalPuntos() {
+        return totalPuntos;
+    }
+
+    public void setTotalPuntos(String totalPuntos) {
+        this.totalPuntos = totalPuntos;
+    }
+
+    public Integer getHsCatedra() {
+        return hsCatedra;
+    }
+
+    public void setHsCatedra(Integer hsCatedra) {
+        this.hsCatedra = hsCatedra;
+    }
+
+    public Integer getMinsCatedra() {
+        return minsCatedra;
+    }
+
+    public void setMinsCatedra(Integer minsCatedra) {
+        this.minsCatedra = minsCatedra;
     }
 
     public Timestamp getCreationDate() {
@@ -153,12 +284,12 @@ public class Evaluacion implements Actividad {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Person getProfesor() {
-        return profesor;
+    public Set<Person> getAlumnos() {
+        return alumnos;
     }
 
-    public void setProfesor(Person profesor) {
-        this.profesor = profesor;
+    public void setAlumnos(Set<Person> alumnos) {
+        this.alumnos = alumnos;
     }
 
     public Asignatura getAsignatura() {
@@ -175,5 +306,13 @@ public class Evaluacion implements Actividad {
 
     public void setTemas(Set<Tema> temas) {
         this.temas = temas;
+    }
+
+    public Set<Respuesta> getRespuestas() {
+        return respuestas;
+    }
+
+    public void setRespuestas(Set<Respuesta> respuestas) {
+        this.respuestas = respuestas;
     }
 }

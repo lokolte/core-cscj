@@ -10,7 +10,6 @@ import com.core.cscj.models.enums.Roles;
 import com.core.cscj.models.responses.AlumnoEntregasResponse;
 import com.core.cscj.models.responses.EntregaResponse;
 import com.core.cscj.models.responses.EntregasResponse;
-import com.core.cscj.models.responses.VideoClaseResponse;
 import com.core.cscj.repos.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ public class EntregaService {
     @Autowired
     private FileStorageService fileStorageService;
 
-    public EntregaResponse upsertEntrega(String document, Integer idTarea, MultipartFile[] files){
+    public EntregaResponse upsertEntrega(String document, Integer idTarea, MultipartFile[] files) {
         // Get current alumno and return empty if alumno doesn't exist
         Person alumno = personRepo.findByDocument(document);
         if(alumno == null) return new EntregaResponse();
@@ -65,7 +64,7 @@ public class EntregaService {
 
         entregaToStore = entregaRepo.save(entregaToStore);
 
-        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entregaToStore.getId());
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entregaToStore.getId());
 
         return new EntregaResponse(
                 entregaToStore,
@@ -110,7 +109,7 @@ public class EntregaService {
                                         entrega.getAlumno().getId(),
                                         new EntregaResponse(
                                                 entrega,
-                                                archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
                                         )
                                 )
         );
@@ -154,7 +153,7 @@ public class EntregaService {
         devolucionRepo.save(devolucionToStore);
         entrega = entregaRepo.save(entrega);
 
-        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId());
+        List<ArchivosAdjuntos> archivosAdjuntos = archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId());
 
         return new EntregaResponse(
                 entrega,
@@ -196,7 +195,8 @@ public class EntregaService {
         List<Tarea> tareas = cursoRepo.findTareasFromCurso(curso.getId());
         List<Entrega> entregas = entregaRepo.findAllEntregasByIdAlumno(idAlumno);
 
-        if(roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.TUTOR.name())) {
+        if(roles.contains(Roles.TUTOR.name()) || roles.contains(Roles.ALUMNO.name())
+                || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.SUPERVISOR.name())) {
             return new AlumnoEntregasResponse(curso, tareas.stream().map(
                     tarea ->
                             new EntregasResponse(
@@ -207,7 +207,7 @@ public class EntregaService {
                                             entrega ->
                                                     new EntregaResponse(
                                                             entrega,
-                                                            archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                            archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
                                                     )
                                     ).collect(Collectors.toList())
                             )
@@ -227,7 +227,7 @@ public class EntregaService {
                                                     entrega ->
                                                             new EntregaResponse(
                                                                     entrega,
-                                                                    archivosAdjuntosRepo.findArchivosAdjuntosByTipoAAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
+                                                                    archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.ENTREGA.name(), entrega.getId())
                                                             )
                                             ).collect(Collectors.toList())
                                     )

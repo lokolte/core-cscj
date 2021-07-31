@@ -2,6 +2,7 @@ package com.core.cscj.models.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Set;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,10 +16,10 @@ import lombok.ToString;
  *
  */
 @Entity
-@Table(name="devolucion")
+@Table(name="correccion")
 @Data
-@NamedQuery(name="Devolucion.findAll", query="SELECT d FROM Devolucion d")
-public class Devolucion implements Serializable {
+@NamedQuery(name="Correccion.findAll", query="SELECT c FROM Correccion c")
+public class Correccion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -26,8 +27,8 @@ public class Devolucion implements Serializable {
     @Column(unique=true, nullable=false)
     private Integer id;
 
-    @Column(length=200)
-    private String puntaje;
+    @Column(name="puntos_logrados", length=200)
+    private String puntosLogrados;
 
     @Column(length=20000)
     private String observaciones;
@@ -39,13 +40,19 @@ public class Devolucion implements Serializable {
     private Timestamp lastModifiedDate;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "entrega_id", nullable = false)
+    @JoinColumn(name = "respuesta_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Entrega entrega;
+    private Respuesta respuesta;
 
-    public Devolucion() {
+    @OneToMany(mappedBy="correccion")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<CorreccionTema> correccionTemas;
+
+    public Correccion() {
     }
 
     public Integer getId() {
@@ -56,12 +63,12 @@ public class Devolucion implements Serializable {
         this.id = id;
     }
 
-    public String getPuntaje() {
-        return puntaje;
+    public String getPuntosLogrados() {
+        return puntosLogrados;
     }
 
-    public void setPuntaje(String puntaje) {
-        this.puntaje = puntaje;
+    public void setPuntosLogrados(String puntosLogrados) {
+        this.puntosLogrados = puntosLogrados;
     }
 
     public String getObservaciones() {
@@ -88,11 +95,19 @@ public class Devolucion implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Entrega getEntrega() {
-        return entrega;
+    public Respuesta getRespuesta() {
+        return respuesta;
     }
 
-    public void setEntrega(Entrega entrega) {
-        this.entrega = entrega;
+    public void setRespuesta(Respuesta respuesta) {
+        this.respuesta = respuesta;
+    }
+
+    public Set<CorreccionTema> getCorreccionTemas() {
+        return correccionTemas;
+    }
+
+    public void setCorreccionTemas(Set<CorreccionTema> correccionTemas) {
+        this.correccionTemas = correccionTemas;
     }
 }

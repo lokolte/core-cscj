@@ -61,7 +61,7 @@ public class Tarea implements Actividad {
 
     @Override
     public int compareTo(Actividad tarea){
-        return this.getOrden().compareTo(tarea.getOrden());
+        return tarea.getOrden().compareTo(this.getOrden());
     }
 
     public Integer getId() {

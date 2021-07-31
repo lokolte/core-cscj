@@ -2,12 +2,16 @@ package com.core.cscj.controllers;
 
 import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.entities.Clase;
+import com.core.cscj.models.entities.Planificacion;
 import com.core.cscj.models.entities.Tarea;
+import com.core.cscj.models.requests.RespuestaRequest;
 import com.core.cscj.models.responses.ActividadResponse;
 import com.core.cscj.models.responses.EntregaResponse;
 import com.core.cscj.models.responses.EntregasResponse;
+import com.core.cscj.models.responses.RespuestaResponse;
 import com.core.cscj.services.AsignaturaService;
 import com.core.cscj.services.EntregaService;
+import com.core.cscj.services.EvaluacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +25,9 @@ public class ActividadController {
 
     @Autowired
     private EntregaService entregaService;
+
+    @Autowired
+    private EvaluacionService evaluacionService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -37,6 +44,11 @@ public class ActividadController {
         return asignaturaService.findTarea(jwtUtil.getDocumentFromJwtToken(authorization), idTarea);
     }
 
+    @GetMapping(value="/planificaciones/{idPlanificacion}")
+    public ActividadResponse findPlanificacion(@PathVariable("idPlanificacion") Integer idPlanificacion) {
+        return asignaturaService.findPlanificacion(idPlanificacion);
+    }
+
     @PutMapping(value="/clases/{idClase}")
     public ActividadResponse updateClase(@PathVariable("idClase") Integer idClase,
                                          @RequestPart(value = "clase") Clase clase,
@@ -51,6 +63,13 @@ public class ActividadController {
         return asignaturaService.updateTarea(idTarea, tarea, files);
     }
 
+    @PutMapping(value="/planificaciones/{idPlanificacion}")
+    public ActividadResponse updatePlanificacion(@PathVariable("idPlanificacion") Integer idPlanificacion,
+                                         @RequestPart(value = "planificacion") Planificacion planificacion,
+                                         @RequestPart(value = "files", required = false) MultipartFile[] files) {
+        return asignaturaService.updatePlanificacion(idPlanificacion, planificacion, files);
+    }
+
     @GetMapping(value="/tareas/{idTarea}/entregas")
     public EntregasResponse getAllEntregasFromAsignatura(@PathVariable("idTarea") Integer idTarea) {
         return entregaService.findAllEntregasByIdTarea(idTarea);
@@ -61,5 +80,13 @@ public class ActividadController {
                                          @RequestHeader("Authorization") String authorization,
                                          @RequestPart(value = "files", required = false) MultipartFile[] files) {
         return entregaService.upsertEntrega(jwtUtil.getDocumentFromJwtToken(authorization), idTarea, files);
+    }
+
+    @PostMapping(value="/evaluaciones/{idEvaluacion}/respuesta")
+    public RespuestaResponse upsertRespuesta(@PathVariable("idEvaluacion") Integer idEvaluacion,
+                                             @RequestHeader("Authorization") String authorization,
+                                             @RequestPart(value = "respuesta") RespuestaRequest respuestaRequest,
+                                             @RequestPart(value = "files", required = false) MultipartFile[] files) {
+        return evaluacionService.upsertRespuesta(jwtUtil.getDocumentFromJwtToken(authorization), idEvaluacion, respuestaRequest, files);
     }
 }

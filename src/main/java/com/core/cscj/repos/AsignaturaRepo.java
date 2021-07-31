@@ -1,10 +1,6 @@
 package com.core.cscj.repos;
 
-import com.core.cscj.models.entities.Asignatura;
-import com.core.cscj.models.entities.Clase;
-import com.core.cscj.models.entities.Person;
-import com.core.cscj.models.entities.Planificacion;
-import com.core.cscj.models.entities.Tarea;
+import com.core.cscj.models.entities.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +17,9 @@ public interface AsignaturaRepo extends JpaRepository<Asignatura, Integer>{
 
     @Query("select t from Asignatura a join a.tareas t where a.id = :idAsignatura order by t.orden asc")
     List<Tarea> findTareasFromAsignatura(@Param("idAsignatura") Integer idAsignatura);
+
+    @Query("select e from Asignatura a join a.evaluaciones e where a.id = :idAsignatura order by e.orden asc")
+    List<Evaluacion> findEvaluacionesFromAsignatura(@Param("idAsignatura") Integer idAsignatura);
 
     @Query("select p from Asignatura a join a.planificaciones p where a.id = :idAsignatura order by p.orden asc")
     List<Planificacion> findPlanificacionesFromAsignatura(@Param("idAsignatura") Integer idAsignatura);

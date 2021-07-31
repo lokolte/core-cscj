@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.enums.Roles;
 import com.core.cscj.models.requests.VideoClaseRequest;
-import com.core.cscj.models.responses.CursoResponse;
 import com.core.cscj.models.responses.VideoClaseResponse;
 import com.core.cscj.repos.*;
 
@@ -20,6 +19,9 @@ import org.springframework.stereotype.Service;
 public class VideoClaseService {
     @Autowired
     private AccountRepo accountRepo;
+
+    @Autowired
+    private CursoRepo cursoRepo;
 
     @Autowired
     private AsignaturaRepo asignaturaRepo;
@@ -54,7 +56,7 @@ public class VideoClaseService {
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
                                     videoClaseFinal)).sorted().collect(Collectors.toList());
-        }else if(roles.contains(Roles.COORDINADOR.name())){
+        } else if(roles.contains(Roles.COORDINADOR.name())){
             List<Integer> cursos = person.getCursos().stream().map(curso -> curso.getId()).collect(Collectors.toList());
             return videoClaseRepo.findAll().stream().filter(videoclase ->
                     (cursos.contains(videoclase.getAsignatura().getCurso().getId()))).collect(Collectors.toList())
@@ -62,7 +64,15 @@ public class VideoClaseService {
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),
                                     videoClaseFinal)).sorted().collect(Collectors.toList());
-        }else return videoClaseRepo.findVideoClaseByProfesor(person.getId())
+        } else if(roles.contains(Roles.SUPERVISOR.name())){
+            return videoClaseRepo.findAll()
+                    .stream().map(videoClaseFinal ->
+                            new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
+                                    videoClaseFinal.getAsignatura(),
+                                    videoClaseFinal)).sorted().collect(Collectors.toList());
+
+        // This is for roles.contains(Roles.PROFESOR.name())
+        } else return videoClaseRepo.findVideoClaseByProfesor(person.getId())
                     .stream().map(videoClaseFinal ->
                             new VideoClaseResponse(videoClaseFinal.getAsignatura().getCurso(),
                                     videoClaseFinal.getAsignatura(),

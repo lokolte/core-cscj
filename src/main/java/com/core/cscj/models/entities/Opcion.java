@@ -5,8 +5,10 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * The persistent class for the contact database table.
@@ -24,13 +26,13 @@ public class Opcion implements Serializable {
     @Column(unique=true, nullable=false)
     private Integer id;
 
-    @Column(nullable=false, length=700)
+    @Column(nullable=false, length=1000)
     private String texto;
 
     @Column(nullable=false)
     private Boolean principal;
 
-    @Column(name="orden", nullable=false)
+    @Column(nullable=false)
     private Integer orden;
 
     @ManyToOne
@@ -38,6 +40,12 @@ public class Opcion implements Serializable {
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Tema tema;
+
+    @OneToMany(mappedBy="opcion", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<RespuestaOpcion> respuestasOpciones;
 
     public Opcion() {
     }
@@ -80,5 +88,13 @@ public class Opcion implements Serializable {
 
     public void setTema(Tema tema) {
         this.tema = tema;
+    }
+
+    public Set<RespuestaOpcion> getRespuestasOpciones() {
+        return respuestasOpciones;
+    }
+
+    public void setRespuestasOpciones(Set<RespuestaOpcion> respuestasOpciones) {
+        this.respuestasOpciones = respuestasOpciones;
     }
 }

@@ -27,19 +27,27 @@ public class CursoService {
     public CursoResponse findById(Integer idCurso, String document){
         Account account = accountRepo.findByDocument(document);
         List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
-        List<Curso> cursos = account.getPerson().getCursos().stream().filter(curso -> curso.getId().equals(idCurso)).collect(Collectors.toList());
 
-        Curso curso = (cursos.size() > 0) ? cursos.get(0) : null;
+        List<Curso> cursos;
+        Curso cursoStored;
 
-        if(curso == null) return null;
+        if(roles.contains(Roles.SUPERVISOR.name())) {
+            cursoStored = cursoRepo.findById(idCurso).orElse(null);
+        }else{
+            cursos = account.getPerson().getCursos().stream().filter(curso -> curso.getId().equals(idCurso)).collect(Collectors.toList());
+            cursoStored = (cursos.size() > 0) ? cursos.get(0) : null;
+        }
 
-        return new CursoResponse(curso, findCursoWithAsignaturasFromPersonBasedOnRole(curso.getId(), account.getPerson().getId(), roles, false));
+        if(cursoStored == null) return null;
+
+        return new CursoResponse(cursoStored, findCursoWithAsignaturasFromPersonBasedOnRole(cursoStored.getId(), account.getPerson().getId(), roles, false));
     }
 
     private List<Asignatura> findCursoWithAsignaturasFromPersonBasedOnRole(Integer idCurso, Integer idPersona, List<String> roles, Boolean fromVideoClase){
-        if((roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.ADMIN.name())) && !fromVideoClase) {
+        if(((roles.contains(Roles.ALUMNO.name()) || roles.contains(Roles.COORDINADOR.name()) || roles.contains(Roles.SUPERVISOR.name())) && !fromVideoClase)
+                || roles.contains(Roles.ADMIN.name())) {
             return findAllAsignaturasFromCurso(idCurso);
-        }else{
+        } else {
             return asignaturaRepo.findAsignaturasFromCursoByPersona(idPersona, idCurso);
         }
     }
@@ -48,12 +56,20 @@ public class CursoService {
         Account account = accountRepo.findByDocument(document);
         List<String> roles = account.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList());
 
-        return account.getPerson().getCursos().stream().sorted().collect(Collectors.toList()).stream()
-                    .map(curso ->
+        if(roles.contains(Roles.SUPERVISOR.name()))
+            return cursoRepo.findAll().stream().map(
+                    curso ->
                             (withAsignaturas) ?
                                     new CursoResponse(curso, findCursoWithAsignaturasFromPersonBasedOnRole(curso.getId(), account.getPerson().getId(), roles, fromVideoClase))
                                     : new CursoResponse(curso, new ArrayList<>())
-                    ).collect(Collectors.toList());
+            ).collect(Collectors.toList());
+
+        else return account.getPerson().getCursos().stream().sorted().collect(Collectors.toList()).stream()
+                .map(curso ->
+                        (withAsignaturas) ?
+                                new CursoResponse(curso, findCursoWithAsignaturasFromPersonBasedOnRole(curso.getId(), account.getPerson().getId(), roles, fromVideoClase))
+                                : new CursoResponse(curso, new ArrayList<>())
+                ).collect(Collectors.toList());
     }
 
     public List<Person> findAllAlumnos(Integer idCurso){
