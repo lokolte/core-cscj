@@ -6,6 +6,7 @@ import com.core.cscj.models.entities.*;
 import com.core.cscj.models.requests.EvaluacionRequest;
 import com.core.cscj.models.responses.ActividadResponse;
 import com.core.cscj.models.responses.EvaluacionResponse;
+import com.core.cscj.models.responses.PlanillasMensualesResponse;
 import com.core.cscj.models.responses.RespuestasAsignaturaResponse;
 import com.core.cscj.services.AsignaturaService;
 import com.core.cscj.services.EvaluacionService;
@@ -42,7 +43,7 @@ public class AsignaturaController {
     }
 
     @GetMapping(value="/{idAsignatura}/planillasmensuales")
-    public List<PlanillaMensual> getAllPlanillasMensualesFromAsignatura(@PathVariable("idAsignatura") Integer idAsignatura) {
+    public PlanillasMensualesResponse getAllPlanillasMensualesFromAsignatura(@PathVariable("idAsignatura") Integer idAsignatura) {
         return planillaService.finAllPlanillasMensualesFromAsignatura(idAsignatura);
     }
 

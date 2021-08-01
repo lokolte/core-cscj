@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.core.cscj.models.entities.*;
+import com.core.cscj.models.responses.PlanillasMensualesResponse;
 import com.core.cscj.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,12 @@ public class PlanillaService {
     @Autowired
     private IndicadorRepo indicadorRepo;
 
-    public List<PlanillaMensual> finAllPlanillasMensualesFromAsignatura(Integer idAsignatura){
+    public PlanillasMensualesResponse finAllPlanillasMensualesFromAsignatura(Integer idAsignatura){
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
-        if(!asignatura.isPresent()) return new ArrayList<>();
+        if(!asignatura.isPresent()) return new PlanillasMensualesResponse();
 
-        return asignatura.get().getPlanillasMensuales().stream().collect(Collectors.toList());
+        return new PlanillasMensualesResponse(asignatura.get(), asignatura.get().getPlanillasMensuales().stream().collect(Collectors.toList()));
     }
 
     public PlanillaMensual createPlanillaMensual(Integer idAsignatura, PlanillaMensual planillaMensual) {
