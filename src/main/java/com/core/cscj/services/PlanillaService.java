@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.core.cscj.models.entities.*;
+import com.core.cscj.models.requests.IndicadoresAlumnosRequest;
 import com.core.cscj.models.responses.AlumnoIndicadorResponse;
 import com.core.cscj.models.responses.IndicadoresAlumnosResponse;
 import com.core.cscj.models.responses.PlanillasMensualesResponse;
@@ -233,5 +234,24 @@ public class PlanillaService {
         }
 
         return finalIndicadorStored;
+    }
+
+    public IndicadoresAlumnosResponse updateAllIndicadoresAlumnosFromPlanillaMensual(Integer idPlanillaMensual, IndicadoresAlumnosRequest indicadoresAlumnosRequest) {
+        Optional<PlanillaMensual> planillaMensualOptional = planillaMensualRepo.findById(idPlanillaMensual);
+
+        if(!planillaMensualOptional.isPresent()) return new IndicadoresAlumnosResponse();
+
+        return new IndicadoresAlumnosResponse(
+                indicadoresAlumnosRequest.getAsignatura(),
+                indicadoresAlumnosRequest.getPlanillaMensual(),
+                indicadoresAlumnosRequest.getAlumnos().stream().map(
+                        alumnoIndicadorRequest -> new AlumnoIndicadorResponse(
+                                alumnoIndicadorRequest.getAlumno(),
+                                alumnoIndicadorRequest.getIndicadores().stream().map(
+                                        indicadoresAlumno -> indicadoresAlumnoRepo.save(indicadoresAlumno)
+                                ).collect(Collectors.toList())
+                        )
+                ).collect(Collectors.toList())
+        );
     }
 }

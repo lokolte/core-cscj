@@ -1,5 +1,6 @@
 package com.core.cscj.controllers;
 
+import com.core.cscj.models.requests.IndicadoresAlumnosRequest;
 import com.core.cscj.models.responses.IndicadoresAlumnosResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,5 +22,11 @@ public class PlanillaMensualController {
     @GetMapping(value="/{idPlanillaMensual}/content")
     public IndicadoresAlumnosResponse getPlanillaMensualContent(@PathVariable("idPlanillaMensual") Integer idPlanillaMensual) {
         return planillaService.finAllIndicadoresAlumnosFromPlanillaMensual(idPlanillaMensual);
+    }
+
+    @PostMapping(value="/{idPlanillaMensual}/complete")
+    public IndicadoresAlumnosResponse completePlanillaMensualContent(@PathVariable("idPlanillaMensual") Integer idPlanillaMensual,
+                                                                     @RequestBody IndicadoresAlumnosRequest indicadoresAlumnosRequest) {
+        return planillaService.updateAllIndicadoresAlumnosFromPlanillaMensual(idPlanillaMensual, indicadoresAlumnosRequest);
     }
 }
