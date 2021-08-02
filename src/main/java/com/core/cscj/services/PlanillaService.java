@@ -236,6 +236,34 @@ public class PlanillaService {
         return finalIndicadorStored;
     }
 
+    public void deletePlanillaMensual(Integer idPlanillaMensual) {
+        PlanillaMensual planillaMensualStored;
+        Optional<PlanillaMensual> planillaMensualStoredOptional = planillaMensualRepo.findById(idPlanillaMensual);
+
+        if(!planillaMensualStoredOptional.isPresent()) {
+            return;
+        } else {
+            planillaMensualStored = planillaMensualStoredOptional.get();
+
+            planillaMensualStored.getCapacidades().forEach(
+                    capacidad -> {
+                        capacidad.getIndicadores().forEach(
+                                    indicador -> {
+                                        indicadoresAlumnoRepo.findAllIndicadoresAlumnoByIdIndicador(indicador.getId())
+                                                .forEach(
+                                                        indicadoresAlumno -> indicadoresAlumnoRepo.delete(indicadoresAlumno)
+                                                );
+                                        indicadorRepo.delete(indicador);
+                                    }
+                            );
+                        capacidadRepo.delete(capacidad);
+                    }
+            );
+
+            planillaMensualRepo.delete(planillaMensualStored);
+        }
+    }
+
     public IndicadoresAlumnosResponse updateAllIndicadoresAlumnosFromPlanillaMensual(Integer idPlanillaMensual, IndicadoresAlumnosRequest indicadoresAlumnosRequest) {
         Optional<PlanillaMensual> planillaMensualOptional = planillaMensualRepo.findById(idPlanillaMensual);
 
@@ -248,7 +276,11 @@ public class PlanillaService {
                         alumnoIndicadorRequest -> new AlumnoIndicadorResponse(
                                 alumnoIndicadorRequest.getAlumno(),
                                 alumnoIndicadorRequest.getIndicadores().stream().map(
-                                        indicadoresAlumno -> indicadoresAlumnoRepo.save(indicadoresAlumno)
+                                        indicadoresAlumno -> {
+                                            IndicadoresAlumno indicadoresAlumnoStored = indicadoresAlumnoRepo.findById(indicadoresAlumno.getId()).get();
+                                            indicadoresAlumnoStored.setPuntaje(indicadoresAlumno.getPuntaje());
+                                            return indicadoresAlumnoRepo.save(indicadoresAlumnoStored);
+                                        }
                                 ).collect(Collectors.toList())
                         )
                 ).collect(Collectors.toList())

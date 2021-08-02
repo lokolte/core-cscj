@@ -29,4 +29,9 @@ public class PlanillaMensualController {
                                                                      @RequestBody IndicadoresAlumnosRequest indicadoresAlumnosRequest) {
         return planillaService.updateAllIndicadoresAlumnosFromPlanillaMensual(idPlanillaMensual, indicadoresAlumnosRequest);
     }
+
+    @DeleteMapping(value="/{idPlanillaMensual}")
+    public void deletePlanillaMensualContent(@PathVariable("idPlanillaMensual") Integer idPlanillaMensual) {
+        planillaService.deletePlanillaMensual(idPlanillaMensual);
+    }
 }
