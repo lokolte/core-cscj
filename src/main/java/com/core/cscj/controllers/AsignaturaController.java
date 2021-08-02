@@ -76,9 +76,9 @@ public class AsignaturaController {
     }
 
     @PostMapping(value="/{idAsignatura}/planillasmensuales")
-    public PlanillaMensual createPlanillaMensual(@PathVariable("idAsignatura") Integer idAsignatura,
+    public PlanillaMensual upsertPlanillaMensual(@PathVariable("idAsignatura") Integer idAsignatura,
                                                  @RequestBody PlanillaMensual planillaMensual) {
-        return planillaService.createPlanillaMensual(idAsignatura, planillaMensual);
+        return planillaService.upsertPlanillaMensual(idAsignatura, planillaMensual);
     }
 
     @GetMapping(value="/{idAsignatura}/evaluaciones")

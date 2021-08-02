@@ -3,7 +3,10 @@ package com.core.cscj.models.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * The persistent class for the contact database table.
@@ -26,11 +29,21 @@ public class IndicadoresAlumno implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "person_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Person alumno;
 
     @ManyToOne
     @JoinColumn(name = "indicador_id")
     private Indicador indicador;
+
+    @ManyToOne
+    @JoinColumn(name = "planilla_mensual_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private PlanillaMensual planillaMensual;
 
     public IndicadoresAlumno() {
     }
@@ -65,5 +78,13 @@ public class IndicadoresAlumno implements Serializable {
 
     public void setIndicador(Indicador indicador) {
         this.indicador = indicador;
+    }
+
+    public PlanillaMensual getPlanillaMensual() {
+        return planillaMensual;
+    }
+
+    public void setPlanillaMensual(PlanillaMensual planillaMensual) {
+        this.planillaMensual = planillaMensual;
     }
 }

@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.core.cscj.models.entities.*;
+import com.core.cscj.models.responses.AlumnoIndicadorResponse;
+import com.core.cscj.models.responses.IndicadoresAlumnosResponse;
 import com.core.cscj.models.responses.PlanillasMensualesResponse;
 import com.core.cscj.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,12 @@ public class PlanillaService {
     @Autowired
     private IndicadorRepo indicadorRepo;
 
+    @Autowired
+    private IndicadoresAlumnoRepo indicadoresAlumnoRepo;
+
+    @Autowired
+    private CursoService cursoService;
+
     public PlanillasMensualesResponse finAllPlanillasMensualesFromAsignatura(Integer idAsignatura){
         Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
 
@@ -32,25 +40,23 @@ public class PlanillaService {
         return new PlanillasMensualesResponse(asignatura.get(), asignatura.get().getPlanillasMensuales().stream().collect(Collectors.toList()));
     }
 
-    public PlanillaMensual createPlanillaMensual(Integer idAsignatura, PlanillaMensual planillaMensual) {
-        Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
+    public IndicadoresAlumnosResponse finAllIndicadoresAlumnosFromPlanillaMensual(Integer idPlanillaMensual){
+        Optional<PlanillaMensual> planillaMensual = planillaMensualRepo.findById(idPlanillaMensual);
 
-        if(!asignatura.isPresent()) return new PlanillaMensual();
+        if(!planillaMensual.isPresent()) return new IndicadoresAlumnosResponse();
 
-        planillaMensual.setAsignatura(asignatura.get());
-        planillaMensual.setCreationDate(new Timestamp(new Date().getTime()));
+        List<Person> alumnos = cursoService.findAllAlumnos(planillaMensual.get().getAsignatura().getCurso().getId());
 
-        PlanillaMensual planillaMensualStored =  planillaMensualRepo.save(planillaMensual);
-
-        Set<Capacidad> capacidades = planillaMensual.getCapacidades().stream().map(
-                capacidad -> createCapacidad(capacidad, planillaMensualStored)
-        ).collect(Collectors.toSet());
-
-        planillaMensualStored.setCapacidades(capacidades);
-
-        PlanillaMensual finalPlanillaMensualStored = planillaMensualRepo.save(planillaMensualStored);
-
-        return finalPlanillaMensualStored;
+        return new IndicadoresAlumnosResponse(
+                planillaMensual.get().getAsignatura(),
+                planillaMensual.get(),
+                alumnos.stream().map(
+                        alumno -> new AlumnoIndicadorResponse(
+                                alumno,
+                                indicadoresAlumnoRepo.findAllIndicadoresAlumnoByFromPlanillaMensualAndAlumno(planillaMensual.get().getId(), alumno.getId())
+                        )
+                ).collect(Collectors.toList())
+        );
     }
 
     public PlanillaMensual findPlanillaMensual(Integer idPlanillaMensual){
@@ -61,39 +67,111 @@ public class PlanillaService {
         return planillaMensual.get();
     }
 
-    public PlanillaMensual updatePlanillaMensual(Integer idPlanillaMensual, PlanillaMensual planillaMensual) {
-        Optional<PlanillaMensual> planillaMensualStoredOptional = planillaMensualRepo.findById(idPlanillaMensual);
+    public PlanillaMensual upsertPlanillaMensual(Integer idAsignatura, PlanillaMensual planillaMensual) {
+        Optional<Asignatura> asignatura = asignaturaRepo.findById(idAsignatura);
+        if(!asignatura.isPresent()) return new PlanillaMensual();
 
-        if(!planillaMensualStoredOptional.isPresent()) return new PlanillaMensual();
+        PlanillaMensual planillaMensualStored;
+        Optional<PlanillaMensual> planillaMensualStoredOptional = Optional.empty();
 
-        PlanillaMensual planillaMensualStored = planillaMensualStoredOptional.get();
+        if(planillaMensual.getId() != null)
+            planillaMensualStoredOptional = planillaMensualRepo.findById(planillaMensual.getId());
 
-        planillaMensualStored.setFecha(planillaMensual.getFecha());
-        planillaMensualStored.getCapacidades().forEach(
-                capacidad -> {
-                    capacidad.getIndicadores().forEach(
-                            indicador -> indicadorRepo.delete(indicador)
-                    );
-                    capacidadRepo.delete(capacidad);
-                }
-        );
+        if(!planillaMensualStoredOptional.isPresent()) {
+            planillaMensualStored = new PlanillaMensual();
+            planillaMensualStored.setCreationDate(new Timestamp(new Date().getTime()));
+            planillaMensualStored.setAsignatura(asignatura.get());
+            planillaMensualStored = planillaMensualRepo.save(planillaMensualStored);
+        } else {
+            planillaMensualStored = planillaMensualStoredOptional.get();
+            planillaMensualStored.setLastModifiedDate(new Timestamp(new Date().getTime()));
+        }
+
+        if(planillaMensualStored.getCapacidades() != null) {
+            HashMap<Integer, Capacidad> capacidadesInRequest = new HashMap<>();
+            HashMap<Integer, Indicador> indicadoresInRequest = new HashMap<>();
+
+            planillaMensual.getCapacidades().forEach(
+                    capacidad -> {
+                        if (capacidad.getId() != null) {
+                            capacidadesInRequest.put(capacidad.getId(), capacidad);
+                            capacidad.getIndicadores().forEach(
+                                    indicador -> {
+                                        if (indicador.getId() != null)
+                                            indicadoresInRequest.put(indicador.getId(), indicador);
+                                    }
+                            );
+                        }
+                    }
+            );
+
+            Set<Capacidad> capacidadesUpdated = new HashSet<>();
+            Set<Indicador> indicadoresUpdated = new HashSet<>();
+            Set<IndicadoresAlumno> indicadoresAlumnoUpdated = new HashSet<>();
+            planillaMensualStored.getCapacidades().forEach(
+                    capacidad -> {
+                        // If capacidad was deleted, then delete the indicador and respectives indicadores alumnos.
+                        if (capacidadesInRequest.get(capacidad.getId()) == null) {
+                            capacidad.getIndicadores().forEach(
+                                    indicador -> {
+                                        indicadoresAlumnoRepo.findAllIndicadoresAlumnoByIdIndicador(indicador.getId())
+                                                .forEach(
+                                                        indicadoresAlumno -> indicadoresAlumnoRepo.delete(indicadoresAlumno)
+                                                );
+                                        indicadorRepo.delete(indicador);
+                                    }
+                            );
+                            capacidadRepo.delete(capacidad);
+                            // If indicadores wasn't deleted, then verify which indicador was delete and delete his respective indicadores alumnos.
+                        } else {
+                            capacidad.getIndicadores().forEach(
+                                    indicador -> {
+                                        if (indicadoresInRequest.get(indicador.getId()) == null) {
+                                            indicadoresAlumnoRepo.findAllIndicadoresAlumnoByIdIndicador(indicador.getId())
+                                                    .forEach(
+                                                            indicadoresAlumno -> indicadoresAlumnoRepo.delete(indicadoresAlumno)
+                                                    );
+                                            indicadorRepo.delete(indicador);
+                                        } else {
+                                            indicadoresUpdated.add(indicador);
+                                            indicadoresAlumnoUpdated.addAll(indicador.getIndicadoresAlumnos());
+                                        }
+                                    }
+                            );
+                            capacidad.setIndicadores(indicadoresUpdated);
+                            Capacidad capacidadUpdated = capacidadRepo.save(capacidad);
+                            capacidadesUpdated.add(capacidadUpdated);
+                        }
+                    }
+            );
+            planillaMensualStored.setCapacidades(capacidadesUpdated);
+            planillaMensualStored.setIndicadoresAlumnos(indicadoresAlumnoUpdated);
+
+            planillaMensualStored = planillaMensualRepo.save(planillaMensualStored);
+        }
 
         PlanillaMensual finalPlanillaMensualStored = planillaMensualStored;
+        List<Person> alumnos = cursoService.findAllAlumnos(asignatura.get().getCurso().getId());
 
         Set<Capacidad> capacidades = planillaMensual.getCapacidades().stream().map(
-                capacidad -> createCapacidad(capacidad, finalPlanillaMensualStored)
+                capacidad -> upsertCapacidad(capacidad, finalPlanillaMensualStored, alumnos)
         ).collect(Collectors.toSet());
 
         planillaMensualStored.setCapacidades(capacidades);
-        planillaMensualStored.setLastModifiedDate(new Timestamp(new Date().getTime()));
+        planillaMensualStored.setFecha(planillaMensual.getFecha());
+        planillaMensualStored.setEtapa(planillaMensual.getEtapa());
 
         planillaMensualStored = planillaMensualRepo.save(planillaMensualStored);
 
         return planillaMensualStored;
     }
 
-    public Capacidad createCapacidad(Capacidad capacidad, PlanillaMensual planillaMensual){
-        Capacidad capacidadToStore = new Capacidad();
+    public Capacidad upsertCapacidad(Capacidad capacidad, PlanillaMensual planillaMensual, List<Person> alumnos){
+        Capacidad capacidadToStore;
+
+        if(capacidad.getId() != null) {
+            capacidadToStore = capacidadRepo.findById(capacidad.getId()).orElseGet(Capacidad::new);
+        } else capacidadToStore = new Capacidad();
 
         capacidadToStore.setPlanillaMensual(planillaMensual);
         capacidadToStore.setNombre(capacidad.getNombre());
@@ -102,7 +180,7 @@ public class PlanillaService {
         Capacidad capacidadStored = capacidadRepo.save(capacidadToStore);
 
         Set<Indicador> indicadores = capacidad.getIndicadores().stream().map(
-                indicador -> createIndicador(indicador, capacidadStored)
+                indicador -> upsertIndicador(indicador, capacidadStored, planillaMensual, alumnos)
         ).collect(Collectors.toSet());
 
         capacidadStored.setIndicadores(indicadores);
@@ -110,16 +188,50 @@ public class PlanillaService {
         return capacidadRepo.save(capacidadStored);
     }
 
-    public Indicador createIndicador(Indicador indicador, Capacidad capacidad){
-        Indicador indicadorToStore = new Indicador();
+    public Indicador upsertIndicador(Indicador indicador, Capacidad capacidad, PlanillaMensual planillaMensual, List<Person> alumnos){
+        Indicador indicadorToStore;
+        Boolean indicadorExist = false;
+
+        if(indicador.getId() != null) {
+            Optional<Indicador> indicadorStoredOptional = indicadorRepo.findById(indicador.getId());
+            if(!indicadorStoredOptional.isPresent()) {
+                indicadorToStore = new Indicador();
+            } else {
+                indicadorToStore = indicadorStoredOptional.get();
+                indicadorExist = true;
+            }
+        } else indicadorToStore = new Indicador();
 
         indicadorToStore.setCapacidad(capacidad);
         indicadorToStore.setNombre(indicador.getNombre());
         indicadorToStore.setOrden(indicador.getOrden());
         indicadorToStore.setPuntajeMaximo(indicador.getPuntajeMaximo());
 
-        Indicador indicadorStored = indicadorRepo.save(indicadorToStore);
+        Indicador finalIndicadorStored = indicadorRepo.save(indicadorToStore);
 
-        return indicadorStored;
+        if(!indicadorExist) {
+            Set<IndicadoresAlumno> indicadoresAlumnos = alumnos.stream().map(
+                    alumno -> {
+                        IndicadoresAlumno indicadoresAlumno = new IndicadoresAlumno();
+                        indicadoresAlumno.setIndicador(finalIndicadorStored);
+                        indicadoresAlumno.setAlumno(alumno);
+                        indicadoresAlumno.setPuntaje(0);
+                        indicadoresAlumno.setPlanillaMensual(capacidad.getPlanillaMensual());
+                        return indicadoresAlumnoRepo.save(indicadoresAlumno);
+                    }
+            ).collect(Collectors.toSet());
+
+            finalIndicadorStored.setIndicadoresAlumnos(indicadoresAlumnos);
+
+            if(planillaMensual.getIndicadoresAlumnos() != null)
+                planillaMensual.getIndicadoresAlumnos().addAll(indicadoresAlumnos);
+            else planillaMensual.setIndicadoresAlumnos(indicadoresAlumnos);
+
+            planillaMensualRepo.save(planillaMensual);
+
+            return indicadorRepo.save(finalIndicadorStored);
+        }
+
+        return finalIndicadorStored;
     }
 }

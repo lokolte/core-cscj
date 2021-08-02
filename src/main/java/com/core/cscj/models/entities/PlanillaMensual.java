@@ -2,7 +2,10 @@ package com.core.cscj.models.entities;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -36,6 +39,12 @@ public class PlanillaMensual implements Serializable, Comparable<PlanillaMensual
 
     @OneToMany(mappedBy="planillaMensual")
     private Set<Capacidad> capacidades;
+
+    @OneToMany(mappedBy="planillaMensual")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<IndicadoresAlumno> indicadoresAlumnos;
 
     @ManyToOne
     @JoinColumn(name="asignatura_id")
@@ -95,6 +104,14 @@ public class PlanillaMensual implements Serializable, Comparable<PlanillaMensual
 
     public void setCapacidades(Set<Capacidad> capacidades) {
         this.capacidades = capacidades;
+    }
+
+    public Set<IndicadoresAlumno> getIndicadoresAlumnos() {
+        return indicadoresAlumnos;
+    }
+
+    public void setIndicadoresAlumnos(Set<IndicadoresAlumno> indicadoresAlumnos) {
+        this.indicadoresAlumnos = indicadoresAlumnos;
     }
 
     public Asignatura getAsignatura() {
