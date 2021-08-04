@@ -8,12 +8,12 @@ import java.util.List;
 
 public class PlanillasMensualesResponse implements Serializable {
     private Asignatura asignatura;
-    private List<PlanillaMensual> planillasMensuales;
+    private List<PlanillaMensualResponse> planillasMensuales;
 
     public PlanillasMensualesResponse() {
     }
 
-    public PlanillasMensualesResponse(Asignatura asignatura, List<PlanillaMensual> planillasMensuales) {
+    public PlanillasMensualesResponse(Asignatura asignatura, List<PlanillaMensualResponse> planillasMensuales) {
         this.asignatura = asignatura;
         this.planillasMensuales = planillasMensuales;
     }
@@ -26,11 +26,11 @@ public class PlanillasMensualesResponse implements Serializable {
         this.asignatura = asignatura;
     }
 
-    public List<PlanillaMensual> getPlanillasMensuales() {
+    public List<PlanillaMensualResponse> getPlanillasMensuales() {
         return planillasMensuales;
     }
 
-    public void setPlanillasMensuales(List<PlanillaMensual> planillasMensuales) {
+    public void setPlanillasMensuales(List<PlanillaMensualResponse> planillasMensuales) {
         this.planillasMensuales = planillasMensuales;
     }
 }

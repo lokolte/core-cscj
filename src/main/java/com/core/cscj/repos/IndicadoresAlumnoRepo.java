@@ -12,7 +12,7 @@ public interface IndicadoresAlumnoRepo extends JpaRepository<IndicadoresAlumno, 
     @Query("select ia from IndicadoresAlumno ia where ia.indicador.id = :idIndicador")
     List<IndicadoresAlumno> findAllIndicadoresAlumnoByIdIndicador(@Param("idIndicador") Integer idIndicador);
 
-    @Query("select ia from IndicadoresAlumno ia where ia.planillaMensual.id = :idPlanillMensual and ia.alumno.id = :idAlumno")
+    @Query("select ia from IndicadoresAlumno ia where ia.planillaMensual.id = :idPlanillMensual and ia.alumno.id = :idAlumno order by ia.indicador.capacidad.orden, ia.indicador.orden")
     List<IndicadoresAlumno> findAllIndicadoresAlumnoByFromPlanillaMensualAndAlumno(
             @Param("idPlanillMensual") Integer idPlanillMensual,
             @Param("idAlumno") Integer idAlumno);

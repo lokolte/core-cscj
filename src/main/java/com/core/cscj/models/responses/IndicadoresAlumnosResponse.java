@@ -1,20 +1,19 @@
 package com.core.cscj.models.responses;
 
 import com.core.cscj.models.entities.Asignatura;
-import com.core.cscj.models.entities.PlanillaMensual;
 
 import java.io.Serializable;
 import java.util.List;
 
 public class IndicadoresAlumnosResponse implements Serializable {
     private Asignatura asignatura;
-    private PlanillaMensual planillaMensual;
+    private PlanillaMensualResponse planillaMensual;
     private List<AlumnoIndicadorResponse> alumnos;
 
     public IndicadoresAlumnosResponse() {
     }
 
-    public IndicadoresAlumnosResponse(Asignatura asignatura, PlanillaMensual planillaMensual, List<AlumnoIndicadorResponse> alumnos) {
+    public IndicadoresAlumnosResponse(Asignatura asignatura, PlanillaMensualResponse planillaMensual, List<AlumnoIndicadorResponse> alumnos) {
         this.asignatura = asignatura;
         this.planillaMensual = planillaMensual;
         this.alumnos = alumnos;
@@ -28,11 +27,11 @@ public class IndicadoresAlumnosResponse implements Serializable {
         this.asignatura = asignatura;
     }
 
-    public PlanillaMensual getPlanillaMensual() {
+    public PlanillaMensualResponse getPlanillaMensual() {
         return planillaMensual;
     }
 
-    public void setPlanillaMensual(PlanillaMensual planillaMensual) {
+    public void setPlanillaMensual(PlanillaMensualResponse planillaMensual) {
         this.planillaMensual = planillaMensual;
     }
 

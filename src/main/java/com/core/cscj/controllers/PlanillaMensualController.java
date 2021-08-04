@@ -2,10 +2,10 @@ package com.core.cscj.controllers;
 
 import com.core.cscj.models.requests.IndicadoresAlumnosRequest;
 import com.core.cscj.models.responses.IndicadoresAlumnosResponse;
+import com.core.cscj.models.responses.PlanillaMensualResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.core.cscj.models.entities.PlanillaMensual;
 import com.core.cscj.services.PlanillaService;
 
 @RestController
@@ -15,7 +15,7 @@ public class PlanillaMensualController {
     private PlanillaService planillaService;
 
     @GetMapping(value="/{idPlanillaMensual}")
-    public PlanillaMensual getPlanillaMensual(@PathVariable("idPlanillaMensual") Integer idPlanillaMensual) {
+    public PlanillaMensualResponse getPlanillaMensual(@PathVariable("idPlanillaMensual") Integer idPlanillaMensual) {
         return planillaService.findPlanillaMensual(idPlanillaMensual);
     }
 
