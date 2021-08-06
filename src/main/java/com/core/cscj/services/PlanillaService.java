@@ -31,8 +31,57 @@ public class PlanillaService {
     @Autowired
     private CursoService cursoService;
 
-    private PlanillaMensualResponse createPlanillaMensualResponse(PlanillaMensual planillaMensual) {
+    private IndicadoresAlumnosResponse createIndicadoresAlumnosResponse(PlanillaMensual planillaMensual, List<Person> alumnos) {
+        return new IndicadoresAlumnosResponse(
+                planillaMensual.getAsignatura(),
+                new PlanillaMensualDummyResponse(
+                        planillaMensual.getId(),
+                        planillaMensual.getFecha(),
+                        planillaMensual.getEtapa(),
+                        planillaMensual.getCreationDate(),
+                        planillaMensual.getLastModifiedDate(),
+                        planillaMensual.getCapacidades().stream().map(
+                                capacidad -> new CapacidadResponse(
+                                        capacidad.getId(),
+                                        capacidad.getNombre(),
+                                        capacidad.getOrden(),
+                                        capacidad.getIndicadores().stream().sorted().collect(Collectors.toList()))
+                        ).sorted().collect(Collectors.toList()),
+                        planillaMensual.getAsignatura()
+                ),
+                alumnos.stream().map(
+                        alumno -> new AlumnoIndicadorResponse(
+                                alumno,
+                                indicadoresAlumnoRepo
+                                        .findAllIndicadoresAlumnoByFromPlanillaMensualAndAlumno(
+                                                planillaMensual.getId(),
+                                                alumno.getId()
+                                        )
+                        )
+                ).collect(Collectors.toList())
+        );
+    }
+
+    private PlanillaMensualResponse createPlanillaMensualResponse(PlanillaMensual planillaMensual, List<Person> alumnos) {
         return new PlanillaMensualResponse(
+                planillaMensual.getId(),
+                planillaMensual.getFecha(),
+                planillaMensual.getEtapa(),
+                planillaMensual.getCreationDate(),
+                planillaMensual.getLastModifiedDate(),
+                planillaMensual.getCapacidades().stream().map(
+                        capacidad -> new CapacidadResponse(
+                                capacidad.getId(),
+                                capacidad.getNombre(),
+                                capacidad.getOrden(),
+                                capacidad.getIndicadores().stream().sorted().collect(Collectors.toList()))
+                ).sorted().collect(Collectors.toList()),
+                planillaMensual.getAsignatura(),
+                createIndicadoresAlumnosResponse(planillaMensual, alumnos));
+    }
+
+    private PlanillaMensualDummyResponse createPlanillaMensualDummyResponse(PlanillaMensual planillaMensual) {
+        return new PlanillaMensualDummyResponse(
                 planillaMensual.getId(),
                 planillaMensual.getFecha(),
                 planillaMensual.getEtapa(),
@@ -53,8 +102,10 @@ public class PlanillaService {
 
         if(!asignatura.isPresent()) return new PlanillasMensualesResponse();
 
+        List<Person> alumnos = cursoService.findAllAlumnos(asignatura.get().getCurso().getId());
+
         List<PlanillaMensualResponse> planillasMensualesResponse = asignatura.get().getPlanillasMensuales().stream().map(
-                this::createPlanillaMensualResponse
+                planillaMensual -> createPlanillaMensualResponse(planillaMensual, alumnos)
         ).sorted().collect(Collectors.toList());
 
         return new PlanillasMensualesResponse(asignatura.get(), planillasMensualesResponse);
@@ -69,7 +120,7 @@ public class PlanillaService {
 
         return new IndicadoresAlumnosResponse(
                 planillaMensualOptional.get().getAsignatura(),
-                createPlanillaMensualResponse(planillaMensualOptional.get()),
+                createPlanillaMensualDummyResponse(planillaMensualOptional.get()),
                 alumnos.stream().map(
                         alumno -> new AlumnoIndicadorResponse(
                                 alumno,
@@ -83,12 +134,12 @@ public class PlanillaService {
         );
     }
 
-    public PlanillaMensualResponse findPlanillaMensual(Integer idPlanillaMensual){
+    public PlanillaMensualDummyResponse findPlanillaMensual(Integer idPlanillaMensual){
         Optional<PlanillaMensual> planillaMensual = planillaMensualRepo.findById(idPlanillaMensual);
 
-        if(!planillaMensual.isPresent()) return new PlanillaMensualResponse();
+        if(!planillaMensual.isPresent()) return new PlanillaMensualDummyResponse();
 
-        return createPlanillaMensualResponse(planillaMensual.get());
+        return createPlanillaMensualDummyResponse(planillaMensual.get());
     }
 
     public PlanillaMensual upsertPlanillaMensual(Integer idAsignatura, PlanillaMensual planillaMensual) {
@@ -294,7 +345,7 @@ public class PlanillaService {
 
         return new IndicadoresAlumnosResponse(
                 indicadoresAlumnosRequest.getAsignatura(),
-                createPlanillaMensualResponse(indicadoresAlumnosRequest.getPlanillaMensual()),
+                createPlanillaMensualDummyResponse(indicadoresAlumnosRequest.getPlanillaMensual()),
                 indicadoresAlumnosRequest.getAlumnos().stream().map(
                         alumnoIndicadorRequest -> new AlumnoIndicadorResponse(
                                 alumnoIndicadorRequest.getAlumno(),

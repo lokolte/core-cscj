@@ -7,13 +7,13 @@ import java.util.List;
 
 public class IndicadoresAlumnosResponse implements Serializable {
     private Asignatura asignatura;
-    private PlanillaMensualResponse planillaMensual;
+    private PlanillaMensualDummyResponse planillaMensual;
     private List<AlumnoIndicadorResponse> alumnos;
 
     public IndicadoresAlumnosResponse() {
     }
 
-    public IndicadoresAlumnosResponse(Asignatura asignatura, PlanillaMensualResponse planillaMensual, List<AlumnoIndicadorResponse> alumnos) {
+    public IndicadoresAlumnosResponse(Asignatura asignatura, PlanillaMensualDummyResponse planillaMensual, List<AlumnoIndicadorResponse> alumnos) {
         this.asignatura = asignatura;
         this.planillaMensual = planillaMensual;
         this.alumnos = alumnos;
@@ -27,11 +27,11 @@ public class IndicadoresAlumnosResponse implements Serializable {
         this.asignatura = asignatura;
     }
 
-    public PlanillaMensualResponse getPlanillaMensual() {
+    public PlanillaMensualDummyResponse getPlanillaMensual() {
         return planillaMensual;
     }
 
-    public void setPlanillaMensual(PlanillaMensualResponse planillaMensual) {
+    public void setPlanillaMensual(PlanillaMensualDummyResponse planillaMensual) {
         this.planillaMensual = planillaMensual;
     }
 

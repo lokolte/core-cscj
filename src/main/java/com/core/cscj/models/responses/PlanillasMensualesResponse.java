@@ -1,7 +1,6 @@
 package com.core.cscj.models.responses;
 
 import com.core.cscj.models.entities.Asignatura;
-import com.core.cscj.models.entities.PlanillaMensual;
 
 import java.io.Serializable;
 import java.util.List;

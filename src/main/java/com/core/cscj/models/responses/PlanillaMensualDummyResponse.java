@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
-public class PlanillaMensualResponse implements Serializable, Comparable<PlanillaMensualResponse>  {
+public class PlanillaMensualDummyResponse implements Serializable, Comparable<PlanillaMensualResponse>  {
     private Integer id;
 
     private Timestamp fecha;
@@ -21,12 +21,10 @@ public class PlanillaMensualResponse implements Serializable, Comparable<Planill
 
     private Asignatura asignatura;
 
-    private IndicadoresAlumnosResponse indicadoresAlumnos;
-
-    public PlanillaMensualResponse() {
+    public PlanillaMensualDummyResponse() {
     }
 
-    public PlanillaMensualResponse(Integer id, Timestamp fecha, String etapa, Timestamp creationDate, Timestamp lastModifiedDate, List<CapacidadResponse> capacidades, Asignatura asignatura, IndicadoresAlumnosResponse indicadoresAlumnos) {
+    public PlanillaMensualDummyResponse(Integer id, Timestamp fecha, String etapa, Timestamp creationDate, Timestamp lastModifiedDate, List<CapacidadResponse> capacidades, Asignatura asignatura) {
         this.id = id;
         this.fecha = fecha;
         this.etapa = etapa;
@@ -34,7 +32,6 @@ public class PlanillaMensualResponse implements Serializable, Comparable<Planill
         this.lastModifiedDate = lastModifiedDate;
         this.capacidades = capacidades;
         this.asignatura = asignatura;
-        this.indicadoresAlumnos = indicadoresAlumnos;
     }
 
     @Override
@@ -96,13 +93,5 @@ public class PlanillaMensualResponse implements Serializable, Comparable<Planill
 
     public void setAsignatura(Asignatura asignatura) {
         this.asignatura = asignatura;
-    }
-
-    public IndicadoresAlumnosResponse getIndicadoresAlumnos() {
-        return indicadoresAlumnos;
-    }
-
-    public void setIndicadoresAlumnos(IndicadoresAlumnosResponse indicadoresAlumnos) {
-        this.indicadoresAlumnos = indicadoresAlumnos;
     }
 }
