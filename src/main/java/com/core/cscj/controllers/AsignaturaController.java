@@ -4,11 +4,9 @@ import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.Actividad;
 import com.core.cscj.models.entities.*;
 import com.core.cscj.models.requests.EvaluacionRequest;
-import com.core.cscj.models.responses.ActividadResponse;
-import com.core.cscj.models.responses.EvaluacionResponse;
-import com.core.cscj.models.responses.PlanillasMensualesResponse;
-import com.core.cscj.models.responses.RespuestasAsignaturaResponse;
+import com.core.cscj.models.responses.*;
 import com.core.cscj.services.AsignaturaService;
+import com.core.cscj.services.CalificacionService;
 import com.core.cscj.services.EvaluacionService;
 import com.core.cscj.services.PlanillaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +28,9 @@ public class AsignaturaController {
     private PlanillaService planillaService;
 
     @Autowired
+    private CalificacionService calificacionService;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @GetMapping(value="/{idAsignatura}")
@@ -45,6 +46,11 @@ public class AsignaturaController {
     @GetMapping(value="/{idAsignatura}/planillasmensuales")
     public PlanillasMensualesResponse getAllPlanillasMensualesFromAsignatura(@PathVariable("idAsignatura") Integer idAsignatura) {
         return planillaService.finAllPlanillasMensualesFromAsignatura(idAsignatura);
+    }
+
+    @GetMapping(value="/{idAsignatura}/calificaciones")
+    public CalificacionesResponse getAllCalificacionesFromAsignatura(@RequestHeader("Authorization") String authorization, @PathVariable("idAsignatura") Integer idAsignatura) {
+        return calificacionService.findAllCalificacionesFromAsignatura(idAsignatura);
     }
 
     @PostMapping(value="/{idAsignatura}/clases")

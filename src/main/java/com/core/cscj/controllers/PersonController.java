@@ -2,6 +2,7 @@ package com.core.cscj.controllers;
 
 import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.entities.Asignatura;
+import com.core.cscj.models.entities.Calificacion;
 import com.core.cscj.models.entities.Person;
 import com.core.cscj.models.responses.*;
 import com.core.cscj.services.*;
@@ -27,6 +28,9 @@ public class PersonController {
 
     @Autowired
     private EvaluacionService evaluacionService;
+
+    @Autowired
+    private CalificacionService calificacionService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -56,5 +60,10 @@ public class PersonController {
     @GetMapping(value="/{idAlumno}/evaluaciones")
     public List<RespuestaResponse> getAllRespuestasFromEvaluacion(@RequestHeader("Authorization") String authorization, @PathVariable("idAlumno") Integer idAlumno) {
         return evaluacionService.findAllEvaluacionesAndRespuestasFromAlumno(jwtUtil.getDocumentFromJwtToken(authorization), idAlumno);
+    }
+
+    @GetMapping(value="/{idAlumno}/calificaciones")
+    public List<Calificacion> getAllCalificacionesFromAlumno(@RequestHeader("Authorization") String authorization, @PathVariable("idAlumno") Integer idAlumno) {
+        return calificacionService.finAllCalificacionesFromAlumno(jwtUtil.getDocumentFromJwtToken(authorization), idAlumno);
     }
 }

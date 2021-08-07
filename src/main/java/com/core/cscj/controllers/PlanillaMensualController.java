@@ -3,7 +3,6 @@ package com.core.cscj.controllers;
 import com.core.cscj.models.requests.IndicadoresAlumnosRequest;
 import com.core.cscj.models.responses.IndicadoresAlumnosResponse;
 import com.core.cscj.models.responses.PlanillaMensualDummyResponse;
-import com.core.cscj.models.responses.PlanillaMensualResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
