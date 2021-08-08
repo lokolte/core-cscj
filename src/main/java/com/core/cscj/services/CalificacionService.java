@@ -117,7 +117,7 @@ public class CalificacionService {
 
         List<Curso> cursos = cursoRepo.findAll();
 
-        if(withInicial)
+        if(!withInicial)
             cursos = cursos.stream().filter(
                     curso -> curso.getNivel() != 0
             ).collect(Collectors.toList());
