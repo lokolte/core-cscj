@@ -81,7 +81,7 @@ public class CalificacionService {
         calificacionStored.setNota(calificacion.getNota());
         calificacionStored.setObservacion(calificacion.getObservacion());
 
-        return calificacionRepo.save(calificacion);
+        return calificacionRepo.save(calificacionStored);
     }
 
     public void initializeCalificacionesFromAsignaturas(Integer etapa, Boolean withInicial, Boolean onlyInicial) {
