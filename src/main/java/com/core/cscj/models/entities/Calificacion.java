@@ -1,18 +1,9 @@
 package com.core.cscj.models.entities;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.Set;
 import javax.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import jdk.jfr.events.CertificateId;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 @Entity
 @Table(name="calificacion")

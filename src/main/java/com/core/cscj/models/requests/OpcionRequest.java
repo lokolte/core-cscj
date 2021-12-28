@@ -6,14 +6,16 @@ public class OpcionRequest implements Serializable {
     private String texto;
     private Boolean principal;
     private Integer orden;
+    private Boolean correcta;
 
     public OpcionRequest() {
     }
 
-    public OpcionRequest(Boolean principal, Integer orden, String texto) {
+    public OpcionRequest(Boolean principal, Integer orden, String texto, Boolean correcta) {
         this.texto = texto;
         this.principal = principal;
         this.orden = orden;
+        this.correcta = correcta;
     }
 
     public String getTexto() {
@@ -38,5 +40,13 @@ public class OpcionRequest implements Serializable {
 
     public void setOrden(Integer orden) {
         this.orden = orden;
+    }
+
+    public Boolean getCorrecta() {
+        return correcta;
+    }
+
+    public void setCorrecta(Boolean correcta) {
+        this.correcta = correcta;
     }
 }

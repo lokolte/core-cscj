@@ -308,6 +308,7 @@ public class EvaluacionService {
         opcionToStore.setTexto(opcionRequest.getTexto());
         opcionToStore.setPrincipal(opcionRequest.getPrincipal());
         opcionToStore.setOrden(opcionRequest.getOrden());
+        opcionToStore.setCorrecta(opcionRequest.getCorrecta());
 
         Opcion opcionStored = opcionRepo.save(opcionToStore);
 
