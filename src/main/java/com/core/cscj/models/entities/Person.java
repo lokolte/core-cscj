@@ -5,12 +5,14 @@ import java.sql.Timestamp;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -86,6 +88,18 @@ public class Person implements Serializable {
 	@EqualsAndHashCode.Exclude
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private Set<Respuesta> respuestas;
+
+	@OneToMany(mappedBy = "alumno")
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Set<IndicadoresAlumno> indicadoresAlumnos;
+
+	@OneToMany(mappedBy="alumno", fetch = FetchType.LAZY)
+	@ToString.Exclude
+	@EqualsAndHashCode.Exclude
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private Set<Calificacion> calificaciones;
 
 	public Person() {
 	}
@@ -200,5 +214,27 @@ public class Person implements Serializable {
 
 	public void setRespuestas(Set<Respuesta> respuestas) {
 		this.respuestas = respuestas;
+	}
+
+	public Set<IndicadoresAlumno> getIndicadoresAlumnos() {
+		return indicadoresAlumnos;
+	}
+
+	public void setIndicadoresAlumnos(Set<IndicadoresAlumno> indicadoresAlumnos) {
+		this.indicadoresAlumnos = indicadoresAlumnos;
+	}
+
+	public Set<Calificacion> getCalificaciones() {
+		return calificaciones;
+	}
+
+	public void setCalificaciones(Set<Calificacion> calificaciones) {
+		this.calificaciones = calificaciones;
+	}
+
+	public void setCalificacion(Calificacion calificacion) {
+		if(this.calificaciones == null)
+			this.calificaciones = new HashSet<>();
+		this.calificaciones.add(calificacion);
 	}
 }

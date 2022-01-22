@@ -268,4 +268,14 @@ public class AsignaturaService {
                         archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.PLANIFICACION.name(), idPlanificacion), files)
         );
     }
+
+    public void deletePlanificacion(Integer idPlanificacion) {
+        Optional<Planificacion> planificacionStoredOptional = planificacionRepo.findById(idPlanificacion);
+
+        if(!planificacionStoredOptional.isPresent()) return;
+
+        fileStorageService.deleteFiles(Entidades.PLANIFICACION.name(), idPlanificacion, archivosAdjuntosRepo.findArchivosAdjuntosByTipoAndIdEntidad(Entidades.PLANIFICACION.name(), idPlanificacion));
+
+        planificacionRepo.delete(planificacionStoredOptional.get());
+    }
 }

@@ -35,6 +35,9 @@ public class Opcion implements Serializable {
     @Column(nullable=false)
     private Integer orden;
 
+    @Column
+    private Boolean correcta;
+
     @ManyToOne
     @JoinColumn(name="tema_id")
     @EqualsAndHashCode.Exclude
@@ -80,6 +83,14 @@ public class Opcion implements Serializable {
 
     public void setOrden(Integer orden) {
         this.orden = orden;
+    }
+
+    public Boolean getCorrecta() {
+        return correcta;
+    }
+
+    public void setCorrecta(Boolean correcta) {
+        this.correcta = correcta;
     }
 
     public Tema getTema() {

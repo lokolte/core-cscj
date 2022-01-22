@@ -89,4 +89,9 @@ public class ActividadController {
                                              @RequestPart(value = "files", required = false) MultipartFile[] files) {
         return evaluacionService.upsertRespuesta(jwtUtil.getDocumentFromJwtToken(authorization), idEvaluacion, respuestaRequest, files);
     }
+
+    @DeleteMapping(value = "/planificaciones/{idPlanificacion}")
+    public void deletePlanificacion(@PathVariable("idPlanificacion") Integer idPlanificacion) {
+        asignaturaService.deletePlanificacion(idPlanificacion);
+    }
 }

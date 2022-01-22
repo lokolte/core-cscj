@@ -2,16 +2,13 @@ package com.core.cscj.controllers;
 
 import com.core.cscj.authentication.util.JwtUtil;
 import com.core.cscj.models.Actividad;
-import com.core.cscj.models.entities.Asignatura;
-import com.core.cscj.models.entities.Clase;
-import com.core.cscj.models.entities.Planificacion;
-import com.core.cscj.models.entities.Tarea;
+import com.core.cscj.models.entities.*;
 import com.core.cscj.models.requests.EvaluacionRequest;
-import com.core.cscj.models.responses.ActividadResponse;
-import com.core.cscj.models.responses.EvaluacionResponse;
-import com.core.cscj.models.responses.RespuestasAsignaturaResponse;
+import com.core.cscj.models.responses.*;
 import com.core.cscj.services.AsignaturaService;
+import com.core.cscj.services.CalificacionService;
 import com.core.cscj.services.EvaluacionService;
+import com.core.cscj.services.PlanillaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +25,12 @@ public class AsignaturaController {
     private EvaluacionService evaluacionService;
 
     @Autowired
+    private PlanillaService planillaService;
+
+    @Autowired
+    private CalificacionService calificacionService;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @GetMapping(value="/{idAsignatura}")
@@ -38,6 +41,16 @@ public class AsignaturaController {
     @GetMapping(value="/{idAsignatura}/actividades")
     public List<Actividad> getAllActividadesFromAsignatura(@RequestHeader("Authorization") String authorization, @PathVariable("idAsignatura") Integer idAsignatura) {
         return asignaturaService.finAllActividades(idAsignatura, jwtUtil.getDocumentFromJwtToken(authorization));
+    }
+
+    @GetMapping(value="/{idAsignatura}/planillasmensuales")
+    public PlanillasMensualesResponse getAllPlanillasMensualesFromAsignatura(@PathVariable("idAsignatura") Integer idAsignatura) {
+        return planillaService.finAllPlanillasMensualesFromAsignatura(idAsignatura);
+    }
+
+    @GetMapping(value="/{idAsignatura}/calificaciones")
+    public CalificacionesResponse getAllCalificacionesFromAsignatura(@RequestHeader("Authorization") String authorization, @PathVariable("idAsignatura") Integer idAsignatura) {
+        return calificacionService.findAllCalificacionesFromAsignatura(idAsignatura);
     }
 
     @PostMapping(value="/{idAsignatura}/clases")
@@ -66,6 +79,12 @@ public class AsignaturaController {
                                           @RequestPart(value = "evaluacion") EvaluacionRequest evaluacionRequest,
                                           @RequestPart(value = "files", required = false) MultipartFile[] files) {
         return evaluacionService.upsertEvaluacion(idAsignatura, evaluacionRequest, files);
+    }
+
+    @PostMapping(value="/{idAsignatura}/planillasmensuales")
+    public PlanillaMensual upsertPlanillaMensual(@PathVariable("idAsignatura") Integer idAsignatura,
+                                                 @RequestBody PlanillaMensual planillaMensual) {
+        return planillaService.upsertPlanillaMensual(idAsignatura, planillaMensual);
     }
 
     @GetMapping(value="/{idAsignatura}/evaluaciones")

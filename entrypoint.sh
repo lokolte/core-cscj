@@ -1,12 +1,12 @@
 #!/bin/bash
 export JAVA_OPTS="-server \
-          -Xms512m \
-          -XX:MaxGCPauseMillis=1000 \
+          -Xms8g \
+          -XX:MaxGCPauseMillis=2000 \
           -XX:+UseStringDeduplication \
-          -Xmx3072m \
+          -Xmx14g \
           -XX:+UseG1GC \
-          -XX:ConcGCThreads=4 \
-          -XX:ParallelGCThreads=4 \
+          -XX:ConcGCThreads=16 \
+          -XX:ParallelGCThreads=16 \
           -Dpidfile.path=/dev/null"
 
 java $JAVA_OPTS -jar /core/app.jar

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -73,6 +74,18 @@ public class Asignatura implements Serializable, Comparable<Asignatura> {
     @EqualsAndHashCode.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<VideoClase> videoClases;
+
+    @OneToMany(mappedBy="asignatura", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<PlanillaMensual> planillasMensuales;
+
+    @OneToMany(mappedBy="asignatura", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<Calificacion> calificaciones;
 
     public Asignatura() {
     }
@@ -168,5 +181,27 @@ public class Asignatura implements Serializable, Comparable<Asignatura> {
 
     public void setVideoClases(Set<VideoClase> videoClases) {
         this.videoClases = videoClases;
+    }
+
+    public Set<PlanillaMensual> getPlanillasMensuales() {
+        return planillasMensuales;
+    }
+
+    public void setPlanillasMensuales(Set<PlanillaMensual> planillasMensuales) {
+        this.planillasMensuales = planillasMensuales;
+    }
+
+    public Set<Calificacion> getCalificaciones() {
+        return calificaciones;
+    }
+
+    public void setCalificaciones(Set<Calificacion> calificaciones) {
+        this.calificaciones = calificaciones;
+    }
+
+    public void setCalificacion(Calificacion calificacion) {
+        if(this.calificaciones == null)
+            this.calificaciones = new HashSet<>();
+        this.calificaciones.add(calificacion);
     }
 }
